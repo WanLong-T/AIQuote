@@ -1,0 +1,81 @@
+{
+  "name": "@quasar/vite-plugin",
+  "version": "2.0.2",
+  "description": "Vite plugin for Quasar Framework",
+  "keywords": [
+    "quasar",
+    "vite",
+    "vite-plugin",
+    "vue",
+    "vuejs"
+  ],
+  "homepage": "https://quasar.dev",
+  "bugs": "https://github.com/quasarframework/quasar/issues",
+  "license": "MIT",
+  "author": {
+    "name": "Razvan Stoenescu",
+    "email": "razvan.stoenescu@gmail.com",
+    "url": "https://github.com/quasarframework"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/quasarframework/quasar"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://donate.quasar.dev"
+  },
+  "files": [
+    "src",
+    "index.d.ts"
+  ],
+  "type": "module",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./src/index.js"
+    },
+    "./*": "./*"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@vitest/browser-playwright": "^4.1.10",
+    "@vue/test-utils": "^2.4.10",
+    "playwright": "^1.57.0",
+    "pug": "^3.0.4",
+    "vite": "^8.2.1",
+    "vitest": "^4.1.10",
+    "vue": "^3.5.41",
+    "quasar": "2.26.0"
+  },
+  "peerDependencies": {
+    "@vitejs/plugin-vue": "^6.0.5",
+    "quasar": "^2.24.0",
+    "vite": "^8.0.0",
+    "vue": "^3.0.0"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "dev": "node ../ui/build/ensure-fresh-build.js && cd ./playground && pnpm dev",
+    "test": "pnpm test:usage && pnpm test:runtime && pnpm test:runtime:fallback && pnpm test:runtime:dev && pnpm test:runtime:dev:fallback && pnpm test:runtime:default-vars",
+    "test:watch": "vitest run --watch --config ./test/runtime/vitest.config.js",
+    "pretest:usage": "node ../ui/build/ensure-fresh-build.js",
+    "test:usage": "vitest run --config ./test/usage/vitest.config.js",
+    "test:runtime": "vitest run --config ./test/runtime/vitest.config.js",
+    "test:runtime:fallback": "vitest run --config ./test/runtime/vitest-fallback.config.js",
+    "pretest:watch": "node ../ui/build/ensure-fresh-build.js && playwright install chromium",
+    "pretest:runtime": "node ../ui/build/ensure-fresh-build.js && playwright install chromium",
+    "pretest:runtime:fallback": "node ../ui/build/ensure-fresh-build.js && playwright install chromium",
+    "pretest:runtime:dev": "node ../ui/build/ensure-fresh-build.js && playwright install chromium",
+    "test:runtime:dev": "vitest run --config ./test/runtime/vitest-dev.config.js",
+    "pretest:runtime:dev:fallback": "node ../ui/build/ensure-fresh-build.js && playwright install chromium",
+    "test:runtime:dev:fallback": "vitest run --config ./test/runtime/vitest-dev-fallback.config.js",
+    "pretest:runtime:default-vars": "node ../ui/build/ensure-fresh-build.js && playwright install chromium",
+    "test:runtime:default-vars": "vitest run --config ./test/runtime/vitest-default-vars.config.js"
+  }
+}

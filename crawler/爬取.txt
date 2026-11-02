@@ -1,0 +1,2 @@
+cd "D:\工程投标智能决策系统\模块1\项目数据爬虫"
+python ".\江苏\crawl_remaining.py" --pages 20 --include-unknown-deadline

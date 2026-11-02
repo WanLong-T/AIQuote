@@ -1,0 +1,298 @@
+<template>
+  <q-layout view="hHh Lpr lFf" class="app-layout">
+    <!-- 顶部导航 -->
+    <q-header class="top-header">
+      <q-toolbar class="top-toolbar">
+        <q-btn
+          flat
+          round
+          dense
+          icon="menu"
+          color="blue-3"
+          @click="drawerOpen = !drawerOpen"
+        />
+
+        <div class="system-name">
+          工程投标智能决策系统
+        </div>
+
+        <q-space />
+
+        <q-btn flat round icon="search" color="blue-2" />
+        <q-btn flat round icon="notifications_none" color="blue-2">
+          <q-badge color="red" floating>3</q-badge>
+        </q-btn>
+
+        <div class="user-box">
+          <q-avatar size="34px" color="blue-7" text-color="white">
+            管
+          </q-avatar>
+
+          <div class="user-info">
+            <div>管理员</div>
+            <span>投标管理中心</span>
+          </div>
+        </div>
+      </q-toolbar>
+    </q-header>
+
+    <!-- 左侧菜单 -->
+    <q-drawer
+      v-model="drawerOpen"
+      show-if-above
+      :width="238"
+      class="sidebar"
+    >
+      <div class="brand">
+        <div class="brand-icon">
+          <q-icon name="analytics" size="28px" />
+        </div>
+
+        <div>
+          <div class="brand-title">智能投标</div>
+          <div class="brand-en">BIDDING SYSTEM</div>
+        </div>
+      </div>
+
+      <q-scroll-area class="menu-scroll">
+        <q-list padding>
+
+          <div class="menu-group-title">
+            核心业务
+          </div>
+
+          <q-item
+            clickable
+            v-ripple
+            to="/project-map"
+            active-class="menu-active"
+          >
+            <q-item-section avatar>
+              <q-icon name="public" />
+            </q-item-section>
+
+            <q-item-section>
+              项目地图
+            </q-item-section>
+          </q-item>
+
+          <q-item
+            clickable
+            v-ripple
+            to="/cost"
+            active-class="menu-active"
+          >
+            <q-item-section avatar>
+              <q-icon name="calculate" />
+            </q-item-section>
+
+            <q-item-section>
+              AI成本测算
+            </q-item-section>
+          </q-item>
+
+          <q-item
+            clickable
+            v-ripple
+            to="/template"
+            active-class="menu-active"
+          >
+            <q-item-section avatar>
+              <q-icon name="description" />
+            </q-item-section>
+
+            <q-item-section>
+              模板模拟分析
+            </q-item-section>
+          </q-item>
+
+          <q-item
+            clickable
+            v-ripple
+            to="/result"
+            active-class="menu-active"
+          >
+            <q-item-section avatar>
+              <q-icon name="query_stats" />
+            </q-item-section>
+
+            <q-item-section>
+              投标结果分析
+            </q-item-section>
+          </q-item>
+
+          <div class="menu-group-title">
+            数据中心
+          </div>
+
+          <q-item clickable v-ripple>
+            <q-item-section avatar>
+              <q-icon name="folder_open" />
+            </q-item-section>
+            <q-item-section>
+              项目数据库
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable v-ripple>
+            <q-item-section avatar>
+              <q-icon name="groups" />
+            </q-item-section>
+            <q-item-section>
+              竞争对手库
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable v-ripple>
+            <q-item-section avatar>
+              <q-icon name="inventory_2" />
+            </q-item-section>
+            <q-item-section>
+              材料价格库
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable v-ripple>
+            <q-item-section avatar>
+              <q-icon name="settings" />
+            </q-item-section>
+            <q-item-section>
+              系统设置
+            </q-item-section>
+          </q-item>
+
+        </q-list>
+      </q-scroll-area>
+    </q-drawer>
+
+    <!-- 页面主体 -->
+    <q-page-container class="page-container">
+      <router-view />
+    </q-page-container>
+  </q-layout>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const drawerOpen = ref(true)
+</script>
+
+<style scoped lang="scss">
+.app-layout {
+  background:
+    radial-gradient(circle at 70% 10%, #123f7d 0%, transparent 35%),
+    linear-gradient(135deg, #06152f 0%, #071c3d 50%, #06152f 100%);
+  color: white;
+}
+
+.top-header {
+  background: rgba(6, 22, 51, 0.96);
+  border-bottom: 1px solid rgba(61, 151, 255, 0.25);
+  backdrop-filter: blur(12px);
+}
+
+.top-toolbar {
+  height: 64px;
+  padding: 0 22px;
+}
+
+.system-name {
+  margin-left: 15px;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.user-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 14px;
+}
+
+.user-info {
+  font-size: 13px;
+
+  span {
+    font-size: 11px;
+    color: #8198bd;
+  }
+}
+
+.sidebar {
+  background:
+    linear-gradient(180deg, #081d43 0%, #071732 100%);
+  color: #bfd1ec;
+  border-right: 1px solid rgba(68, 148, 255, 0.2);
+}
+
+.brand {
+  height: 82px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(70, 150, 255, 0.15);
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #176fe8, #29b6f6);
+  color: white;
+  box-shadow: 0 0 18px rgba(41, 182, 246, 0.35);
+}
+
+.brand-title {
+  font-size: 17px;
+  font-weight: bold;
+  color: white;
+}
+
+.brand-en {
+  font-size: 9px;
+  margin-top: 3px;
+  color: #6285b9;
+  letter-spacing: 1.5px;
+}
+
+.menu-scroll {
+  height: calc(100vh - 82px);
+}
+
+.menu-group-title {
+  padding: 20px 18px 7px;
+  font-size: 11px;
+  color: #5075a8;
+}
+
+.q-item {
+  min-height: 47px;
+  margin: 4px 10px;
+  border-radius: 7px;
+}
+
+.q-item:hover {
+  background: rgba(45, 132, 255, 0.12);
+  color: white;
+}
+
+.menu-active {
+  color: white;
+  background: linear-gradient(
+    90deg,
+    rgba(32, 123, 255, 0.65),
+    rgba(32, 123, 255, 0.15)
+  );
+  border-left: 3px solid #32b7ff;
+}
+
+.page-container {
+  background: transparent;
+}
+</style>

@@ -1,0 +1,2370 @@
+<template>
+  <q-page class="business-page dashboard-page">
+    <div class="page-title-row dashboard-heading">
+      <div>
+        <div class="page-eyebrow">National project intelligence</div>
+        <h1 class="page-title">全国项目可视化地图</h1>
+        <p class="page-description">聚焦未开标机会、投标截止预警与项目跟踪进度</p>
+      </div>
+      <div class="heading-actions">
+        <div class="status-pill" :class="{ 'status-pill--demo': dataSourceMode !== 'live' }">
+          {{ dataSourceLabel }}
+        </div>
+        <button type="button" class="primary-button" @click="exportLedger">
+          <q-icon name="file_download" size="17px" />导出项目台账
+        </button>
+      </div>
+    </div>
+
+    <section class="filter-bar tech-panel">
+      <label class="search-field">
+        <q-icon name="search" size="18px" />
+        <input
+          v-model.trim="filters.keyword"
+          type="search"
+          placeholder="搜索项目名称、业主单位或责任人"
+        />
+      </label>
+      <label class="filter-field">
+        <span>项目范围</span>
+        <q-select
+          v-model="filters.scope"
+          class="dashboard-select"
+          :options="scopeOptions"
+          emit-value
+          map-options
+          dense
+          outlined
+          options-dense
+          popup-content-class="dashboard-select-popup"
+        />
+      </label>
+      <label class="filter-field">
+        <span>工程类别</span>
+        <q-select
+          v-model="filters.category"
+          class="dashboard-select"
+          :options="categoryOptions"
+          emit-value
+          map-options
+          dense
+          outlined
+          options-dense
+          popup-content-class="dashboard-select-popup"
+        />
+      </label>
+      <label class="filter-field">
+        <span>开标时间</span>
+        <q-select
+          v-model="filters.opening"
+          class="dashboard-select"
+          :options="openingOptions"
+          emit-value
+          map-options
+          dense
+          outlined
+          options-dense
+          popup-content-class="dashboard-select-popup"
+        />
+      </label>
+      <label class="filter-field">
+        <span>项目评级</span>
+        <q-select
+          v-model="filters.rating"
+          class="dashboard-select"
+          :options="ratingOptions"
+          emit-value
+          map-options
+          dense
+          outlined
+          options-dense
+          popup-content-class="dashboard-select-popup"
+        />
+      </label>
+      <label class="filter-field">
+        <span>跟踪状态</span>
+        <q-select
+          v-model="filters.status"
+          class="dashboard-select"
+          :options="statusOptions"
+          emit-value
+          map-options
+          dense
+          outlined
+          options-dense
+          popup-content-class="dashboard-select-popup"
+        />
+      </label>
+      <button type="button" class="filter-button" @click="resetFilters">
+        <q-icon name="restart_alt" />重置
+      </button>
+    </section>
+
+    <div class="metric-grid">
+      <article v-for="item in metrics" :key="item.label" class="metric-card tech-panel">
+        <span class="metric-icon"><q-icon :name="item.icon" size="20px" /></span>
+        <div>
+          <span>{{ item.label }}</span
+          ><strong
+            >{{ item.value }}<small>{{ item.unit }}</small></strong
+          >
+        </div>
+        <em :class="item.tone">{{ item.note }}</em>
+      </article>
+    </div>
+
+    <div class="dashboard-grid">
+      <aside class="tech-panel alert-panel">
+        <div class="panel-heading">
+          <h2 class="panel-title"><q-icon name="notifications_active" />开标/截止预警</h2>
+          <span class="danger-count">{{ urgentProjects.length }}</span>
+        </div>
+        <div class="alert-list">
+          <button
+            v-for="project in urgentProjects"
+            :key="project.id"
+            type="button"
+            class="alert-item"
+            @click="selectedProject = project"
+          >
+            <span class="alert-days" :class="{ critical: project.days <= 3 }"
+              >{{ project.days }}<small>天开标</small></span
+            >
+            <span class="alert-content"
+              ><strong>{{ project.name }}</strong
+              ><em>{{ project.city }} · {{ project.category }}</em></span
+            >
+            <b>{{ project.rating }}</b>
+          </button>
+        </div>
+        <div class="stage-summary">
+          <div class="mini-heading">跟踪阶段分布</div>
+          <div v-for="stage in stages" :key="stage.label" class="stage-row">
+            <span>{{ stage.label }}</span
+            ><i><b :style="{ width: `${stage.value}%` }" /></i><em>{{ stage.count }}</em>
+          </div>
+        </div>
+      </aside>
+
+      <section class="tech-panel map-panel">
+        <div class="panel-heading map-heading">
+          <div class="map-title-group">
+            <button
+              v-if="mapProvider === 'echarts' && mapLevel === 'province'"
+              type="button"
+              class="back-button"
+              @click="resetMap"
+            >
+              <q-icon name="arrow_back" />全国
+            </button>
+            <h2 class="panel-title"><q-icon name="public" />{{ mapTitle }}</h2>
+          </div>
+          <div class="map-switches">
+            <div class="map-provider">
+              <button
+                type="button"
+                :class="{ active: mapProvider === 'echarts' }"
+                @click="mapProvider = 'echarts'"
+              >
+                ECharts
+              </button>
+              <button
+                type="button"
+                :class="{ active: mapProvider === 'amap' }"
+                @click="mapProvider = 'amap'"
+              >
+                高德 GIS
+              </button>
+            </div>
+            <div v-if="mapProvider === 'echarts'" class="map-modes">
+              <button
+                v-for="mode in mapModes"
+                :key="mode.key"
+                type="button"
+                :class="{ active: mapMode === mode.key }"
+                @click="mapMode = mode.key"
+              >
+                {{ mode.label }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="map-body">
+          <div v-show="mapProvider === 'echarts'" ref="mapElement" class="echarts-map" />
+          <AmapProjectMap
+            v-if="mapProvider === 'amap'"
+            :projects="amapProjects"
+            @project-click="handleAmapProjectClick"
+          />
+          <div v-if="mapProvider === 'echarts'" class="map-legend">
+            <span>低</span><i /><span>高</span>
+          </div>
+          <div v-if="mapProvider === 'echarts'" class="map-hint">
+            <q-icon name="ads_click" />点击省份下钻，点击城市查看项目
+          </div>
+          <div v-if="mapProvider === 'echarts' && selectedArea" class="area-card">
+            <div class="area-card__head">
+              <div>
+                <span>当前区域</span><strong>{{ selectedArea }}</strong>
+              </div>
+              <button type="button" aria-label="关闭区域卡片" @click="clearArea">
+                <q-icon name="close" />
+              </button>
+            </div>
+            <div class="area-stats">
+              <div>
+                <span>项目总数</span><b>{{ areaStats.total }}</b>
+              </div>
+              <div>
+                <span>在跟踪</span><b>{{ areaStats.tracked }}</b>
+              </div>
+              <div>
+                <span>待开标</span><b class="danger">{{ areaStats.pending }}</b>
+              </div>
+              <div>
+                <span>总造价</span><b>{{ areaStats.amount }}亿</b>
+              </div>
+            </div>
+            <button type="button" class="area-action" @click="scrollToLedger">
+              查看区域项目卡片 <q-icon name="arrow_forward" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="tech-panel ranking-panel">
+        <div class="panel-heading">
+          <h2 class="panel-title"><q-icon name="leaderboard" />省份造价排行</h2>
+          <span class="panel-meta">单位：亿元</span>
+        </div>
+        <div class="ranking-list">
+          <div
+            v-for="(province, index) in provinceRanking"
+            :key="province.name"
+            class="ranking-row"
+          >
+            <b :class="{ top: index < 3 }">{{ index + 1 }}</b>
+            <div>
+              <span>{{ province.name }}</span
+              ><i><em :style="{ width: `${province.percent}%` }" /></i>
+            </div>
+            <strong>{{ province.amount }}</strong>
+          </div>
+        </div>
+        <div class="rating-block">
+          <div class="mini-heading">ABCD 项目评级</div>
+          <div class="rating-chart">
+            <div class="rating-donut" :style="ratingDonutStyle">
+              <span
+                ><strong>{{ opportunityProjects.length }}</strong
+                ><small>未开标项目</small></span
+              >
+            </div>
+            <div class="rating-legend">
+              <div v-for="rating in ratingData" :key="rating.grade">
+                <i :class="`grade-${rating.grade.toLowerCase()}`" /><span>{{ rating.grade }}级</span
+                ><b>{{ rating.percent }}%</b>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="lower-grid">
+      <section class="tech-panel trend-panel">
+        <div class="panel-heading">
+          <h2 class="panel-title"><q-icon name="show_chart" />月度开标数量趋势</h2>
+          <div class="chart-legend">
+            <span><i />项目数量</span><span><i />重点项目</span>
+          </div>
+        </div>
+        <div class="trend-chart">
+          <div class="axis-labels">
+            <span>80</span><span>60</span><span>40</span><span>20</span><span>0</span>
+          </div>
+          <svg viewBox="0 0 760 170" preserveAspectRatio="none" aria-label="月度开标趋势图">
+            <defs>
+              <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#168cff" stop-opacity=".36" />
+                <stop offset="1" stop-color="#168cff" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M0 138 L69 120 L138 128 L207 88 L276 101 L345 70 L414 82 L483 46 L552 63 L621 34 L690 52 L760 20 L760 170 L0 170 Z"
+              fill="url(#areaGradient)"
+            />
+            <polyline
+              points="0,138 69,120 138,128 207,88 276,101 345,70 414,82 483,46 552,63 621,34 690,52 760,20"
+              fill="none"
+              stroke="#30c8ff"
+              stroke-width="3"
+            />
+            <polyline
+              points="0,155 69,143 138,149 207,130 276,138 345,116 414,126 483,105 552,113 621,94 690,102 760,78"
+              fill="none"
+              stroke="#507cff"
+              stroke-width="2"
+              stroke-dasharray="5 5"
+            />
+          </svg>
+          <div class="month-labels">
+            <span v-for="month in 12" :key="month">{{ month }}月</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="tech-panel opportunity-panel">
+        <div class="panel-heading">
+          <h2 class="panel-title"><q-icon name="tips_and_updates" />本周重点机会</h2>
+          <span class="panel-meta">AI RECOMMENDATION</span>
+        </div>
+        <div class="opportunity-list">
+          <button
+            v-for="project in topOpportunities"
+            :key="project.id"
+            type="button"
+            @click="selectedProject = project"
+          >
+            <span class="grade-badge">{{ project.rating }}</span>
+            <span
+              ><strong>{{ project.name }}</strong
+              ><em>{{ project.owner }}</em></span
+            >
+            <b>{{ project.amount }}亿</b>
+            <q-icon name="chevron_right" />
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <section ref="ledgerElement" class="tech-panel ledger-panel">
+      <div class="panel-heading">
+        <h2 class="panel-title"><q-icon name="table_view" />{{ ledgerTitle }}</h2>
+        <span class="panel-meta"
+          >当前显示 {{ filteredProjects.length }} 条{{ ledgerRangeLabel }} · 点击项目查看详情</span
+        >
+      </div>
+      <div class="ledger-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>评级</th>
+              <th>项目名称</th>
+              <th>工程类型</th>
+              <th>所属地区</th>
+              <th>业主单位</th>
+              <th>开标倒计时</th>
+              <th>控制价</th>
+              <th>跟踪阶段</th>
+              <th>责任人</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="project in filteredProjects"
+              :key="project.id"
+              @click="selectedProject = project"
+            >
+              <td>
+                <span class="table-grade" :class="`grade-${project.rating.toLowerCase()}`">{{
+                  project.rating
+                }}</span>
+              </td>
+              <td>
+                <strong>{{ project.name }}</strong>
+              </td>
+              <td>{{ project.category }}</td>
+              <td>{{ project.province }} · {{ project.city }}</td>
+              <td>{{ project.owner }}</td>
+              <td>
+                <span :class="{ 'deadline-danger': project.days >= 0 && project.days <= 3 }">{{
+                  countdownLabel(project)
+                }}</span>
+              </td>
+              <td>{{ project.amount }}亿元</td>
+              <td>
+                <span class="stage-tag">{{ project.status }}</span>
+              </td>
+              <td>{{ project.ownerPerson }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div v-if="selectedProject" class="project-overlay" @click.self="selectedProject = null">
+      <article class="project-dialog tech-panel">
+        <div class="dialog-head">
+          <div>
+            <span class="table-grade" :class="`grade-${selectedProject.rating.toLowerCase()}`">{{
+              selectedProject.rating
+            }}</span>
+            <div>
+              <small>项目详情</small>
+              <h2>{{ selectedProject.name }}</h2>
+            </div>
+          </div>
+          <button type="button" aria-label="关闭项目详情" @click="selectedProject = null">
+            <q-icon name="close" />
+          </button>
+        </div>
+        <div class="dialog-grid">
+          <div>
+            <span>工程类型</span><strong>{{ selectedProject.category }}</strong>
+          </div>
+          <div>
+            <span>所属省市</span
+            ><strong>{{ selectedProject.province }} · {{ selectedProject.city }}</strong>
+          </div>
+          <div>
+            <span>业主单位</span><strong>{{ selectedProject.owner }}</strong>
+          </div>
+          <div>
+            <span>招标控制价</span><strong>{{ selectedProject.amount }}亿元</strong>
+          </div>
+          <div>
+            <span>开标日期</span><strong>{{ selectedProject.openDate }}</strong>
+          </div>
+          <div>
+            <span>投标截止日</span><strong>{{ selectedProject.deadline }}</strong>
+          </div>
+          <div>
+            <span>跟踪阶段</span><strong>{{ selectedProject.status }}</strong>
+          </div>
+          <div>
+            <span>跟进责任人</span><strong>{{ selectedProject.ownerPerson }}</strong>
+          </div>
+        </div>
+        <div class="dialog-section">
+          <span>竞争对手</span>
+          <p>{{ selectedProject.competitors }}</p>
+        </div>
+        <div class="dialog-section">
+          <span>最新跟进日志</span>
+          <p>{{ selectedProject.log }}</p>
+        </div>
+        <div class="dialog-actions">
+          <button type="button">更新跟进记录</button><button type="button">进入项目详情</button>
+        </div>
+      </article>
+    </div>
+  </q-page>
+</template>
+
+<script setup lang="ts">
+import AmapProjectMap from '../components/AmapProjectMap.vue';
+import { MapChart } from 'echarts/charts';
+import { GeoComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
+import * as echarts from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
+import type { AmapProjectPoint } from '../types/map';
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+
+echarts.use([MapChart, GeoComponent, TooltipComponent, VisualMapComponent, CanvasRenderer]);
+
+type MapMode = 'count' | 'tracking' | 'rating';
+type MapLevel = 'country' | 'province';
+type MapProvider = 'echarts' | 'amap';
+
+interface Project {
+  id: number;
+  name: string;
+  category: string;
+  province: string;
+  city: string;
+  lng: number;
+  lat: number;
+  owner: string;
+  days: number;
+  amount: number;
+  rating: 'A' | 'B' | 'C' | 'D';
+  status: string;
+  ownerPerson: string;
+  openDate: string;
+  deadline: string;
+  competitors: string;
+  log: string;
+}
+
+interface ProvinceDatum {
+  name: string;
+  adcode: string;
+  count: number;
+  tracked: number;
+  pending: number;
+  amount: number;
+  rating: number;
+}
+
+interface GeoFeature {
+  properties?: { name?: string; adcode?: string | number };
+}
+interface GeoJson {
+  features?: GeoFeature[];
+}
+
+const mapElement = ref<HTMLDivElement | null>(null);
+const ledgerElement = ref<HTMLElement | null>(null);
+const mapProvider = ref<MapProvider>('echarts');
+const mapMode = ref<MapMode>('count');
+const mapLevel = ref<MapLevel>('country');
+const activeMapName = ref('china');
+const selectedProvince = ref<ProvinceDatum | null>(null);
+const selectedCity = ref('');
+const selectedProject = ref<Project | null>(null);
+let mapChart: echarts.ECharts | null = null;
+let resizeObserver: ResizeObserver | null = null;
+
+const filters = ref({
+  keyword: '',
+  scope: 'opportunity',
+  category: '全部',
+  opening: '全部',
+  rating: '全部',
+  status: '全部',
+});
+const scopeOptions = [
+  { label: '未开标机会', value: 'opportunity' },
+  { label: '全部项目（含历史）', value: 'all' },
+];
+const categoryOptions = [
+  { label: '全部类别', value: '全部' },
+  ...['房建工程', '市政工程', '公路工程', '水利工程'].map((value) => ({ label: value, value })),
+];
+const openingOptions = [
+  { label: '全部时段', value: '全部' },
+  ...['7天内', '30天内', '本季度'].map((value) => ({ label: value, value })),
+];
+const ratingOptions = [
+  { label: '全部评级', value: '全部' },
+  ...['A', 'B', 'C', 'D'].map((value) => ({ label: value, value })),
+];
+const statusOptions = [
+  { label: '全部状态', value: '全部' },
+  ...['线索阶段', '初步对接', '资审报名', '标书编制', '已递交', '已开标'].map((value) => ({
+    label: value,
+    value,
+  })),
+];
+const mapModes: { key: MapMode; label: string }[] = [
+  { key: 'count', label: '项目数量' },
+  { key: 'tracking', label: '跟踪深度' },
+  { key: 'rating', label: 'ABCD评级' },
+];
+
+const provinces = reactive<ProvinceDatum[]>([]);
+
+const demoProjects: Project[] = [
+  {
+    id: 1,
+    name: '滨海新区综合产业园总承包工程',
+    category: '房建工程',
+    province: '广东省',
+    city: '深圳市',
+    lng: 114.057868,
+    lat: 22.543099,
+    owner: '深圳产业投资集团',
+    days: 2,
+    amount: 12.8,
+    rating: 'A',
+    status: '标书编制',
+    ownerPerson: '张明',
+    openDate: '2026-10-23',
+    deadline: '2026-10-22',
+    competitors: '中建集团、华南建设、城投建设',
+    log: '已完成技术方案二审，商务报价等待最终确认。',
+  },
+  {
+    id: 2,
+    name: '城市快速路改扩建工程一期',
+    category: '市政工程',
+    province: '江苏省',
+    city: '南京市',
+    lng: 118.796877,
+    lat: 32.060255,
+    owner: '南京城市建设发展有限公司',
+    days: 3,
+    amount: 8.6,
+    rating: 'A',
+    status: '已递交',
+    ownerPerson: '李雪',
+    openDate: '2026-10-24',
+    deadline: '2026-10-23',
+    competitors: '中交集团、江苏路桥',
+    log: '投标文件已递交，等待开标。',
+  },
+  {
+    id: 3,
+    name: '智慧物流枢纽基础设施项目',
+    category: '房建工程',
+    province: '浙江省',
+    city: '杭州市',
+    lng: 120.15507,
+    lat: 30.274084,
+    owner: '浙江智慧物流有限公司',
+    days: 6,
+    amount: 6.3,
+    rating: 'B',
+    status: '标书编制',
+    ownerPerson: '王晨',
+    openDate: '2026-10-27',
+    deadline: '2026-10-26',
+    competitors: '浙江建工、杭州城建',
+    log: '已与业主完成第二轮技术交流。',
+  },
+  {
+    id: 4,
+    name: '省道综合提升改造工程',
+    category: '公路工程',
+    province: '山东省',
+    city: '济南市',
+    lng: 117.120128,
+    lat: 36.652069,
+    owner: '山东交通发展集团',
+    days: 9,
+    amount: 5.7,
+    rating: 'B',
+    status: '资审报名',
+    ownerPerson: '赵峰',
+    openDate: '2026-10-30',
+    deadline: '2026-10-28',
+    competitors: '山东路桥、中铁十四局',
+    log: '资格预审材料准备完成80%。',
+  },
+  {
+    id: 5,
+    name: '区域水环境综合治理项目',
+    category: '水利工程',
+    province: '四川省',
+    city: '成都市',
+    lng: 104.066541,
+    lat: 30.572269,
+    owner: '成都水务投资集团',
+    days: 12,
+    amount: 9.2,
+    rating: 'A',
+    status: '初步对接',
+    ownerPerson: '陈欣',
+    openDate: '2026-11-02',
+    deadline: '2026-10-31',
+    competitors: '中国水电、四川水建',
+    log: '已获取初步设计资料，正在测算施工成本。',
+  },
+  {
+    id: 6,
+    name: '高新区科创中心建设项目',
+    category: '房建工程',
+    province: '湖北省',
+    city: '武汉市',
+    lng: 114.305393,
+    lat: 30.593099,
+    owner: '武汉高科集团',
+    days: 18,
+    amount: 4.8,
+    rating: 'B',
+    status: '线索阶段',
+    ownerPerson: '刘洋',
+    openDate: '2026-11-08',
+    deadline: '2026-11-06',
+    competitors: '中建三局、武汉建工',
+    log: '正在核实招标计划与资金到位情况。',
+  },
+  {
+    id: 7,
+    name: '轨道交通配套市政工程',
+    category: '市政工程',
+    province: '河南省',
+    city: '郑州市',
+    lng: 113.625368,
+    lat: 34.746599,
+    owner: '郑州轨道交通集团',
+    days: 24,
+    amount: 7.5,
+    rating: 'C',
+    status: '初步对接',
+    ownerPerson: '周林',
+    openDate: '2026-11-14',
+    deadline: '2026-11-12',
+    competitors: '中铁工程、中交一公局',
+    log: '竞争激烈，持续评估参与价值。',
+  },
+  {
+    id: 8,
+    name: '沿海防洪能力提升工程',
+    category: '水利工程',
+    province: '福建省',
+    city: '厦门市',
+    lng: 118.089425,
+    lat: 24.479834,
+    owner: '厦门市政集团',
+    days: 30,
+    amount: 3.9,
+    rating: 'C',
+    status: '线索阶段',
+    ownerPerson: '徐静',
+    openDate: '2026-11-20',
+    deadline: '2026-11-18',
+    competitors: '福建水利、中国水电',
+    log: '已录入项目线索，等待公告正式发布。',
+  },
+];
+
+const allProjects = ref<Project[]>([]);
+const dataSourceMode = ref<'live' | 'demo' | 'error'>('demo');
+const projectApiUrl = import.meta.env.QCLI_PROJECT_API_URL?.trim() ?? '';
+const dataSourceLabel = computed(() => {
+  if (dataSourceMode.value === 'live') return '真实数据 · 接口已连接';
+  if (dataSourceMode.value === 'error') return '接口异常 · 当前为演示数据';
+  return '演示数据 · 待接真实接口';
+});
+
+const closedProjectStatuses = new Set(['已开标', '已中标', '未中标', '废标', '流标', '已终止']);
+function isOpportunityProject(project: Project): boolean {
+  return project.days >= 0 && !closedProjectStatuses.has(project.status);
+}
+
+const opportunityProjects = computed(() => allProjects.value.filter(isOpportunityProject));
+const ledgerTitle = computed(() =>
+  filters.value.scope === 'opportunity' ? '未开标机会台账' : '全部项目台账',
+);
+const ledgerRangeLabel = computed(() =>
+  filters.value.scope === 'opportunity' ? '未开标机会' : '项目（含历史）',
+);
+
+const metrics = computed(() => {
+  const projects = opportunityProjects.value;
+  const closingSoon = projects.filter((project) => {
+    const days = daysUntil(project.deadline);
+    return days >= 0 && days <= 7;
+  }).length;
+  const pending = projects.filter((project) => project.days >= 0 && project.days <= 30).length;
+  const totalAmount = projects.reduce((sum, project) => sum + project.amount, 0);
+  const provinceCount = new Set(projects.map((project) => project.province)).size;
+  const aCount = projects.filter((project) => project.rating === 'A').length;
+  const aPercent = projects.length ? Math.round((aCount / projects.length) * 100) : 0;
+  return [
+    {
+      label: '未开标项目',
+      value: String(projects.length),
+      unit: '项',
+      note: `覆盖 ${provinceCount} 个省份`,
+      tone: 'positive',
+      icon: 'dataset',
+    },
+    {
+      label: '7天内投标截止',
+      value: String(closingSoon),
+      unit: '项',
+      note: '优先完成报名与递交',
+      tone: closingSoon ? 'danger' : 'info',
+      icon: 'event_busy',
+    },
+    {
+      label: '30天内待开标',
+      value: String(pending),
+      unit: '项',
+      note: `${projects.filter((project) => project.days >= 0 && project.days <= 3).length}项临近截止`,
+      tone: 'danger',
+      icon: 'alarm',
+    },
+    {
+      label: '机会项目预估总额',
+      value: totalAmount.toFixed(1),
+      unit: '亿元',
+      note: `A级项目占 ${aPercent}%`,
+      tone: 'positive',
+      icon: 'account_balance',
+    },
+  ];
+});
+
+const stageLabels = ['线索阶段', '初步对接', '资审报名', '标书编制', '已递交'];
+const stages = computed(() => {
+  const counts = stageLabels.map(
+    (label) => opportunityProjects.value.filter((project) => project.status === label).length,
+  );
+  const max = Math.max(1, ...counts);
+  return stageLabels.map((label, index) => ({
+    label,
+    count: counts[index] ?? 0,
+    value: Math.round(((counts[index] ?? 0) / max) * 100),
+  }));
+});
+const provinceRanking = computed(() => {
+  const ranked = provinces
+    .filter((item) => item.amount > 0)
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 7);
+  const max = ranked[0]?.amount ?? 1;
+  return ranked.map((item) => ({ ...item, percent: Math.round((item.amount / max) * 100) }));
+});
+const ratingData = computed(() =>
+  (['A', 'B', 'C', 'D'] as const).map((grade) => {
+    const count = opportunityProjects.value.filter((project) => project.rating === grade).length;
+    return {
+      grade,
+      percent: opportunityProjects.value.length
+        ? Math.round((count / opportunityProjects.value.length) * 100)
+        : 0,
+    };
+  }),
+);
+const ratingDonutStyle = computed(() => {
+  const [a, b, c] = ratingData.value.map((item) => item.percent);
+  const stopA = a ?? 0;
+  const stopB = stopA + (b ?? 0);
+  const stopC = stopB + (c ?? 0);
+  return {
+    background: `conic-gradient(#28c6f2 0 ${stopA}%, #357ff0 ${stopA}% ${stopB}%, #f6b947 ${stopB}% ${stopC}%, #f15b78 ${stopC}% 100%)`,
+  };
+});
+const urgentProjects = computed(() =>
+  opportunityProjects.value.filter((project) => project.days >= 0 && project.days <= 9),
+);
+const topOpportunities = computed(() =>
+  opportunityProjects.value.filter((project) => project.rating === 'A').slice(0, 3),
+);
+
+const filteredProjects = computed(() =>
+  allProjects.value.filter((project) => {
+    const scopeMatch =
+      filters.value.scope === 'all' ||
+      (filters.value.scope === 'opportunity' && isOpportunityProject(project));
+    const keyword = filters.value.keyword.toLowerCase();
+    const keywordMatch =
+      !keyword ||
+      `${project.name}${project.owner}${project.ownerPerson}`.toLowerCase().includes(keyword);
+    const categoryMatch =
+      filters.value.category === '全部' || project.category === filters.value.category;
+    const ratingMatch = filters.value.rating === '全部' || project.rating === filters.value.rating;
+    const statusMatch = filters.value.status === '全部' || project.status === filters.value.status;
+    const openingMatch =
+      filters.value.opening === '全部' ||
+      (filters.value.opening === '7天内' && project.days >= 0 && project.days <= 7) ||
+      (filters.value.opening === '30天内' && project.days >= 0 && project.days <= 30) ||
+      filters.value.opening === '本季度';
+    return (
+      scopeMatch && keywordMatch && categoryMatch && ratingMatch && statusMatch && openingMatch
+    );
+  }),
+);
+
+const amapProjects = computed<AmapProjectPoint[]>(() =>
+  filteredProjects.value.map(({ id, name, lng, lat, amount, rating, city, status }) => ({
+    id,
+    name,
+    lng,
+    lat,
+    amount,
+    rating,
+    city,
+    status,
+  })),
+);
+
+const mapTitle = computed(() => {
+  if (mapProvider.value === 'amap') return '高德 GIS 项目分布';
+  return mapLevel.value === 'country'
+    ? '全国项目热力分布'
+    : `${selectedProvince.value?.name ?? ''}地级市项目分布`;
+});
+const selectedArea = computed(() => selectedCity.value || selectedProvince.value?.name || '');
+const areaStats = computed(() => {
+  const province = selectedProvince.value;
+  const projects = filteredProjects.value;
+  return province
+    ? {
+        total: province.count,
+        tracked: province.tracked,
+        pending: province.pending,
+        amount: province.amount,
+      }
+    : {
+        total: projects.length,
+        tracked: projects.filter(isOpportunityProject).length,
+        pending: projects.filter((project) => project.days >= 0 && project.days <= 30).length,
+        amount: Number(projects.reduce((sum, project) => sum + project.amount, 0).toFixed(1)),
+      };
+});
+
+function isProject(value: unknown): value is Project {
+  if (!value || typeof value !== 'object') return false;
+  const item = value as Partial<Project>;
+  return (
+    typeof item.id === 'number' &&
+    typeof item.name === 'string' &&
+    typeof item.category === 'string' &&
+    typeof item.province === 'string' &&
+    typeof item.city === 'string' &&
+    typeof item.lng === 'number' &&
+    Number.isFinite(item.lng) &&
+    typeof item.lat === 'number' &&
+    Number.isFinite(item.lat) &&
+    typeof item.owner === 'string' &&
+    typeof item.days === 'number' &&
+    typeof item.amount === 'number' &&
+    ['A', 'B', 'C', 'D'].includes(item.rating ?? '') &&
+    typeof item.status === 'string' &&
+    typeof item.ownerPerson === 'string' &&
+    typeof item.openDate === 'string' &&
+    typeof item.deadline === 'string' &&
+    typeof item.competitors === 'string' &&
+    typeof item.log === 'string'
+  );
+}
+
+async function loadProjectData(): Promise<void> {
+  if (!projectApiUrl) {
+    allProjects.value = demoProjects;
+    dataSourceMode.value = 'demo';
+    return;
+  }
+
+  try {
+    const response = await fetch(projectApiUrl, { headers: { Accept: 'application/json' } });
+    if (!response.ok) throw new Error(`项目接口返回 ${response.status}`);
+    const payload = (await response.json()) as unknown;
+    const rawProjects = Array.isArray(payload)
+      ? payload
+      : (payload as { data?: unknown } | null)?.data;
+    if (!Array.isArray(rawProjects)) throw new Error('项目接口数据格式不正确');
+    const projects = rawProjects.filter(isProject);
+    if (!projects.length && rawProjects.length) throw new Error('项目数据缺少必要字段');
+    allProjects.value = projects;
+    dataSourceMode.value = 'live';
+  } catch (error) {
+    console.error('加载真实项目数据失败：', error);
+    allProjects.value = demoProjects;
+    dataSourceMode.value = 'error';
+  }
+}
+
+function buildProvinceDatum(name: string, adcode: string): ProvinceDatum {
+  const projects = filteredProjects.value.filter((project) => project.province === name);
+  const ratingScore = { A: 100, B: 75, C: 50, D: 20 } as const;
+  const rating = projects.length
+    ? Math.round(
+        projects.reduce((sum, project) => sum + ratingScore[project.rating], 0) / projects.length,
+      )
+    : 0;
+  return {
+    name,
+    adcode,
+    count: projects.length,
+    tracked: projects.filter(isOpportunityProject).length,
+    pending: projects.filter((project) => project.days >= 0 && project.days <= 30).length,
+    amount: Number(projects.reduce((sum, project) => sum + project.amount, 0).toFixed(1)),
+    rating,
+  };
+}
+
+function metricValue(item: ProvinceDatum): number {
+  if (mapMode.value === 'tracking') return item.tracked;
+  if (mapMode.value === 'rating') return item.rating;
+  return item.count;
+}
+
+function renderMap(
+  mapName = activeMapName.value,
+  cityData?: { name: string; value: number }[],
+): void {
+  if (!mapChart) return;
+  const data = cityData ?? provinces.map((item) => ({ name: item.name, value: metricValue(item) }));
+  mapChart.setOption(
+    {
+      animationDuration: 700,
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: 'rgba(3, 22, 54, .96)',
+        borderColor: 'rgba(66, 190, 255, .55)',
+        borderWidth: 1,
+        textStyle: { color: '#dff5ff', fontSize: 14, lineHeight: 22 },
+        extraCssText: 'box-shadow:0 12px 30px rgba(0,0,0,.35);border-radius:5px;',
+        formatter: (params: { name: string; value?: number }) => {
+          const province =
+            provinces.find((item) => item.name === params.name) ?? selectedProvince.value;
+          if (!province)
+            return `<strong>${params.name}</strong><br/>项目热度：${params.value ?? 0}`;
+          return `<div style="min-width:210px"><b style="font-size:16px;color:#fff">${params.name}</b><div style="margin:9px 0;border-top:1px solid rgba(100,180,255,.2)"></div>项目总数：<b>${province.count}</b> 项<br/>在跟踪项目：<b>${province.tracked}</b> 项<br/>待开标项目：<b style="color:#ff7591">${province.pending}</b> 项<br/>总造价金额：<b>${province.amount}</b> 亿元</div>`;
+        },
+      },
+      visualMap: {
+        show: false,
+        min: 0,
+        max: 100,
+        inRange: { color: ['#0a376d', '#0d6ebd', '#54d8f5'] },
+      },
+      series: [
+        {
+          type: 'map',
+          map: mapName,
+          roam: true,
+          zoom: mapLevel.value === 'country' ? 1.08 : 0.95,
+          data,
+          label: { show: mapLevel.value === 'province', color: '#c3def2', fontSize: 11 },
+          itemStyle: {
+            areaColor: '#0a4383',
+            borderColor: '#2f9ddd',
+            borderWidth: 0.8,
+            shadowColor: 'rgba(20,146,255,.2)',
+            shadowBlur: 8,
+          },
+          emphasis: {
+            label: { show: true, color: '#fff', fontWeight: 600 },
+            itemStyle: {
+              areaColor: '#16a8e4',
+              borderColor: '#72efff',
+              borderWidth: 1.4,
+              shadowColor: '#19baff',
+              shadowBlur: 18,
+            },
+          },
+          select: {
+            label: { color: '#fff' },
+            itemStyle: { areaColor: '#147fe0', borderColor: '#72efff' },
+          },
+        },
+      ],
+    },
+    true,
+  );
+}
+
+async function drillProvince(province: ProvinceDatum): Promise<void> {
+  try {
+    const response = await fetch(`/data/maps/${province.adcode}.json`);
+    if (!response.ok) throw new Error('map data unavailable');
+    const geoJson = (await response.json()) as GeoJson;
+    const mapName = `province-${province.adcode}`;
+    echarts.registerMap(mapName, geoJson as Parameters<typeof echarts.registerMap>[1]);
+    const cities = (geoJson.features ?? []).map((feature, index) => ({
+      name: feature.properties?.name ?? `区域${index + 1}`,
+      value: 12 + ((index * 17 + province.count) % 75),
+    }));
+    selectedProvince.value = province;
+    selectedCity.value = '';
+    mapLevel.value = 'province';
+    activeMapName.value = mapName;
+    renderMap(mapName, cities);
+  } catch {
+    selectedProvince.value = province;
+  }
+}
+
+function resetMap(): void {
+  mapLevel.value = 'country';
+  activeMapName.value = 'china';
+  selectedProvince.value = null;
+  selectedCity.value = '';
+  renderMap('china');
+}
+function clearArea(): void {
+  if (mapLevel.value === 'province') resetMap();
+  else {
+    selectedProvince.value = null;
+    selectedCity.value = '';
+  }
+}
+function daysUntil(date: string): number {
+  const target = new Date(`${date}T23:59:59`);
+  if (Number.isNaN(target.getTime())) return Number.POSITIVE_INFINITY;
+  return Math.ceil((target.getTime() - Date.now()) / 86_400_000);
+}
+function countdownLabel(project: Project): string {
+  return isOpportunityProject(project) ? `${project.days}天` : '已开标';
+}
+function resetFilters(): void {
+  filters.value = {
+    keyword: '',
+    scope: 'opportunity',
+    category: '全部',
+    opening: '全部',
+    rating: '全部',
+    status: '全部',
+  };
+}
+function scrollToLedger(): void {
+  ledgerElement.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function handleAmapProjectClick(point: AmapProjectPoint): void {
+  selectedProject.value = allProjects.value.find((project) => project.id === point.id) ?? null;
+}
+
+function exportLedger(): void {
+  const headers = [
+    '评级',
+    '项目名称',
+    '工程类型',
+    '省份',
+    '城市',
+    '业主单位',
+    '开标日期',
+    '投标截止日',
+    '控制价(亿元)',
+    '跟踪阶段',
+    '责任人',
+  ];
+  const rows = filteredProjects.value.map((item) => [
+    item.rating,
+    item.name,
+    item.category,
+    item.province,
+    item.city,
+    item.owner,
+    item.openDate,
+    item.deadline,
+    item.amount,
+    item.status,
+    item.ownerPerson,
+  ]);
+  const table = [headers, ...rows]
+    .map(
+      (row) =>
+        `<Row>${row.map((cell) => `<Cell><Data ss:Type="String">${String(cell).replace(/[<>&]/g, '')}</Data></Cell>`).join('')}</Row>`,
+    )
+    .join('');
+  const content = `<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="项目台账"><Table>${table}</Table></Worksheet></Workbook>`;
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(
+    new Blob([content], { type: 'application/vnd.ms-excel;charset=utf-8' }),
+  );
+  link.download = `全国项目台账-${new Date().toISOString().slice(0, 10)}.xls`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+watch(mapMode, () => {
+  if (mapLevel.value === 'country') renderMap('china');
+});
+
+watch(filteredProjects, () => {
+  provinces.forEach((province) => {
+    Object.assign(province, buildProvinceDatum(province.name, province.adcode));
+  });
+  if (mapLevel.value === 'country') renderMap('china');
+});
+
+watch(mapProvider, async (provider) => {
+  if (provider !== 'echarts') return;
+  await nextTick();
+  mapChart?.resize();
+});
+
+onMounted(async () => {
+  await nextTick();
+  await loadProjectData();
+  const response = await fetch('/data/china.json');
+  const geoJson = (await response.json()) as GeoJson;
+  (geoJson.features ?? []).forEach((feature) => {
+    const name = feature.properties?.name;
+    const adcode = String(feature.properties?.adcode ?? '');
+    if (!name || !/^\d{6}$/.test(adcode) || provinces.some((item) => item.name === name)) return;
+    provinces.push(buildProvinceDatum(name, adcode));
+  });
+  echarts.registerMap('china', geoJson as Parameters<typeof echarts.registerMap>[1]);
+  if (!mapElement.value) return;
+  mapChart = echarts.init(mapElement.value);
+  renderMap();
+  mapChart.on('click', (params) => {
+    const areaName = String(params.name ?? '');
+    if (mapLevel.value === 'country') {
+      const province = provinces.find((item) => item.name === areaName);
+      if (province) void drillProvince(province);
+    } else {
+      selectedCity.value = areaName;
+    }
+  });
+  resizeObserver = new ResizeObserver(() => mapChart?.resize());
+  resizeObserver.observe(mapElement.value);
+});
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect();
+  mapChart?.dispose();
+});
+</script>
+
+<style scoped lang="scss">
+.dashboard-page {
+  min-width: 0;
+}
+.dashboard-heading {
+  margin-bottom: 18px;
+}
+.heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.status-pill--demo {
+  color: #ffc86a;
+  border-color: rgb(255 189 79 / 28%);
+}
+.primary-button,
+.filter-button,
+.area-action,
+.dialog-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #f2fbff;
+  background: linear-gradient(180deg, #128eea, #0b5db8);
+  border: 1px solid rgb(75 194 255 / 48%);
+  border-radius: 4px;
+  box-shadow:
+    inset 0 1px rgb(255 255 255 / 11%),
+    0 0 18px rgb(18 126 232 / 14%);
+  font: inherit;
+  cursor: pointer;
+}
+.primary-button {
+  min-height: 34px;
+  padding: 0 14px;
+  font-size: 12px;
+}
+.filter-bar {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 13px 14px;
+  overflow: visible;
+}
+.search-field {
+  display: flex;
+  min-width: 260px;
+  min-height: 37px;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  color: #5595c6;
+  background: rgb(2 23 57 / 52%);
+  border: 1px solid rgb(65 150 222 / 23%);
+  border-radius: 4px;
+}
+.search-field input {
+  width: 100%;
+  color: #d9edff;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font: inherit;
+  font-size: 11px;
+}
+.search-field input::placeholder {
+  color: #4c7196;
+}
+.filter-field {
+  display: grid;
+  min-width: 125px;
+  gap: 5px;
+}
+.filter-field > span {
+  color: #648caf;
+  font-size: 9px;
+}
+.dashboard-select {
+  min-height: 37px;
+  color: #bad4e9;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 11px;
+  color-scheme: dark;
+}
+.dashboard-select :deep(.q-field__control) {
+  min-height: 42px;
+  height: 42px;
+  color: #bad4e9;
+  background: #061f45;
+  border-radius: 4px;
+}
+.dashboard-select :deep(.q-field__control::before) {
+  border-color: rgb(65 150 222 / 23%);
+}
+.dashboard-select :deep(.q-field__native),
+.dashboard-select :deep(.q-field__input),
+.dashboard-select :deep(.q-field__marginal) {
+  min-height: 42px;
+  height: 42px;
+  color: #bad4e9;
+  font-size: 11px;
+}
+.dashboard-select :deep(.q-field__native) {
+  padding: 0 0 0 10px;
+}
+:global(.dashboard-select-popup) {
+  color: #c9def0;
+  background: #0a3768;
+  border: 1px solid rgb(66 174 239 / 38%);
+  border-radius: 3px;
+  box-shadow: 0 12px 30px rgb(0 8 28 / 48%);
+}
+:global(.dashboard-select-popup .q-item) {
+  min-height: 38px;
+  color: #c9def0;
+  font-size: 13px;
+}
+:global(.dashboard-select-popup .q-item:hover:not(.q-item--active)) {
+  background: #0d477e;
+}
+:global(.dashboard-select-popup .q-item--active),
+:global(.dashboard-select-popup .q-item[aria-selected='true']) {
+  color: #fff !important;
+  background: #02142f !important;
+  font-weight: 600;
+}
+:global(.dashboard-select-popup .q-item[aria-selected='false'].q-manual-focusable--focused) {
+  background: #0d477e !important;
+}
+:global(.dashboard-select-popup .q-item .q-focus-helper) {
+  display: none !important;
+}
+.filter-button {
+  min-height: 37px;
+  padding: 0 13px;
+  color: #8db6d7;
+  background: rgb(14 77 139 / 35%);
+  box-shadow: none;
+  font-size: 11px;
+}
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.metric-card {
+  display: grid;
+  min-height: 88px;
+  grid-template-columns: 39px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+}
+.metric-icon {
+  display: grid;
+  width: 39px;
+  height: 39px;
+  place-items: center;
+  color: #67d7ff;
+  background: rgb(21 126 222 / 17%);
+  border: 1px solid rgb(63 178 245 / 24%);
+  border-radius: 5px;
+}
+.metric-card div > span {
+  display: block;
+  color: #739abc;
+  font-size: 10px;
+}
+.metric-card strong {
+  display: block;
+  margin-top: 3px;
+  color: #fff;
+  font-size: 23px;
+  font-weight: 600;
+}
+.metric-card small {
+  margin-left: 3px;
+  color: #769aba;
+  font-size: 10px;
+  font-weight: 400;
+}
+.metric-card em {
+  align-self: end;
+  color: #4f789d;
+  font-size: 9px;
+  font-style: normal;
+}
+.metric-card em.positive {
+  color: #39cda1;
+}
+.metric-card em.danger {
+  color: #ff718b;
+}
+.metric-card em.info {
+  color: #62c9f5;
+}
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 245px minmax(560px, 1fr) 260px;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.alert-panel,
+.ranking-panel,
+.map-panel {
+  min-height: 530px;
+}
+.danger-count {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  color: #ffb2be;
+  background: rgb(237 59 90 / 18%);
+  border: 1px solid rgb(255 103 126 / 26%);
+  border-radius: 50%;
+  font-size: 10px;
+}
+.alert-list {
+  padding: 9px;
+}
+.alert-item {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 40px 1fr 23px;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 7px;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgb(70 143 211 / 11%);
+  text-align: left;
+  cursor: pointer;
+}
+.alert-item:hover {
+  background: rgb(22 115 204 / 12%);
+}
+.alert-days {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-content: center;
+  color: #ffc45f;
+  background: rgb(230 149 29 / 12%);
+  border: 1px solid rgb(255 184 63 / 22%);
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+}
+.alert-days small {
+  font-size: 8px;
+  font-weight: 400;
+}
+.alert-days.critical {
+  color: #ff7189;
+  background: rgb(233 51 87 / 13%);
+  border-color: rgb(255 93 123 / 25%);
+}
+.alert-content {
+  min-width: 0;
+}
+.alert-content strong {
+  display: block;
+  overflow: hidden;
+  color: #cfe6f8;
+  font-size: 10px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.alert-content em {
+  display: block;
+  margin-top: 5px;
+  color: #4f789c;
+  font-size: 8px;
+  font-style: normal;
+}
+.alert-item > b {
+  display: grid;
+  width: 21px;
+  height: 21px;
+  place-items: center;
+  color: #fff;
+  background: #e8465e;
+  border-radius: 3px;
+  font-size: 10px;
+}
+.stage-summary {
+  padding: 7px 16px 16px;
+  border-top: 1px solid rgb(71 148 219 / 12%);
+}
+.mini-heading {
+  margin: 9px 0 13px;
+  color: #91b2cf;
+  font-size: 11px;
+  font-weight: 500;
+}
+.stage-row {
+  display: grid;
+  grid-template-columns: 56px 1fr 20px;
+  align-items: center;
+  gap: 7px;
+  margin: 9px 0;
+  color: #6289aa;
+  font-size: 8px;
+}
+.stage-row > i {
+  height: 4px;
+  overflow: hidden;
+  background: rgb(39 101 158 / 26%);
+  border-radius: 4px;
+}
+.stage-row > i b {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #136fe0, #35d0f4);
+  border-radius: 4px;
+}
+.stage-row em {
+  color: #80a6c5;
+  font-style: normal;
+  text-align: right;
+}
+.map-heading {
+  padding-right: 12px;
+}
+.map-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 7px;
+  color: #72cfff;
+  background: rgb(16 104 190 / 22%);
+  border: 1px solid rgb(65 176 243 / 24%);
+  border-radius: 3px;
+  font: inherit;
+  font-size: 9px;
+  cursor: pointer;
+}
+.map-switches,
+.map-provider,
+.map-modes {
+  display: flex;
+  gap: 5px;
+}
+.map-switches {
+  align-items: center;
+  gap: 8px;
+}
+.map-provider {
+  padding-right: 8px;
+  border-right: 1px solid rgb(67 144 211 / 18%);
+}
+.map-provider button,
+.map-modes button {
+  padding: 6px 9px;
+  color: #6188aa;
+  background: rgb(3 27 63 / 40%);
+  border: 1px solid rgb(62 137 207 / 17%);
+  border-radius: 3px;
+  font: inherit;
+  font-size: 9px;
+  cursor: pointer;
+}
+.map-provider button.active,
+.map-modes button.active {
+  color: #c9f1ff;
+  background: rgb(16 114 215 / 30%);
+  border-color: rgb(60 188 255 / 40%);
+}
+.map-body {
+  position: relative;
+  height: 474px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at center, rgb(14 102 200 / 15%), transparent 57%),
+    linear-gradient(rgb(36 106 179 / 5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(36 106 179 / 5%) 1px, transparent 1px);
+  background-size:
+    auto,
+    30px 30px,
+    30px 30px;
+}
+.echarts-map {
+  width: 100%;
+  height: 100%;
+}
+.map-legend {
+  position: absolute;
+  bottom: 17px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #557d9f;
+  font-size: 8px;
+}
+.map-legend i {
+  width: 75px;
+  height: 5px;
+  background: linear-gradient(90deg, #0a376d, #096db8, #21d0ed);
+  border-radius: 3px;
+}
+.map-hint {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #477497;
+  font-size: 8px;
+}
+.area-card {
+  position: absolute;
+  top: 13px;
+  right: 13px;
+  width: 210px;
+  padding: 13px;
+  background: rgb(3 25 59 / 91%);
+  border: 1px solid rgb(62 181 246 / 29%);
+  border-radius: 5px;
+  box-shadow: 0 12px 30px rgb(0 7 26 / 32%);
+  backdrop-filter: blur(7px);
+}
+.area-card__head {
+  display: flex;
+  justify-content: space-between;
+}
+.area-card__head span {
+  display: block;
+  color: #4d769a;
+  font-size: 8px;
+}
+.area-card__head strong {
+  display: block;
+  margin-top: 3px;
+  color: #edfaff;
+  font-size: 14px;
+  font-weight: 600;
+}
+.area-card__head button {
+  color: #5e86a8;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.area-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 0;
+}
+.area-stats div {
+  padding: 8px;
+  background: rgb(18 79 143 / 20%);
+  border: 1px solid rgb(54 137 208 / 14%);
+}
+.area-stats span {
+  display: block;
+  color: #5f88aa;
+  font-size: 8px;
+}
+.area-stats b {
+  display: block;
+  margin-top: 3px;
+  color: #d9f0ff;
+  font-size: 13px;
+}
+.area-stats b.danger {
+  color: #ff728d;
+}
+.area-action {
+  width: 100%;
+  min-height: 29px;
+  font-size: 9px;
+}
+.ranking-list {
+  padding: 12px 14px 8px;
+}
+.ranking-row {
+  display: grid;
+  grid-template-columns: 22px 1fr 34px;
+  align-items: center;
+  gap: 8px;
+  margin: 13px 0;
+}
+.ranking-row > b {
+  color: #52799c;
+  font-size: 10px;
+}
+.ranking-row > b.top {
+  color: #54d2ff;
+}
+.ranking-row > div span {
+  display: block;
+  color: #a4c0d8;
+  font-size: 9px;
+}
+.ranking-row > div i {
+  display: block;
+  height: 4px;
+  margin-top: 5px;
+  overflow: hidden;
+  background: rgb(34 92 148 / 28%);
+  border-radius: 3px;
+}
+.ranking-row > div em {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #176ce0, #2ed2ee);
+  border-radius: 3px;
+}
+.ranking-row > strong {
+  color: #b9d7eb;
+  font-size: 9px;
+  text-align: right;
+}
+.rating-block {
+  margin: 0 14px;
+  padding-top: 3px;
+  border-top: 1px solid rgb(70 143 211 / 12%);
+}
+.rating-chart {
+  display: grid;
+  grid-template-columns: 108px 1fr;
+  align-items: center;
+  gap: 11px;
+}
+.rating-donut {
+  display: grid;
+  width: 102px;
+  height: 102px;
+  place-items: center;
+  background: conic-gradient(#28c6f2 0 38%, #357ff0 38% 72%, #f6b947 72% 92%, #f15b78 92% 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 22px rgb(25 144 230 / 16%);
+}
+.rating-donut::before {
+  grid-area: 1/1;
+  width: 68px;
+  height: 68px;
+  content: '';
+  background: #082451;
+  border-radius: 50%;
+}
+.rating-donut span {
+  z-index: 1;
+  grid-area: 1/1;
+  text-align: center;
+}
+.rating-donut strong {
+  display: block;
+  color: #fff;
+  font-size: 19px;
+}
+.rating-donut small {
+  color: #5d83a5;
+  font-size: 8px;
+}
+.rating-legend {
+  display: grid;
+  gap: 8px;
+}
+.rating-legend div {
+  display: grid;
+  grid-template-columns: 7px 1fr auto;
+  align-items: center;
+  gap: 6px;
+  color: #789dbb;
+  font-size: 8px;
+}
+.rating-legend i {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+}
+.rating-legend b {
+  color: #bdd7e9;
+  font-weight: 500;
+}
+.grade-a {
+  background: #28c6f2 !important;
+}
+.grade-b {
+  background: #357ff0 !important;
+}
+.grade-c {
+  background: #f6b947 !important;
+}
+.grade-d {
+  background: #f15b78 !important;
+}
+.lower-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 0.8fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.trend-panel,
+.opportunity-panel {
+  min-height: 275px;
+}
+.chart-legend {
+  display: flex;
+  gap: 14px;
+  color: #6388a8;
+  font-size: 8px;
+}
+.chart-legend span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.chart-legend i {
+  width: 14px;
+  height: 2px;
+  background: #30c8ff;
+}
+.chart-legend span:last-child i {
+  background: #507cff;
+}
+.trend-chart {
+  position: relative;
+  height: 220px;
+  padding: 21px 22px 24px 43px;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 41px,
+    rgb(67 132 194 / 10%) 41px 42px
+  );
+}
+.trend-chart svg {
+  width: 100%;
+  height: 166px;
+  overflow: visible;
+}
+.axis-labels {
+  position: absolute;
+  top: 18px;
+  bottom: 28px;
+  left: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #477194;
+  font-size: 8px;
+}
+.month-labels {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  color: #4d7496;
+  font-size: 7px;
+  text-align: center;
+}
+.opportunity-list {
+  padding: 8px 13px;
+}
+.opportunity-list button {
+  display: grid;
+  width: 100%;
+  min-height: 58px;
+  grid-template-columns: 27px 1fr auto 15px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 5px;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgb(72 145 213 / 12%);
+  text-align: left;
+  cursor: pointer;
+}
+.opportunity-list button:hover {
+  background: rgb(22 112 201 / 10%);
+}
+.grade-badge {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  color: #fff;
+  background: #20b9df;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.opportunity-list strong {
+  display: block;
+  overflow: hidden;
+  color: #c8e1f3;
+  font-size: 10px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.opportunity-list em {
+  display: block;
+  margin-top: 4px;
+  color: #4f7598;
+  font-size: 8px;
+  font-style: normal;
+}
+.opportunity-list b {
+  color: #69d5f6;
+  font-size: 10px;
+  font-weight: 500;
+}
+.opportunity-list .q-icon {
+  color: #47799f;
+}
+.ledger-panel {
+  scroll-margin-top: 86px;
+}
+.ledger-scroll {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  min-width: 1080px;
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 12px 13px;
+  border-bottom: 1px solid rgb(67 137 202 / 12%);
+  text-align: left;
+  white-space: nowrap;
+}
+th {
+  color: #668caf;
+  background: rgb(6 33 73 / 35%);
+  font-size: 9px;
+  font-weight: 500;
+}
+td {
+  color: #88a9c5;
+  font-size: 9px;
+}
+td strong {
+  color: #c6dfef;
+  font-weight: 500;
+}
+tbody tr {
+  cursor: pointer;
+  transition: 140ms ease;
+}
+tbody tr:hover {
+  background: rgb(21 107 197 / 13%);
+}
+.table-grade {
+  display: inline-grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  color: #fff;
+  background: #20b9df;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.deadline-danger {
+  color: #ff7089;
+  font-weight: 600;
+}
+.stage-tag {
+  padding: 4px 7px;
+  color: #72caf1;
+  background: rgb(17 111 190 / 18%);
+  border: 1px solid rgb(59 161 226 / 18%);
+  border-radius: 3px;
+}
+.project-overlay {
+  position: fixed;
+  z-index: 7000;
+  inset: 0;
+  display: grid;
+  padding: 30px;
+  place-items: center;
+  background: rgb(0 8 25 / 72%);
+  backdrop-filter: blur(5px);
+}
+.project-dialog {
+  width: min(680px, 100%);
+  max-height: calc(100vh - 60px);
+  padding: 22px;
+  overflow-y: auto;
+}
+.dialog-head,
+.dialog-head > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.dialog-head {
+  justify-content: space-between;
+  padding-bottom: 17px;
+  border-bottom: 1px solid rgb(72 155 225 / 17%);
+}
+.dialog-head small {
+  color: #5882a5;
+  font-size: 9px;
+}
+.dialog-head h2 {
+  margin: 4px 0 0;
+  color: #f2faff;
+  font-size: 18px;
+  font-weight: 600;
+}
+.dialog-head > button {
+  color: #658bab;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.dialog-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin: 16px 0;
+  overflow: hidden;
+  background: rgb(69 145 211 / 13%);
+  border: 1px solid rgb(69 145 211 / 13%);
+  border-radius: 4px;
+}
+.dialog-grid div {
+  padding: 12px 14px;
+  background: #082653;
+}
+.dialog-grid span,
+.dialog-section > span {
+  display: block;
+  color: #5f86a8;
+  font-size: 8px;
+}
+.dialog-grid strong {
+  display: block;
+  margin-top: 5px;
+  color: #c8e1f2;
+  font-size: 11px;
+  font-weight: 500;
+}
+.dialog-section {
+  margin-top: 10px;
+  padding: 13px 14px;
+  background: rgb(6 31 70 / 52%);
+  border: 1px solid rgb(69 145 211 / 12%);
+}
+.dialog-section p {
+  margin: 6px 0 0;
+  color: #a6c2d9;
+  font-size: 10px;
+  line-height: 1.7;
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+.dialog-actions button {
+  min-height: 33px;
+  padding: 0 14px;
+  font-size: 10px;
+}
+
+/* Desktop readability: keep the dense dashboard legible on large screens. */
+.filter-bar {
+  padding: 15px 16px;
+}
+.search-field,
+.dashboard-select,
+.filter-button {
+  min-height: 42px;
+}
+.search-field input,
+.dashboard-select,
+.filter-button {
+  font-size: 13px;
+}
+.search-field input::placeholder {
+  color: #7195b6;
+}
+.filter-field > span {
+  color: #89accb;
+  font-size: 11px;
+  font-weight: 500;
+}
+.metric-card {
+  min-height: 98px;
+  padding: 17px;
+}
+.metric-card div > span {
+  color: #94b5d1;
+  font-size: 12px;
+  font-weight: 500;
+}
+.metric-card strong {
+  font-size: 28px;
+  font-weight: 700;
+}
+.metric-card small {
+  color: #91b2ce;
+  font-size: 12px;
+}
+.metric-card em {
+  color: #7fa2bf;
+  font-size: 11px;
+  font-weight: 500;
+}
+.dashboard-grid {
+  grid-template-columns: 270px minmax(620px, 1fr) 285px;
+}
+.alert-item {
+  min-height: 59px;
+  grid-template-columns: 44px 1fr 26px;
+  padding: 11px 8px;
+}
+.alert-days {
+  width: 40px;
+  height: 40px;
+  font-size: 17px;
+}
+.alert-days small {
+  font-size: 10px;
+}
+.alert-content strong {
+  color: #e0f1fc;
+  font-size: 12px;
+  font-weight: 600;
+}
+.alert-content em {
+  color: #7198b8;
+  font-size: 10px;
+}
+.alert-item > b,
+.danger-count {
+  font-size: 12px;
+}
+.mini-heading {
+  color: #b4cee2;
+  font-size: 13px;
+  font-weight: 600;
+}
+.stage-row {
+  grid-template-columns: 66px 1fr 24px;
+  color: #86a8c4;
+  font-size: 10.5px;
+}
+.back-button,
+.map-provider button,
+.map-modes button {
+  min-height: 32px;
+  padding: 6px 11px;
+  color: #85aac9;
+  font-size: 11px;
+  font-weight: 500;
+}
+.map-legend,
+.map-hint {
+  color: #759bb9;
+  font-size: 10.5px;
+}
+.area-card__head span,
+.area-stats span {
+  color: #7ca3c3;
+  font-size: 10px;
+}
+.area-card__head strong {
+  font-size: 16px;
+}
+.area-stats b {
+  font-size: 15px;
+}
+.area-action {
+  min-height: 34px;
+  font-size: 11px;
+}
+.ranking-row > b {
+  font-size: 12px;
+}
+.ranking-row > div span {
+  color: #c1d7e8;
+  font-size: 11px;
+  font-weight: 500;
+}
+.ranking-row > strong {
+  color: #d0e4f2;
+  font-size: 11px;
+}
+.rating-donut strong {
+  font-size: 22px;
+}
+.rating-donut small,
+.rating-legend div {
+  color: #91b2cd;
+  font-size: 10px;
+}
+.chart-legend,
+.axis-labels {
+  color: #7fa3bf;
+  font-size: 10px;
+}
+.month-labels {
+  color: #7196b4;
+  font-size: 9px;
+}
+.opportunity-list button {
+  min-height: 68px;
+}
+.opportunity-list strong {
+  color: #dfedf7;
+  font-size: 12px;
+  font-weight: 600;
+}
+.opportunity-list em {
+  color: #7297b5;
+  font-size: 10px;
+}
+.opportunity-list b {
+  font-size: 12px;
+}
+.grade-badge,
+.table-grade {
+  font-size: 12px;
+}
+th,
+td {
+  padding: 14px 15px;
+}
+th {
+  color: #8eafcb;
+  font-size: 11px;
+  font-weight: 600;
+}
+td {
+  color: #a8c2d7;
+  font-size: 11.5px;
+}
+td strong {
+  color: #e0edf6;
+  font-weight: 600;
+}
+.dialog-head small,
+.dialog-grid span,
+.dialog-section > span {
+  color: #80a5c4;
+  font-size: 11px;
+}
+.dialog-grid strong {
+  font-size: 13px;
+}
+.dialog-section p,
+.dialog-actions button {
+  font-size: 12px;
+}
+
+@media (max-width: 1450px) {
+  .dashboard-grid {
+    grid-template-columns: 245px minmax(520px, 1fr) 260px;
+  }
+  .filter-field {
+    min-width: 108px;
+  }
+}
+@media (max-width: 1180px) {
+  .dashboard-grid {
+    grid-template-columns: 220px 1fr;
+  }
+  .ranking-panel {
+    grid-column: 1 / -1;
+    min-height: auto;
+  }
+  .ranking-panel {
+    display: grid;
+    grid-template-columns: 1fr 290px;
+  }
+  .ranking-panel .panel-heading {
+    grid-column: 1 / -1;
+  }
+  .rating-block {
+    border-top: 0;
+    border-left: 1px solid rgb(70 143 211 / 12%);
+    padding-left: 16px;
+  }
+  .filter-bar {
+    flex-wrap: wrap;
+  }
+  .search-field {
+    min-width: 100%;
+  }
+}
+@media (max-width: 900px) {
+  .metric-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .alert-panel,
+  .map-panel {
+    min-height: auto;
+  }
+  .map-body {
+    height: 470px;
+  }
+  .ranking-panel {
+    grid-column: auto;
+  }
+  .lower-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 620px) {
+  .dashboard-heading,
+  .heading-actions {
+    align-items: stretch;
+  }
+  .heading-actions {
+    width: 100%;
+  }
+  .heading-actions > * {
+    flex: 1;
+  }
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+  .filter-field {
+    min-width: calc(50% - 5px);
+    flex: 1;
+  }
+  .filter-button {
+    flex: 1;
+  }
+  .map-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+    padding: 13px;
+  }
+  .map-modes {
+    width: 100%;
+  }
+  .map-modes button {
+    flex: 1;
+  }
+  .map-body {
+    height: 430px;
+  }
+  .area-card {
+    right: 8px;
+    width: 190px;
+  }
+  .ranking-panel {
+    display: block;
+  }
+  .rating-block {
+    padding: 8px 0 18px;
+    border-top: 1px solid rgb(70 143 211 / 12%);
+    border-left: 0;
+  }
+  .dialog-grid {
+    grid-template-columns: 1fr;
+  }
+  .project-overlay {
+    padding: 12px;
+  }
+}
+</style>

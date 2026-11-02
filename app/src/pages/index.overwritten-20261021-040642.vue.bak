@@ -1,0 +1,634 @@
+<template>
+  <q-page class="page q-pa-lg">
+
+    <!-- 标题 -->
+    <div class="row items-center justify-between q-mb-lg">
+      <div>
+        <div class="page-title">
+          全国项目可视化地图
+        </div>
+
+        <div class="page-subtitle">
+          全国工程项目商机跟踪与投标决策看板
+        </div>
+      </div>
+
+      <q-btn
+        unelevated
+        icon="add"
+        label="新增项目"
+        class="primary-btn"
+      />
+    </div>
+
+    <!-- 数据卡片 -->
+    <div class="row q-col-gutter-md">
+
+      <div
+        v-for="item in statistics"
+        :key="item.title"
+        class="col-12 col-sm-6 col-lg-3"
+      >
+        <div class="data-card">
+          <div>
+            <div class="data-title">
+              {{ item.title }}
+            </div>
+
+            <div class="data-value">
+              {{ item.value }}
+            </div>
+
+            <div class="data-desc">
+              {{ item.desc }}
+            </div>
+          </div>
+
+          <div class="data-icon">
+            <q-icon
+              :name="item.icon"
+              size="30px"
+            />
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 主内容 -->
+    <div class="row q-col-gutter-md q-mt-sm">
+
+      <!-- 全国地图 -->
+      <div class="col-12 col-lg-8">
+
+        <div class="panel map-panel">
+
+          <div class="panel-header">
+            <div>
+              <q-icon
+                name="public"
+                color="light-blue-4"
+                size="22px"
+              />
+
+              全国项目分布
+            </div>
+
+            <div class="map-actions">
+              <q-btn flat dense label="项目数量" color="light-blue-3" />
+              <q-btn flat dense label="ABCD评级" color="blue-grey-3" />
+            </div>
+          </div>
+
+          <!-- 暂时用占位图，后面换成高德/ECharts地图 -->
+          <div class="map-placeholder">
+
+            <q-icon
+              name="public"
+              size="115px"
+              color="blue-8"
+            />
+
+            <div class="map-text">
+              全国项目GIS地图
+            </div>
+
+            <div class="map-desc">
+              下一阶段接入 ECharts / 高德地图
+            </div>
+
+            <!-- 模拟省份 -->
+            <div class="province province-1">
+              江苏
+              <span>18</span>
+            </div>
+
+            <div class="province province-2">
+              山东
+              <span>9</span>
+            </div>
+
+            <div class="province province-3">
+              安徽
+              <span>7</span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- 右侧 -->
+      <div class="col-12 col-lg-4">
+
+        <div class="panel side-panel">
+
+          <div class="panel-header">
+            开标预警
+          </div>
+
+          <div
+            v-for="project in warnings"
+            :key="project.name"
+            class="warning-project"
+          >
+            <div class="warning-top">
+              <span>{{ project.name }}</span>
+
+              <q-badge
+                :color="project.days <= 3 ? 'red' : 'orange'"
+              >
+                {{ project.days }}天
+              </q-badge>
+            </div>
+
+            <div class="warning-info">
+              {{ project.region }}
+              ·
+              {{ project.amount }}
+            </div>
+
+            <q-linear-progress
+              rounded
+              size="5px"
+              :value="project.progress"
+              color="light-blue-5"
+              track-color="blue-grey-10"
+              class="q-mt-sm"
+            />
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 项目台账 -->
+    <div class="panel q-mt-md">
+
+      <div class="panel-header">
+
+        <div>
+          项目跟踪台账
+        </div>
+
+        <div>
+          <q-btn
+            flat
+            icon="filter_alt"
+            label="筛选"
+            color="blue-3"
+          />
+
+          <q-btn
+            flat
+            icon="download"
+            label="导出Excel"
+            color="cyan-3"
+          />
+        </div>
+
+      </div>
+
+      <q-table
+        dark
+        flat
+        :rows="projects"
+        :columns="columns"
+        row-key="name"
+        class="project-table"
+      >
+
+        <template #body-cell-level="props">
+
+          <q-td :props="props">
+
+            <q-chip
+              dense
+              :class="'level-' + props.value.toLowerCase()"
+            >
+              {{ props.value }}
+            </q-chip>
+
+          </q-td>
+
+        </template>
+
+        <template #body-cell-status="props">
+
+          <q-td :props="props">
+
+            <q-badge
+              color="blue-7"
+              outline
+            >
+              {{ props.value }}
+            </q-badge>
+
+          </q-td>
+
+        </template>
+
+      </q-table>
+
+    </div>
+
+  </q-page>
+</template>
+
+<script setup lang="ts">
+import type { QTableColumn } from 'quasar'
+
+const statistics = [
+  {
+    title: '全国跟踪项目',
+    value: '126',
+    desc: '较上月 +12',
+    icon: 'folder_open',
+  },
+  {
+    title: '重点A级项目',
+    value: '28',
+    desc: '重点优先推进',
+    icon: 'star',
+  },
+  {
+    title: '本月待开标',
+    value: '17',
+    desc: '7项进入预警',
+    icon: 'event',
+  },
+  {
+    title: '项目总造价',
+    value: '86.4亿',
+    desc: '全国在跟项目',
+    icon: 'payments',
+  },
+]
+
+const warnings = [
+  {
+    name: '徐州市康复医院新院项目',
+    region: '江苏·徐州',
+    amount: '3.32亿元',
+    days: 3,
+    progress: 0.92,
+  },
+  {
+    name: '嘉创2025-7号住宅项目',
+    region: '江苏·徐州',
+    amount: '2.48亿元',
+    days: 6,
+    progress: 0.78,
+  },
+  {
+    name: '南京产业园建设项目',
+    region: '江苏·南京',
+    amount: '1.86亿元',
+    days: 12,
+    progress: 0.56,
+  },
+]
+
+interface Project {
+  name: string
+  region: string
+  type: string
+  amount: string
+  level: string
+  status: string
+  owner: string
+}
+
+const columns: QTableColumn<Project>[] = [
+  {
+    name: 'name',
+    label: '项目名称',
+    field: 'name',
+    align: 'left',
+  },
+  {
+    name: 'region',
+    label: '地区',
+    field: 'region',
+    align: 'left',
+  },
+  {
+    name: 'type',
+    label: '工程类型',
+    field: 'type',
+    align: 'left',
+  },
+  {
+    name: 'amount',
+    label: '控制价',
+    field: 'amount',
+    align: 'left',
+  },
+  {
+    name: 'level',
+    label: '项目评级',
+    field: 'level',
+    align: 'center',
+  },
+  {
+    name: 'status',
+    label: '跟踪阶段',
+    field: 'status',
+    align: 'center',
+  },
+  {
+    name: 'owner',
+    label: '负责人',
+    field: 'owner',
+    align: 'center',
+  },
+]
+
+const projects: Project[] = [
+  {
+    name: '徐州市康复医院新院建设项目',
+    region: '江苏·徐州',
+    type: '房建',
+    amount: '3.32亿元',
+    level: 'A',
+    status: '标书编制',
+    owner: '张工',
+  },
+  {
+    name: '嘉创2025-7号住宅项目',
+    region: '江苏·徐州',
+    type: '住宅',
+    amount: '2.48亿元',
+    level: 'A',
+    status: '报价分析',
+    owner: '李工',
+  },
+  {
+    name: '南京产业园建设项目',
+    region: '江苏·南京',
+    type: '产业园',
+    amount: '1.86亿元',
+    level: 'B',
+    status: '资审报名',
+    owner: '王工',
+  },
+  {
+    name: '某市政道路项目',
+    region: '山东·济南',
+    type: '市政',
+    amount: '1.25亿元',
+    level: 'C',
+    status: '初步对接',
+    owner: '赵工',
+  },
+]
+</script>
+
+<style scoped lang="scss">
+.page {
+  min-height: 100vh;
+  color: white;
+  background:
+    radial-gradient(
+      circle at 70% 10%,
+      rgba(20, 77, 150, 0.4),
+      transparent 34%
+    ),
+    #071a37;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.page-subtitle {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #7893bc;
+}
+
+.primary-btn {
+  color: white;
+  background: linear-gradient(
+    90deg,
+    #1675eb,
+    #20a9f7
+  );
+  box-shadow: 0 0 16px rgba(40, 156, 255, 0.28);
+}
+
+.data-card {
+  min-height: 118px;
+  padding: 21px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(22, 68, 132, 0.95),
+      rgba(10, 40, 87, 0.95)
+    );
+
+  border: 1px solid rgba(61, 139, 255, 0.28);
+  border-radius: 10px;
+
+  box-shadow:
+    inset 0 0 20px rgba(41, 125, 255, 0.05),
+    0 8px 22px rgba(0, 0, 0, 0.14);
+}
+
+.data-title {
+  color: #9bb0cf;
+  font-size: 13px;
+}
+
+.data-value {
+  margin-top: 7px;
+  font-size: 29px;
+  font-weight: 700;
+}
+
+.data-desc {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #617eaa;
+}
+
+.data-icon {
+  width: 53px;
+  height: 53px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #38a8ff;
+
+  background: rgba(36, 135, 255, 0.12);
+
+  border-radius: 50%;
+
+  box-shadow: 0 0 20px rgba(32, 143, 255, 0.13);
+}
+
+.panel {
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(10, 43, 91, 0.96),
+      rgba(7, 32, 70, 0.96)
+    );
+
+  border: 1px solid rgba(63, 137, 255, 0.26);
+  border-radius: 9px;
+}
+
+.panel-header {
+  min-height: 54px;
+
+  padding: 0 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  color: white;
+
+  font-size: 16px;
+  font-weight: 600;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(21, 79, 158, 0.35),
+      transparent
+    );
+
+  border-bottom: 1px solid rgba(63, 137, 255, 0.18);
+}
+
+.map-panel,
+.side-panel {
+  height: 430px;
+}
+
+.map-placeholder {
+  height: calc(100% - 54px);
+
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(31, 103, 206, 0.2),
+      transparent 60%
+    );
+}
+
+.map-text {
+  margin-top: 5px;
+  color: #65baff;
+  font-size: 18px;
+}
+
+.map-desc {
+  margin-top: 5px;
+  color: #54749f;
+  font-size: 12px;
+}
+
+.province {
+  position: absolute;
+
+  padding: 6px 10px;
+
+  color: #b9dcff;
+
+  background: rgba(18, 74, 150, 0.76);
+
+  border: 1px solid rgba(62, 169, 255, 0.4);
+
+  border-radius: 5px;
+
+  span {
+    margin-left: 5px;
+    color: #46e5ff;
+    font-weight: bold;
+  }
+}
+
+.province-1 {
+  left: 62%;
+  top: 43%;
+}
+
+.province-2 {
+  left: 52%;
+  top: 28%;
+}
+
+.province-3 {
+  left: 48%;
+  top: 59%;
+}
+
+.warning-project {
+  padding: 17px 18px;
+
+  border-bottom:
+    1px solid rgba(70, 134, 219, 0.12);
+}
+
+.warning-top {
+  display: flex;
+  justify-content: space-between;
+
+  font-size: 13px;
+}
+
+.warning-info {
+  margin-top: 6px;
+
+  color: #6684ae;
+
+  font-size: 11px;
+}
+
+.project-table {
+  background: transparent;
+}
+
+.level-a {
+  color: #fff;
+  background: #e53935;
+}
+
+.level-b {
+  color: #fff;
+  background: #fb8c00;
+}
+
+.level-c {
+  color: #fff;
+  background: #1976d2;
+}
+
+.level-d {
+  color: #fff;
+  background: #607d8b;
+}
+</style>

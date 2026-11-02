@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "baseUrl": "https://c4ai.ccccltd.cn/api/compatible/v1",
+  "model": "jiaorong-kimi-k2.6",
+  "timeout": 45,
+  "matchLimit": 150,
+  "apiKeyEncrypted": {
+    "iv": "Jd4HFFeXWYqh8Mqy",
+    "tag": "FEasjB2UuylLmSFdozvnRQ==",
+    "data": "2QDGOQgSaMhJlNdk5P48Q4t6uZsKyY3rgqlu+QBCHrNw1wc="
+  },
+  "updatedAt": "2026-10-29T06:47:14.118Z"
+}

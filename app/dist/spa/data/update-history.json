@@ -1,0 +1,130 @@
+[
+    {
+        "success":  true,
+        "updatedAt":  "2026-11-02 15:00:24",
+        "opportunityCount":  2476,
+        "addedCount":  0,
+        "source":  "江苏省建设工程招标网"
+    },
+    {
+        "success":  true,
+        "updatedAt":  "2026-11-02 14:36:39",
+        "opportunityCount":  2476,
+        "addedCount":  6,
+        "source":  "江苏省建设工程招标网"
+    },
+    {
+        "success":  true,
+        "updatedAt":  "2026-11-01 15:08:20",
+        "opportunityCount":  2471,
+        "addedCount":  0,
+        "source":  "江苏省建设工程招标网"
+    },
+    {
+        "success":  true,
+        "updatedAt":  "2026-10-31 15:38:46",
+        "opportunityCount":  2473,
+        "addedCount":  52,
+        "source":  "江苏省建设工程招标网"
+    },
+    {
+        "success":  true,
+        "updatedAt":  "2026-10-30 13:16:26",
+        "opportunityCount":  2441,
+        "addedCount":  45,
+        "source":  "江苏省建设工程招标网"
+    },
+    {
+        "success":  true,
+        "updatedAt":  "2026-10-28 19:01:13",
+        "opportunityCount":  551,
+        "addedCount":  4,
+        "source":  "江苏省建设工程招标网"
+    },
+    {
+        "success":  true,
+        "updatedAt":  "2026-10-28 17:02:22",
+        "opportunityCount":  547,
+        "addedCount":  15,
+        "source":  "江苏省建设工程招标网"
+    },
+    {
+        "success":  true,
+        "updatedAt":  "2026-10-28 15:13:00",
+        "opportunityCount":  532,
+        "addedCount":  26,
+        "source":  "江苏省建设工程招标网"
+    },
+    {
+        "success":  false,
+        "updatedAt":  "2026-10-28 14:34:25",
+        "opportunityCount":  0,
+        "addedCount":  0,
+        "source":  "江苏省建设工程招标网",
+        "message":  "文件“D:\\工程投标智能决策系统\\bidding-system\\logs\\data-update.log”正由另一进程使用，因此该进程无法访问此文件。"
+    },
+    {
+        "success":  true,
+        "updatedAt":  "2026-10-27 22:55:36",
+        "opportunityCount":  529,
+        "addedCount":  1,
+        "source":  "江苏省建设工程招标网"
+    },
+    {
+        "success":  true,
+        "updatedAt":  "2026-10-27 22:26:15",
+        "opportunityCount":  528,
+        "addedCount":  0,
+        "source":  "江苏省建设工程招标网"
+    },
+    {
+        "success":  true,
+        "updatedAt":  "2026-10-27 20:55:27",
+        "opportunityCount":  528,
+        "addedCount":  0,
+        "source":  "江苏省建设工程招标网"
+    },
+    {
+        "success":  true,
+        "updatedAt":  "2026-10-27 20:26:12",
+        "opportunityCount":  528,
+        "addedCount":  1,
+        "source":  "江苏省建设工程招标网"
+    },
+    {
+        "success":  true,
+        "updatedAt":  "2026-10-27 18:55:29",
+        "opportunityCount":  527,
+        "addedCount":  0,
+        "source":  "江苏省建设工程招标网"
+    },
+    {
+        "success":  true,
+        "updatedAt":  "2026-10-27 18:28:12",
+        "opportunityCount":  527,
+        "addedCount":  7,
+        "source":  "江苏省建设工程招标网"
+    },
+    {
+        "success":  true,
+        "updatedAt":  "2026-10-27 16:58:07",
+        "opportunityCount":  520,
+        "addedCount":  20,
+        "source":  "江苏省建设工程招标网"
+    },
+    {
+        "success":  false,
+        "updatedAt":  "2026-10-27 16:26:11",
+        "opportunityCount":  0,
+        "addedCount":  0,
+        "source":  "江苏省建设工程招标网",
+        "message":  "流不可读。"
+    },
+    {
+        "success":  true,
+        "updatedAt":  "2026-10-26 15:17:48",
+        "opportunityCount":  526,
+        "addedCount":  6,
+        "source":  "江苏省建设工程招标网"
+    }
+]
