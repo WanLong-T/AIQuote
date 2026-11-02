@@ -1,0 +1,294 @@
+{
+  "source_database": "D:\\工程投标智能决策系统\\TWL\\AIQuote\\01_LOCAL\\local_service_project_01\\local_data_project_01\\local_project_database_01.sqlite3",
+  "source_mode": "read_only",
+  "total_projects": 2266,
+  "province_count": 28,
+  "limitations": [
+    "这是旧库快照，不代表当前全国完整项目库。",
+    "仅导出 catalog_sections 中已标准化的项目；来源字段为空时保持为空。",
+    "不得仅凭本导出覆盖当前生产库，导入前需按 source_url/section_code 去重并复核时效。"
+  ],
+  "province_summary": [
+    {
+      "province": "江苏省",
+      "project_count": 369,
+      "earliest_publish_time": "2026-09-24 00:00:00",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 279,
+      "source_platforms": {
+        "江苏建设工程招标网": 269,
+        "全国公共资源交易平台": 100
+      }
+    },
+    {
+      "province": "广东省",
+      "project_count": 241,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-23",
+      "typed_project_count": 9,
+      "source_platforms": {
+        "全国公共资源交易平台": 241
+      }
+    },
+    {
+      "province": "山东省",
+      "project_count": 150,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 150
+      }
+    },
+    {
+      "province": "湖北省",
+      "project_count": 148,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 148
+      }
+    },
+    {
+      "province": "河北省",
+      "project_count": 123,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-23",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 123
+      }
+    },
+    {
+      "province": "云南省",
+      "project_count": 108,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-23",
+      "typed_project_count": 71,
+      "source_platforms": {
+        "全国公共资源交易平台": 108
+      }
+    },
+    {
+      "province": "浙江省",
+      "project_count": 96,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 96
+      }
+    },
+    {
+      "province": "安徽省",
+      "project_count": 93,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 93
+      }
+    },
+    {
+      "province": "山西省",
+      "project_count": 92,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 92
+      }
+    },
+    {
+      "province": "福建省",
+      "project_count": 92,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 92
+      }
+    },
+    {
+      "province": "内蒙古自治区",
+      "project_count": 87,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 87
+      }
+    },
+    {
+      "province": "北京市",
+      "project_count": 83,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 83
+      }
+    },
+    {
+      "province": "河南省",
+      "project_count": 65,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 65
+      }
+    },
+    {
+      "province": "贵州省",
+      "project_count": 60,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 60
+      }
+    },
+    {
+      "province": "江西省",
+      "project_count": 58,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-23",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 58
+      }
+    },
+    {
+      "province": "湖南省",
+      "project_count": 58,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 58
+      }
+    },
+    {
+      "province": "重庆市",
+      "project_count": 53,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-23",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 53
+      }
+    },
+    {
+      "province": "陕西省",
+      "project_count": 47,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-23",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 47
+      }
+    },
+    {
+      "province": "青海省",
+      "project_count": 41,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 41
+      }
+    },
+    {
+      "province": "甘肃省",
+      "project_count": 36,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 36
+      }
+    },
+    {
+      "province": "吉林省",
+      "project_count": 27,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 27
+      }
+    },
+    {
+      "province": "广西壮族自治区",
+      "project_count": 25,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 25
+      }
+    },
+    {
+      "province": "西藏自治区",
+      "project_count": 25,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 25
+      }
+    },
+    {
+      "province": "辽宁省",
+      "project_count": 24,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 24
+      }
+    },
+    {
+      "province": "海南省",
+      "project_count": 22,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 22
+      }
+    },
+    {
+      "province": "宁夏回族自治区",
+      "project_count": 18,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 18
+      }
+    },
+    {
+      "province": "上海市",
+      "project_count": 13,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-22",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 13
+      }
+    },
+    {
+      "province": "天津市",
+      "project_count": 12,
+      "earliest_publish_time": "2026-10-21",
+      "latest_publish_time": "2026-10-23",
+      "typed_project_count": 0,
+      "source_platforms": {
+        "全国公共资源交易平台": 12
+      }
+    }
+  ]
+}

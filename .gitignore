@@ -1,0 +1,36 @@
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Secrets and machine-local configuration
+.env
+.env.*
+!.env.example
+**/cost-ai-config.json
+**/*密码*.txt
+**/*secret*
+**/*credential*
+
+# JavaScript dependencies and build output
+**/node_modules/
+**/dist/
+**/.quasar/
+**/.cache/
+
+# Python generated files and virtual environments
+**/__pycache__/
+**/*.py[cod]
+**/.venv/
+**/venv/
+
+# Runtime output, crawler datasets and temporary files
+**/logs/
+**/日志/
+**/tmp/
+**/数据/
+**/*.log
+**/*.bak
+**/*.tmp
+
