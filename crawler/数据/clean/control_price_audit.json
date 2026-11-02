@@ -1,0 +1,865 @@
+{
+  "scanned": 5204,
+  "explicit": 2725,
+  "missing": [
+    {
+      "row_id": "896825",
+      "project_name": "南湖校区第三运动场改造项目中国矿业大学",
+      "source_value": 11046931.64,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:11046931.64元"
+    },
+    {
+      "row_id": "896936",
+      "project_name": "主校区学生宿舍11、12号楼修缮改造项目",
+      "source_value": 10625705.45,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:1062.570545万元"
+    },
+    {
+      "row_id": "896993",
+      "project_name": "洪东路（钱塘江路-富春江路）道路建设工程洪东路（钱塘江路－富春江路）道路建设工程",
+      "source_value": 7048983.72,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:7048983.72 "
+    },
+    {
+      "row_id": "896970",
+      "project_name": "4.25MW屋顶集中式光伏发电项目(兴化禾旺食用菌科技有限公司屋顶)",
+      "source_value": 12898476.81,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价=1289.847681万元"
+    },
+    {
+      "row_id": "896826",
+      "project_name": "盐城大丰区域现金处理中心项目EPC工程总承包",
+      "source_value": 98086330.0,
+      "database_value": null,
+      "source": "附件:招标文件.pdf",
+      "raw": "最高投标限价为 9808.633 万元"
+    },
+    {
+      "row_id": "893583",
+      "project_name": "云龙湖风景名胜区公共基础设施更新改造工程2026年云龙湖风景名胜区公共设施更新改造-景区公共配套设施更新改造工程（景区公厕改造）（一标段）",
+      "source_value": 4557835.3,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 455.78353万元"
+    },
+    {
+      "row_id": "896684",
+      "project_name": "徐州市公安局奥体中心派出所装修改造项目徐州市公安局奥体中心派出所新址装修改造项目施工总承包",
+      "source_value": 9113087.32,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 9113087.32元"
+    },
+    {
+      "row_id": "896139",
+      "project_name": "省中医院国家中医药传承创新中心项目试标+设计（综合评估+评定分离）",
+      "source_value": 2680000.0,
+      "database_value": null,
+      "source": "正文",
+      "raw": "最高投标限价为人民币268万元"
+    },
+    {
+      "row_id": "896177",
+      "project_name": "南京大学仙林校区学科综合楼项目实验室配套工程",
+      "source_value": 15276990.46,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:人民币 15276990.46元"
+    },
+    {
+      "row_id": "896343",
+      "project_name": "张家港市乐余镇资产经营公司新建重型车间项目施工总承包（一期）",
+      "source_value": 22852125.19,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:22852125.19元"
+    },
+    {
+      "row_id": "896338",
+      "project_name": "兴化市临城街道60MW渔光互补光伏发电项目",
+      "source_value": 130918590.06,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价=13091.859006万元"
+    },
+    {
+      "row_id": "892271",
+      "project_name": "泰兴市城区2026年排水管网更新改造项目一标段工程勘察设计",
+      "source_value": 2286200.0,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "招标控制价=228.62万元"
+    },
+    {
+      "row_id": "896246",
+      "project_name": "邳州润园食材交易中心项目（商办综合楼、配套冷库）",
+      "source_value": 25540106.87,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:25540106.87元"
+    },
+    {
+      "row_id": "896144",
+      "project_name": "戴南镇特种合金产业片区企业接电项目土建工程",
+      "source_value": 787.21,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价金额:787.21003"
+    },
+    {
+      "row_id": "895560",
+      "project_name": "徐州市泉山区淮海数字经济产业园5G智慧产业园基础设施建设项目江苏淮海科技城创智科技园A区项目（二期）智能化系统（淮海数字经济产业园5G智慧产业园基础设施建设项目）项目",
+      "source_value": 25584584.77,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:25584584.77元"
+    },
+    {
+      "row_id": "896085",
+      "project_name": "徐州市2023- 77号（九里变电站西A地块）定销房项目徐州市2023-77号（九里变电站西A地块)定销房项目智能化工程",
+      "source_value": 2400774.41,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:2400774.41元"
+    },
+    {
+      "row_id": "896033",
+      "project_name": "无锡市人民医院机房改造项目一标段施工",
+      "source_value": 2807092.77,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:2807092.77 "
+    },
+    {
+      "row_id": "894005",
+      "project_name": "2026年硕放街道零星及相关工程重点产业项目地块（一）场地平整工程",
+      "source_value": 4335365.28,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:4335365.28元"
+    },
+    {
+      "row_id": "895978",
+      "project_name": "锡太高速建设涉及部分热力管道改迁项目施工",
+      "source_value": 4188618.0,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:4188618元"
+    },
+    {
+      "row_id": "891827",
+      "project_name": "中央储备粮连云港直属库有限公司灌河分公司仓储项目机械、电气及自动控制（简称“MEC”）工程",
+      "source_value": 24370409.66,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:24370409.66 "
+    },
+    {
+      "row_id": "895923",
+      "project_name": "丰县经济开发区丰特乐园卡丁车项目",
+      "source_value": 3918715.1,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:3918715.10 元"
+    },
+    {
+      "row_id": "895876",
+      "project_name": "新区街道供水管网改造项目",
+      "source_value": 4329334.91,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 4329334.91元"
+    },
+    {
+      "row_id": "895597",
+      "project_name": "姜堰区文化馆改造项目",
+      "source_value": 6601244.58,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价金额=6601244.58元"
+    },
+    {
+      "row_id": "895755",
+      "project_name": "徐州市工人文化宫工人大礼堂部分拆除加固改造及周边环境综合整治项目",
+      "source_value": 4686053.69,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:4686053.69 元"
+    },
+    {
+      "row_id": "892967",
+      "project_name": "城北污水处理厂扩建工程",
+      "source_value": 72503713.17,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价=7250.371317万元"
+    },
+    {
+      "row_id": "895668",
+      "project_name": "江苏模特艺术学校北校区教学楼加固工程",
+      "source_value": 4875724.64,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 4875724.64元"
+    },
+    {
+      "row_id": "895576",
+      "project_name": "仓储项目（楚水保安公司）建安工程",
+      "source_value": 8025691.67,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价= 802.569167万元"
+    },
+    {
+      "row_id": "893039",
+      "project_name": "徐州市新晖房地产开发有限公司2022-56号地块项目徐州市2022-56地块项目幕墙工程",
+      "source_value": 13079643.88,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:13079643.88元"
+    },
+    {
+      "row_id": "895472",
+      "project_name": "徐州科捷房地产开发有限公司2022-41号地块项目徐州科捷房地产开发有限公司 2022-41地块项目二期工程施工",
+      "source_value": 319611573.84,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:319611573.84元"
+    },
+    {
+      "row_id": "895430",
+      "project_name": "江阴市敔山湾实验学校维修改造工程",
+      "source_value": 6037302.12,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:6037302.12 "
+    },
+    {
+      "row_id": "891821",
+      "project_name": "中央储备粮镇江新区直属库有限公司新民洲仓储项目防水工程（专业工程暂估价）",
+      "source_value": 11970245.4,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:11970245.40元"
+    },
+    {
+      "row_id": "895276",
+      "project_name": "徐州市城市轨道交通6号线一期 工程徐州市城市轨道交通6号线一期工程一中南站员工餐饮保障中心机电安装及装修工程",
+      "source_value": 17258613.92,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:17258613.92元"
+    },
+    {
+      "row_id": "895252",
+      "project_name": "2026年邳州市城镇老旧小区综合整治项目",
+      "source_value": 7693040.17,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 7693040.17元"
+    },
+    {
+      "row_id": "895163",
+      "project_name": "徐州市第十三中学和平校区南教学楼加固工程施工",
+      "source_value": 2768467.1,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 2768467.10元"
+    },
+    {
+      "row_id": "895132",
+      "project_name": "徐州市住房和城乡建设局建设大厦办公楼大中维修（新城区办公楼）项目施工",
+      "source_value": 4627236.97,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 4627236.97 元"
+    },
+    {
+      "row_id": "895107",
+      "project_name": "徐州高等师范学校教学楼加固工程施工",
+      "source_value": 11699498.1,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 11699498.10元"
+    },
+    {
+      "row_id": "894894",
+      "project_name": "泰兴市城区2025年排水管网更新改造项目（二期）勘察设计",
+      "source_value": 1489200.0,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "招标控制价=148.92万元"
+    },
+    {
+      "row_id": "894853",
+      "project_name": "南通职业大学搬迁建设工程南通职业大学搬迁建设三期工程-老食堂改造工程",
+      "source_value": 10618500.36,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:人民币 10618500.36 元"
+    },
+    {
+      "row_id": "894715",
+      "project_name": "吴江老城区基础设施改造工程市政设计",
+      "source_value": 452000.0,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:45.2万元"
+    },
+    {
+      "row_id": "894705",
+      "project_name": "新区街道路灯安装项目施工",
+      "source_value": 1086969.15,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价:1086969.15 元"
+    },
+    {
+      "row_id": "894655",
+      "project_name": "官林镇兴都路南延道路新建工程",
+      "source_value": 12272690.61,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:12272690.61 "
+    },
+    {
+      "row_id": "893660",
+      "project_name": "江阴市老旧小区二次供水更新改造工程(2025一2027)EPC工程总承包",
+      "source_value": 150925500.0,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 15092.55万元"
+    },
+    {
+      "row_id": "894245",
+      "project_name": "运河中学东校高中部塑胶操场改造提升工程",
+      "source_value": 4274290.85,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 4274290.85 元"
+    },
+    {
+      "row_id": "894093",
+      "project_name": "徐州新盛泉冠置业有限公司科创路北侧幼儿园施工总承包工程",
+      "source_value": 27557939.61,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 27557939.61元"
+    },
+    {
+      "row_id": "893987",
+      "project_name": "2026年陆渡街道公用设施配套零星工程一标段（亮化）",
+      "source_value": 1449849.37,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 1449849.37 元"
+    },
+    {
+      "row_id": "893487",
+      "project_name": "徐州生物工程职业技术学院扩建项目徐州生物工程职业技术学院（20#数字资源中心、21#大学生活动）室外配套工程",
+      "source_value": 5087476.73,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:5087476.73元"
+    },
+    {
+      "row_id": "893184",
+      "project_name": "查林村公寓建设项目施工",
+      "source_value": 64342825.1,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:64342825.10元"
+    },
+    {
+      "row_id": "893695",
+      "project_name": "江阴市霞客湾老旧小区二次供水更新改造工程（2025-2027）EPC工程总承包",
+      "source_value": 51208000.0,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 5120.80 万元"
+    },
+    {
+      "row_id": "893616",
+      "project_name": "南通市海门区城区竖积河排涝能力提升整治工程项目施工",
+      "source_value": 13860805.55,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "招标控制价 金额:人民币 13860805.55 元"
+    },
+    {
+      "row_id": "893095",
+      "project_name": "徐州市口腔医院迁建项目6#后勤办公楼、7#停车楼工程",
+      "source_value": 10356254.8,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价金额:10356254.80元"
+    },
+    {
+      "row_id": "893486",
+      "project_name": "市社会福利院老年养护楼项目施工",
+      "source_value": 38506120.04,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:38506120.04元"
+    },
+    {
+      "row_id": "893346",
+      "project_name": "汉风路北延项目汉风路北延（一期）工程",
+      "source_value": 32798484.73,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 32798484.73元"
+    },
+    {
+      "row_id": "893415",
+      "project_name": "ШчЖЋбѓПкИлО­МУПЊЗЂЧјШЫВХЙЋдЂаТНЈЯюФП",
+      "source_value": 249998157.33,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价金额:人民币 249998157.33元"
+    },
+    {
+      "row_id": "893397",
+      "project_name": "江苏开放大学（江苏城市职业学院）新校区（二期）项目江苏开放大学（江苏城市职业学院）新校区（二期）场地平整项目",
+      "source_value": 10641630.18,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:人民币 10641630.18元"
+    },
+    {
+      "row_id": "893396",
+      "project_name": "鼓楼区观宇路片区排水管网改造工程项目",
+      "source_value": 14411865.54,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:14411865.54元"
+    },
+    {
+      "row_id": "893274",
+      "project_name": "鼓楼分局机关及巡特警大队新址装修项目施工总承包",
+      "source_value": 4020140.63,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 4020140.63元"
+    },
+    {
+      "row_id": "893105",
+      "project_name": "徐州市云龙区紫金中学建设项目智能化工程",
+      "source_value": 3807733.24,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:3807733.24元"
+    },
+    {
+      "row_id": "893055",
+      "project_name": "环科园公用码头及配套工程-市政配套工程",
+      "source_value": 14159980.13,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:14159980.13 "
+    },
+    {
+      "row_id": "893018",
+      "project_name": "2026年度绿化零星工程",
+      "source_value": 4931678.14,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 4931678.14 元"
+    },
+    {
+      "row_id": "892906",
+      "project_name": "通江大道快速化一期(瞻江立交一望江立交)DN400-DN800污水管迁改工程施工",
+      "source_value": 6625289.62,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:6625289.62 "
+    },
+    {
+      "row_id": "892845",
+      "project_name": "徐州市新盛超华置业有限公司苏宁东幼儿园施工总承包工程",
+      "source_value": 17420346.81,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 17420346.81元"
+    },
+    {
+      "row_id": "892273",
+      "project_name": "横河、廉尚、庄帜房屋建设项目",
+      "source_value": 23452058.82,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价= 23452058.82元"
+    },
+    {
+      "row_id": "892485",
+      "project_name": "惠山经开区养老服务中心建设项目一号、二号养老用房施工总承包",
+      "source_value": 48441349.4,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:48441349.40 "
+    },
+    {
+      "row_id": "892002",
+      "project_name": "精神病专科病房项目加固工程",
+      "source_value": 3140452.46,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 3140452.46 元"
+    },
+    {
+      "row_id": "891859",
+      "project_name": "新大洋造船有限公司船台船坞生产效能提升及绿色智能制造项目新建分段装焊车间EPC工程总承包",
+      "source_value": 261456000.0,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高限价:26145.6万元"
+    },
+    {
+      "row_id": "891841",
+      "project_name": "徐州高新区徐村及龙亭片区排水工程项目徐州高新区徐村及龙亭片区排水工程-云河东路、德新路等二标段",
+      "source_value": 32016513.25,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价金额:32016513.25元"
+    },
+    {
+      "row_id": "891824",
+      "project_name": "徐州高新区高家营片区排水工程项目（一期）-长兴路、华泰路等二标段",
+      "source_value": 33367027.64,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:33367027.64元"
+    },
+    {
+      "row_id": "891672",
+      "project_name": "徐州新盛泉祥置业有限公司中山饭店地块（2023-44号地块）项目示范区景观绿化及配套工程",
+      "source_value": 12057233.8,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价=12057233.8元"
+    },
+    {
+      "row_id": "891488",
+      "project_name": "徐州市新城区高级中学项目报告厅、食堂改造装修工程",
+      "source_value": 6718180.13,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高限价金额:6718180.13 元"
+    },
+    {
+      "row_id": "891142",
+      "project_name": "江苏开放大学(江苏城市职业学院)新校区(二期)项目江苏开放大学（江苏城市职业学院）新校区（二期）场地平整项目;",
+      "source_value": 13816334.71,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "招标控制价 金额:人民币 13816334.71 元"
+    },
+    {
+      "row_id": "890382",
+      "project_name": "华泰证券研发及培训中心园林景观绿化工程;",
+      "source_value": 22841884.6,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "招标控制价 金额:22841884.60元"
+    },
+    {
+      "row_id": "890005",
+      "project_name": "宜兴南山智谷产业园基础设施建设项目总承包（EPC）",
+      "source_value": 12414900.0,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高限价为1241.49万元"
+    },
+    {
+      "row_id": "888811",
+      "project_name": "泰州医药高新区（高港区）城市积淹点改造工程健康大道(南官河-口泰路)、药城大道（泰州大道-长江大道）积淹点改造工程勘察设计",
+      "source_value": 260000.0,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "招标控制价= 26 万元"
+    },
+    {
+      "row_id": "890343",
+      "project_name": "徐州华电电力勘察设计有限公司华电存储中心项目工程总承包（EPC）",
+      "source_value": 48438770.46,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价:48438770.46 元"
+    },
+    {
+      "row_id": "890277",
+      "project_name": "华能南通H级电厂专线项目场站、阀室建筑工程施工",
+      "source_value": 9383648.36,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "招标控制价 金额:人民币 9383648.36 元"
+    },
+    {
+      "row_id": "889781",
+      "project_name": "和平路西延二期项目",
+      "source_value": 31491423.14,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价=31491423.14元"
+    },
+    {
+      "row_id": "889620",
+      "project_name": "ÐėÖÝū­žÃžžĘõŋŠ·ĒĮøđĪŌĩŅ§ÐĢĀĐ―ĻđĪģĖĢĻķþÆÚĢĐĘĐđĪ",
+      "source_value": 62583076.83,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 62583076.83 元"
+    },
+    {
+      "row_id": "889381",
+      "project_name": "徐州市公安局珠山派出所新址装修改造项目",
+      "source_value": 5265713.63,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高限价金额:5265713.63 元"
+    },
+    {
+      "row_id": "889328",
+      "project_name": "徐州淮海国际港务区徐丰公路东排水管网新建、改造工程(二期)项目徐州淮海国际港务区徐丰公路东排水管网新建、改造工程（二期） 项目-二标段（柳沿路东路、支一路、支三路）",
+      "source_value": 1957344.33,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额: 1957344.33 元"
+    },
+    {
+      "row_id": "888737",
+      "project_name": "南京大学仙林校区学生宿舍楼第31-32幢项目施工总承包;",
+      "source_value": 266924567.64,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "招标控制价 金额:人民币 266924567.64元"
+    },
+    {
+      "row_id": "889218",
+      "project_name": "徐州站东广场南2023-28号地块商业综合楼幕墙工程",
+      "source_value": 7878089.81,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价:7878089.81 元"
+    },
+    {
+      "row_id": "889087",
+      "project_name": "同源污水处理厂提标改造工程",
+      "source_value": 55998919.84,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:55998919.84元"
+    },
+    {
+      "row_id": "888993",
+      "project_name": "纵二路（安桥路-金荣路）道路建设工程纵二路(安桥路-金荣路)道路建设工程EPC总承包",
+      "source_value": 50670000.0,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价:5067万元"
+    },
+    {
+      "row_id": "888963",
+      "project_name": "快哉亭地下停车场上部广场绿化建设工程项目",
+      "source_value": 4379075.47,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价=4379075.47元"
+    },
+    {
+      "row_id": "888816",
+      "project_name": "苏州大学附属儿童医院病房综合改造项目景德路院区急诊西楼改造工程",
+      "source_value": 9512492.68,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:9512492.68"
+    },
+    {
+      "row_id": "897057",
+      "project_name": "南京大学仙林校区生命健康科创楼项目实验室配套工程",
+      "source_value": 14677180.63,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价 金额:人民币 14677180.63元"
+    },
+    {
+      "row_id": "897091",
+      "project_name": "兴化市妇女儿童健康中心工程室外附属工程",
+      "source_value": 9998408.78,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价= 999.840878万元"
+    },
+    {
+      "row_id": "897088",
+      "project_name": "兴化市妇女儿童健康中心工程装饰装修工程",
+      "source_value": 106139067.54,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价= 10613.906754万元"
+    },
+    {
+      "row_id": "897095",
+      "project_name": "兴化市妇女儿童健康中心工程装饰装修工程",
+      "source_value": 106139067.54,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价= 10613.906754万元"
+    },
+    {
+      "row_id": "897089",
+      "project_name": "兴化市妇女儿童健康中心工程幕墙工程",
+      "source_value": 9998408.78,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价= 999.840878万元"
+    },
+    {
+      "row_id": "897100",
+      "project_name": "兴化市妇女儿童健康中心工程幕墙工程",
+      "source_value": 66046392.91,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价= 6604.639291万元"
+    },
+    {
+      "row_id": "897090",
+      "project_name": "兴化市妇女儿童健康中心工程医用气体工程",
+      "source_value": 5237119.48,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价= 523.711948万元"
+    },
+    {
+      "row_id": "897092",
+      "project_name": "兴化市妇女儿童健康中心工程建筑智能化、配电、亮化工程",
+      "source_value": 56092180.66,
+      "database_value": null,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价= 5609.218066万元"
+    }
+  ],
+  "mismatched": [
+    {
+      "row_id": "896800",
+      "project_name": "根思二期安置区工程配电工程总承包（EPC）",
+      "source_value": 34200.0,
+      "database_value": 2026600.0,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高限价为 3.42万元"
+    },
+    {
+      "row_id": "892894",
+      "project_name": "新吴区市政雨水管网提升改造工程勘察设计",
+      "source_value": 100000.0,
+      "database_value": 50000.0,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高限价为10万元"
+    },
+    {
+      "row_id": "894641",
+      "project_name": "旺庄路(珠江路一锡兴路)大修工程勘察设计",
+      "source_value": 2541600.0,
+      "database_value": 2076600.0,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价为 254.16 万元"
+    },
+    {
+      "row_id": "892720",
+      "project_name": "XDG-2024-60号地块开发建设项目勘察设计",
+      "source_value": 151000.0,
+      "database_value": 5403900.0,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价为 151000元"
+    },
+    {
+      "row_id": "892336",
+      "project_name": "奥体中心周边道路改造工程勘察设计",
+      "source_value": 4100900.0,
+      "database_value": 2710900.0,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价为410.09万元"
+    },
+    {
+      "row_id": "892952",
+      "project_name": "泰兴现代食品科技产业提升项目配电工程总承包（EPC）",
+      "source_value": 433900.0,
+      "database_value": 13768700.0,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高限价为 43.39 万元"
+    },
+    {
+      "row_id": "892719",
+      "project_name": "宜兴低空经济产业园勘察设计",
+      "source_value": 350000.0,
+      "database_value": 4450000.0,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高限价:35万元"
+    },
+    {
+      "row_id": "892295",
+      "project_name": "锡东运河湾低碳智造产业园A区三期新建项目设计",
+      "source_value": 7.5,
+      "database_value": 26.1,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高限价为7.5元"
+    },
+    {
+      "row_id": "892066",
+      "project_name": "建业路（大池路-五爱路北匝道）新建工程勘察设计",
+      "source_value": 137700.0,
+      "database_value": 878400.0,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高限价:13.77万元"
+    },
+    {
+      "row_id": "890552",
+      "project_name": "新华昌物流装备有限公司110千伏变电站外线基础工程泰州新华昌物流装备有限公司新建110千伏变电站外线基础设施工程总承包（EPC）",
+      "source_value": 316800.0,
+      "database_value": 4696900.0,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高限价为31.68万元"
+    },
+    {
+      "row_id": "891700",
+      "project_name": "宛山湖酒店新建工程项目设计",
+      "source_value": 12233899.0,
+      "database_value": 11841978.0,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高限价为人民币1223.3899万元"
+    },
+    {
+      "row_id": "891377",
+      "project_name": "钱胡路（桃韵路-陆马公路）新建工程勘察设计",
+      "source_value": 2470000.0,
+      "database_value": 140000.0,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高投标限价:2470000元"
+    },
+    {
+      "row_id": "890513",
+      "project_name": "南泉科技园基础设施工程勘察设计",
+      "source_value": 7080000.0,
+      "database_value": 5990000.0,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高限价为人民币708万元"
+    },
+    {
+      "row_id": "890365",
+      "project_name": "XDG-2025-61号地块建设项目勘察设计",
+      "source_value": 16933400.0,
+      "database_value": 13733400.0,
+      "source": "附件:招标文件正文.pdf",
+      "raw": "最高限价为人民币1693.34万元"
+    }
+  ],
+  "errors": []
+}
