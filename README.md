@@ -6,23 +6,21 @@
 
 ```text
 AIQuote/
-├─ app/                 主应用
-│  ├─ src/              Vue 3 + TypeScript + Quasar 前端
-│  ├─ scripts/          Node.js API服务及Python成本计算脚本
-│  ├─ public/           地图和前端静态资源
-│  └─ data/             应用需要的非敏感数据
-├─ crawler/             模块1项目数据爬虫源码
-├─ docs/
-│  ├─ module2/          模块2设计及测试资料
-│  └─ reference/        会议纪要和业务参考资料
+├─ platform/            主框架、公共路由、布局和API网关
+├─ modules/
+│  ├─ module-1/         项目情报、地图、AI评级和爬虫
+│  ├─ module-2/         AI成本测算
+│  ├─ module-3/         投标结果分析
+│  └─ module-4/         投标模拟分析
+├─ docs/                协作规范与公共参考资料
 └─ README.md
 ```
 
 ## 本地启动
 
-1. 复制 `app/.env.example` 为 `app/.env.local`，填写本机数据库和第三方服务配置。
+1. 复制 `platform/.env.example` 为 `platform/.env.local`，填写本机数据库和第三方服务配置。
 2. 安装 Node.js 22.12 以上版本和 MySQL。
-3. 在 `app` 目录安装依赖并启动服务：
+3. 在仓库根目录安装共享依赖并启动服务：
 
 ```bash
 npm install
