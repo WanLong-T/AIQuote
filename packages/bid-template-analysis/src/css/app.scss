@@ -1,0 +1,6 @@
+@use '../../../shared/src/styles/tokens.scss';
+@use '../../../shared/src/styles/layout.scss';
+
+* { box-sizing: border-box; }
+html, body, #q-app { min-height: 100%; margin: 0; }
+body { font-family: Inter, "Microsoft YaHei", sans-serif; }

@@ -1,0 +1,13 @@
+.module-page {
+  min-height: 100vh;
+  padding: 28px;
+  color: var(--text-main);
+  background:
+    radial-gradient(circle at 82% 8%, rgb(13 103 215 / 25%), transparent 32%),
+    linear-gradient(135deg, #03142f 0%, #062554 52%, #041a3b 100%);
+}
+
+.module-page__content {
+  width: min(1440px, 100%);
+  margin: 0 auto;
+}

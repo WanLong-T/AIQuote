@@ -1,0 +1,11 @@
+# 完整归档模式：不排除应用目录内的文件。
+
+# Local environment files must not be committed.
+.env
+.env.*
+!.env.example
+
+# Generated dependencies/build metadata for workspace apps.
+**/node_modules/
+**/.quasar/
+**/dist/
