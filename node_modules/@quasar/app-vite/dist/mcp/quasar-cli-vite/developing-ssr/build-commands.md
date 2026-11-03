@@ -1,0 +1,29 @@
+---
+title: SSR Build Commands
+---
+## Developing
+
+```bash
+quasar dev -m ssr
+
+# ..or the longer form:
+quasar dev --mode ssr
+```
+
+## Building for production
+
+```bash
+quasar build -m ssr
+
+# ..or the longer form:
+quasar build --mode ssr
+```
+
+If you want a production build with debugging enabled:
+
+```bash
+quasar build -m ssr -d
+
+# ..or the longer form
+quasar build -m ssr --debug
+```

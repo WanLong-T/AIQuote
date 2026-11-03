@@ -1,0 +1,15 @@
+{
+  "extends": "./.quasar/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "types": ["vite/client"],
+    "paths": {
+      "@": ["./src"],
+      "@/*": ["./src/*"],
+      "#q-app": ["../node_modules/@quasar/app-vite/types/index.d.ts"],
+      "#q-app/*": ["../node_modules/@quasar/app-vite/*"]
+    }
+  },
+  "include": ["./*.d.ts", "./src/**/*", "../modules/**/*.vue"]
+}

@@ -1,0 +1,23 @@
+---
+title: SPA Build Commands
+---
+Developing:
+
+```bash
+quasar dev
+```
+
+Building for production:
+
+```bash
+quasar build
+```
+
+If you want a production build with debugging enabled:
+
+```bash
+quasar build -d
+
+# ..or the longer form
+quasar build --debug
+```

@@ -1,0 +1,841 @@
+========== 所有链接 ==========
+[1]
+文字: 房屋建筑施工
+href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=房屋建筑施工
+完整URL: http://www.jszb.com.cn/jszb/YW_info/ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=房屋建筑施工
+onclick: 
+--------------------------
+[2]
+文字: 市政工程施工
+href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=市政工程施工
+完整URL: http://www.jszb.com.cn/jszb/YW_info/ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=市政工程施工
+onclick: 
+--------------------------
+[3]
+文字: 单独装饰装修施工
+href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=单独装饰装修施工
+完整URL: http://www.jszb.com.cn/jszb/YW_info/ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=单独装饰装修施工
+onclick: 
+--------------------------
+[4]
+文字: 园林绿化
+href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=园林绿化
+完整URL: http://www.jszb.com.cn/jszb/YW_info/ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=园林绿化
+onclick: 
+--------------------------
+[5]
+文字: 工程监理
+href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=工程监理
+完整URL: http://www.jszb.com.cn/jszb/YW_info/ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=工程监理
+onclick: 
+--------------------------
+[6]
+文字: 设计
+href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=设计
+完整URL: http://www.jszb.com.cn/jszb/YW_info/ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=设计
+onclick: 
+--------------------------
+[7]
+文字: 材料设备采购
+href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=材料设备采购
+完整URL: http://www.jszb.com.cn/jszb/YW_info/ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=材料设备采购
+onclick: 
+--------------------------
+[8]
+文字: 电力
+href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=电力
+完整URL: http://www.jszb.com.cn/jszb/YW_info/ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=电力
+onclick: 
+--------------------------
+[9]
+文字: 水利
+href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=水利
+完整URL: http://www.jszb.com.cn/jszb/YW_info/ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=水利
+onclick: 
+--------------------------
+[10]
+文字: 机电设备
+href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=机电设备
+完整URL: http://www.jszb.com.cn/jszb/YW_info/ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=机电设备
+onclick: 
+--------------------------
+[11]
+文字: 其它
+href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=其它
+完整URL: http://www.jszb.com.cn/jszb/YW_info/ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=其它
+onclick: 
+--------------------------
+[12]
+文字: 招标终止
+href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=招标终止
+完整URL: http://www.jszb.com.cn/jszb/YW_info/ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=招标终止
+onclick: 
+--------------------------
+[13]
+文字: [扬中]经开区S238省道东侧辅道（港隆路至东新港）工程
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897010&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[14]
+文字: [泰兴]一期工程污水处理设施实施技术改造项目施工
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896994&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[15]
+文字: [泰兴]黄桥镇敬老院建设项目泰兴市黄桥镇敬老院高低压配电工程施工
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896989&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[16]
+文字: [徐州]阳光学校新建（一期）施工
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897011&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[17]
+文字: [铜山]徐州高新区汽车零部件产业园道路工程勘察设计二标段
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897008&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[18]
+文字: [铜山]徐州高新区汽车零部件产业园道路工程勘察设计一标段
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897007&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[19]
+文字: [铜山]徐州高新区汽车零部件产业园排水工程勘察设计
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897006&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[20]
+文字: [宿迁市]文澜苑项目电梯采购及安装
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897003&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[21]
+文字: [丰县]丰黄路东辅道建设工程施工
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897000&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[22]
+文字: [省属]江苏电子信息职业学院工程中心项目施工总承包
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897001&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[23]
+文字: [徐州]徐工智能制造产业协同创新发展示范基地基础设施一期工程勘察设计
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896997&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[24]
+文字: [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896992&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[25]
+文字: [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896984&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[26]
+文字: [淮安]淮安清江浦高端装备制造产业园基础设施项目-园区污水提升泵站新...
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896990&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[27]
+文字: [宜兴]官林水运能力提升工程-宜兴市新材料产业园智能仓储枢纽建设项目...
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896987&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[28]
+文字: [江都]2025年江都区居民小区二次供水设施改造项目泵房改造工程
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897009&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[29]
+文字: [扬州]扬州市古城小秦淮河保护更新二期工程(台地园、浮生园、大涤园节...
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897005&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[30]
+文字: [灌南]灌南县航天产业园启动区工程总承包（EPC）
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897004&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[31]
+文字: [连云港]连云港市第一人民医院应急救治中心项目一标段施工
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897002&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[32]
+文字: [苏州工业园区]2.5产业园五区东侧凤里街出入口桥梁工程及科技园地块西侧新建支...
+href: javascript:void(0);
+完整URL: javascript:void(0);
+onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896999&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+--------------------------
+[33]
+文字: 
+href: javascript:__doPostBack('MoreInfoList1$Pager','2')
+完整URL: javascript:__doPostBack('MoreInfoList1$Pager','2')
+onclick: 
+--------------------------
+[34]
+文字: 
+href: javascript:__doPostBack('MoreInfoList1$Pager','3')
+完整URL: javascript:__doPostBack('MoreInfoList1$Pager','3')
+onclick: 
+--------------------------
+[35]
+文字: 
+href: javascript:__doPostBack('MoreInfoList1$Pager','4')
+完整URL: javascript:__doPostBack('MoreInfoList1$Pager','4')
+onclick: 
+--------------------------
+[36]
+文字: 
+href: javascript:__doPostBack('MoreInfoList1$Pager','5')
+完整URL: javascript:__doPostBack('MoreInfoList1$Pager','5')
+onclick: 
+--------------------------
+[37]
+文字: 
+href: javascript:__doPostBack('MoreInfoList1$Pager','6')
+完整URL: javascript:__doPostBack('MoreInfoList1$Pager','6')
+onclick: 
+--------------------------
+[38]
+文字: 
+href: javascript:__doPostBack('MoreInfoList1$Pager','7')
+完整URL: javascript:__doPostBack('MoreInfoList1$Pager','7')
+onclick: 
+--------------------------
+[39]
+文字: 
+href: javascript:__doPostBack('MoreInfoList1$Pager','8')
+完整URL: javascript:__doPostBack('MoreInfoList1$Pager','8')
+onclick: 
+--------------------------
+[40]
+文字: 
+href: javascript:__doPostBack('MoreInfoList1$Pager','9')
+完整URL: javascript:__doPostBack('MoreInfoList1$Pager','9')
+onclick: 
+--------------------------
+[41]
+文字: 
+href: javascript:__doPostBack('MoreInfoList1$Pager','10')
+完整URL: javascript:__doPostBack('MoreInfoList1$Pager','10')
+onclick: 
+--------------------------
+[42]
+文字: 
+href: javascript:__doPostBack('MoreInfoList1$Pager','11')
+完整URL: javascript:__doPostBack('MoreInfoList1$Pager','11')
+onclick: 
+--------------------------
+[43]
+文字: 
+href: javascript:__doPostBack('MoreInfoList1$Pager','2')
+完整URL: javascript:__doPostBack('MoreInfoList1$Pager','2')
+onclick: 
+--------------------------
+[44]
+文字: 
+href: javascript:__doPostBack('MoreInfoList1$Pager','25454')
+完整URL: javascript:__doPostBack('MoreInfoList1$Pager','25454')
+onclick: 
+--------------------------
+
+========== 表格行 ==========
+[TR 3] 招标公告 | 房屋建筑施工 | 市政工程施工 | 单独装饰装修施工 | 园林绿化 | 工程监理 | 设计 | 材料设备采购 | 电力 | 水利 | 机电设备 | 其它 | 招标终止 | 招标公告 | 项目名称： | 标段名称： | 标段编号： | 建设单位： | 时间： | 至 | 地    区： | 所有 | 江苏省 | 南京市 | 无锡市 | 徐州市 | 常州市 | 苏州市 | 南通市 | 连云港市 | 淮安市 | 盐城市 | 扬州市 | 镇江市 | 泰州市 | 宿迁市 | 省外 | 所有 | [扬中]经开区S238省道东侧辅道（港隆路至东新港）工程 | 市政工程施工 | 2026-10-21 | [泰兴]一期工程污水处理设施实施技术改造项目施工 | 市政工程施工 | 2026-10-21 | [泰兴]黄桥镇敬老院建设项目泰兴市黄桥镇敬老院高低压配电工程施工 | 电力 | 2026-10-21 | [徐州]阳光学校新建（一期）施工 | 房屋建筑施工 | 2026-10-20 | [铜山]徐州高新区汽车零部件产业园道路工程勘察设计二标段 | 设计 | 2026-10-20 | [铜山]徐州高新区汽车零部件产业园道路工程勘察设计一标段 | 设计 | 2026-10-20 | [铜山]徐州高新区汽车零部件产业园排水工程勘察设计 | 其它 | 2026-10-20 | [宿迁市]文澜苑项目电梯采购及安装 | 材料设备采购 | 2026-10-20 | [丰县]丰黄路东辅道建设工程施工 | 市政工程施工 | 2026-10-20 | [省属]江苏电子信息职业学院工程中心项目施工总承包 | 房屋建筑工程 | 2026-10-20 | [徐州]徐工智能制造产业协同创新发展示范基地基础设施一期工程勘察设计 | 设计 | 2026-10-20 | [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包 | 房屋建筑施工 | 2026-10-20 | [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包 | 房屋建筑施工 | 2026-10-20 | [淮安]淮安清江浦高端装备制造产业园基础设施项目-园区污水提升泵站新... | 市政工程施工 | 2026-10-20 | [宜兴]官林水运能力提升工程-宜兴市新材料产业园智能仓储枢纽建设项目... | 设计 | 2026-10-20 | [江都]2025年江都区居民小区二次供水设施改造项目泵房改造工程 | 市政工程施工 | 2026-10-20 | [扬州]扬州市古城小秦淮河保护更新二期工程(台地园、浮生园、大涤园节... | 房屋建筑施工 | 2026-10-20 | [灌南]灌南县航天产业园启动区工程总承包（EPC） | 房屋建筑施工 | 2026-10-20 | [连云港]连云港市第一人民医院应急救治中心项目一标段施工 | 房屋建筑施工 | 2026-10-20 | [苏州工业园区]2.5产业园五区东侧凤里街出入口桥梁工程及科技园地块西侧新建支... | 市政工程施工 | 2026-10-20 | 共： | 509073 | 条 第： | 1/25454 | 页
+    链接文字: 房屋建筑施工
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=房屋建筑施工
+    onclick: 
+    链接文字: 市政工程施工
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=市政工程施工
+    onclick: 
+    链接文字: 单独装饰装修施工
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=单独装饰装修施工
+    onclick: 
+    链接文字: 园林绿化
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=园林绿化
+    onclick: 
+    链接文字: 工程监理
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=工程监理
+    onclick: 
+    链接文字: 设计
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=设计
+    onclick: 
+    链接文字: 材料设备采购
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=材料设备采购
+    onclick: 
+    链接文字: 电力
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=电力
+    onclick: 
+    链接文字: 水利
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=水利
+    onclick: 
+    链接文字: 机电设备
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=机电设备
+    onclick: 
+    链接文字: 其它
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=其它
+    onclick: 
+    链接文字: 招标终止
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=招标终止
+    onclick: 
+    链接文字: [扬中]经开区S238省道东侧辅道（港隆路至东新港）工程
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897010&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [泰兴]一期工程污水处理设施实施技术改造项目施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896994&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [泰兴]黄桥镇敬老院建设项目泰兴市黄桥镇敬老院高低压配电工程施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896989&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [徐州]阳光学校新建（一期）施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897011&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [铜山]徐州高新区汽车零部件产业园道路工程勘察设计二标段
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897008&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [铜山]徐州高新区汽车零部件产业园道路工程勘察设计一标段
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897007&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [铜山]徐州高新区汽车零部件产业园排水工程勘察设计
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897006&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [宿迁市]文澜苑项目电梯采购及安装
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897003&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [丰县]丰黄路东辅道建设工程施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897000&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [省属]江苏电子信息职业学院工程中心项目施工总承包
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897001&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [徐州]徐工智能制造产业协同创新发展示范基地基础设施一期工程勘察设计
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896997&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896992&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896984&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [淮安]淮安清江浦高端装备制造产业园基础设施项目-园区污水提升泵站新...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896990&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [宜兴]官林水运能力提升工程-宜兴市新材料产业园智能仓储枢纽建设项目...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896987&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [江都]2025年江都区居民小区二次供水设施改造项目泵房改造工程
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897009&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [扬州]扬州市古城小秦淮河保护更新二期工程(台地园、浮生园、大涤园节...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897005&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [灌南]灌南县航天产业园启动区工程总承包（EPC）
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897004&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [连云港]连云港市第一人民医院应急救治中心项目一标段施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897002&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [苏州工业园区]2.5产业园五区东侧凤里街出入口桥梁工程及科技园地块西侧新建支...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896999&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','2')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','3')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','4')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','5')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','6')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','7')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','8')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','9')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','10')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','11')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','2')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','25454')
+    onclick: 
+[TR 4] 招标公告
+[TR 5] 房屋建筑施工 | 市政工程施工 | 单独装饰装修施工 | 园林绿化 | 工程监理 | 设计 | 材料设备采购 | 电力 | 水利 | 机电设备 | 其它 | 招标终止
+    链接文字: 房屋建筑施工
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=房屋建筑施工
+    onclick: 
+    链接文字: 市政工程施工
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=市政工程施工
+    onclick: 
+    链接文字: 单独装饰装修施工
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=单独装饰装修施工
+    onclick: 
+    链接文字: 园林绿化
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=园林绿化
+    onclick: 
+    链接文字: 工程监理
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=工程监理
+    onclick: 
+    链接文字: 设计
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=设计
+    onclick: 
+    链接文字: 材料设备采购
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=材料设备采购
+    onclick: 
+    链接文字: 电力
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=电力
+    onclick: 
+    链接文字: 水利
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=水利
+    onclick: 
+    链接文字: 机电设备
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=机电设备
+    onclick: 
+    链接文字: 其它
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=其它
+    onclick: 
+    链接文字: 招标终止
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=招标终止
+    onclick: 
+[TR 6] 房屋建筑施工 | 市政工程施工 | 单独装饰装修施工 | 园林绿化 | 工程监理 | 设计 | 材料设备采购 | 电力 | 水利 | 机电设备 | 其它 | 招标终止
+    链接文字: 房屋建筑施工
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=房屋建筑施工
+    onclick: 
+    链接文字: 市政工程施工
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=市政工程施工
+    onclick: 
+    链接文字: 单独装饰装修施工
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=单独装饰装修施工
+    onclick: 
+    链接文字: 园林绿化
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=园林绿化
+    onclick: 
+    链接文字: 工程监理
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=工程监理
+    onclick: 
+    链接文字: 设计
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=设计
+    onclick: 
+    链接文字: 材料设备采购
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=材料设备采购
+    onclick: 
+    链接文字: 电力
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=电力
+    onclick: 
+    链接文字: 水利
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=水利
+    onclick: 
+    链接文字: 机电设备
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=机电设备
+    onclick: 
+    链接文字: 其它
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=其它
+    onclick: 
+    链接文字: 招标终止
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=招标终止
+    onclick: 
+[TR 7] 房屋建筑施工
+    链接文字: 房屋建筑施工
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=房屋建筑施工
+    onclick: 
+[TR 8] 市政工程施工
+    链接文字: 市政工程施工
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=市政工程施工
+    onclick: 
+[TR 9] 单独装饰装修施工
+    链接文字: 单独装饰装修施工
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=单独装饰装修施工
+    onclick: 
+[TR 10] 园林绿化
+    链接文字: 园林绿化
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=园林绿化
+    onclick: 
+[TR 11] 工程监理
+    链接文字: 工程监理
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=工程监理
+    onclick: 
+[TR 12] 设计
+    链接文字: 设计
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=设计
+    onclick: 
+[TR 13] 材料设备采购
+    链接文字: 材料设备采购
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=材料设备采购
+    onclick: 
+[TR 14] 电力
+    链接文字: 电力
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=电力
+    onclick: 
+[TR 15] 水利
+    链接文字: 水利
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=水利
+    onclick: 
+[TR 16] 机电设备
+    链接文字: 机电设备
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=机电设备
+    onclick: 
+[TR 17] 其它
+    链接文字: 其它
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=其它
+    onclick: 
+[TR 18] 招标终止
+    链接文字: 招标终止
+    href: ../ZhaoBiaoGG/MoreInfo_ZBGG.aspx?Type=招标终止
+    onclick: 
+[TR 19] 招标公告
+[TR 20] 招标公告
+[TR 21] 项目名称： | 标段名称： | 标段编号： | 建设单位： | 时间： | 至 | 地    区： | 所有 | 江苏省 | 南京市 | 无锡市 | 徐州市 | 常州市 | 苏州市 | 南通市 | 连云港市 | 淮安市 | 盐城市 | 扬州市 | 镇江市 | 泰州市 | 宿迁市 | 省外 | 所有 | [扬中]经开区S238省道东侧辅道（港隆路至东新港）工程 | 市政工程施工 | 2026-10-21 | [泰兴]一期工程污水处理设施实施技术改造项目施工 | 市政工程施工 | 2026-10-21 | [泰兴]黄桥镇敬老院建设项目泰兴市黄桥镇敬老院高低压配电工程施工 | 电力 | 2026-10-21 | [徐州]阳光学校新建（一期）施工 | 房屋建筑施工 | 2026-10-20 | [铜山]徐州高新区汽车零部件产业园道路工程勘察设计二标段 | 设计 | 2026-10-20 | [铜山]徐州高新区汽车零部件产业园道路工程勘察设计一标段 | 设计 | 2026-10-20 | [铜山]徐州高新区汽车零部件产业园排水工程勘察设计 | 其它 | 2026-10-20 | [宿迁市]文澜苑项目电梯采购及安装 | 材料设备采购 | 2026-10-20 | [丰县]丰黄路东辅道建设工程施工 | 市政工程施工 | 2026-10-20 | [省属]江苏电子信息职业学院工程中心项目施工总承包 | 房屋建筑工程 | 2026-10-20 | [徐州]徐工智能制造产业协同创新发展示范基地基础设施一期工程勘察设计 | 设计 | 2026-10-20 | [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包 | 房屋建筑施工 | 2026-10-20 | [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包 | 房屋建筑施工 | 2026-10-20 | [淮安]淮安清江浦高端装备制造产业园基础设施项目-园区污水提升泵站新... | 市政工程施工 | 2026-10-20 | [宜兴]官林水运能力提升工程-宜兴市新材料产业园智能仓储枢纽建设项目... | 设计 | 2026-10-20 | [江都]2025年江都区居民小区二次供水设施改造项目泵房改造工程 | 市政工程施工 | 2026-10-20 | [扬州]扬州市古城小秦淮河保护更新二期工程(台地园、浮生园、大涤园节... | 房屋建筑施工 | 2026-10-20 | [灌南]灌南县航天产业园启动区工程总承包（EPC） | 房屋建筑施工 | 2026-10-20 | [连云港]连云港市第一人民医院应急救治中心项目一标段施工 | 房屋建筑施工 | 2026-10-20 | [苏州工业园区]2.5产业园五区东侧凤里街出入口桥梁工程及科技园地块西侧新建支... | 市政工程施工 | 2026-10-20 | 共： | 509073 | 条 第： | 1/25454 | 页
+    链接文字: [扬中]经开区S238省道东侧辅道（港隆路至东新港）工程
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897010&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [泰兴]一期工程污水处理设施实施技术改造项目施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896994&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [泰兴]黄桥镇敬老院建设项目泰兴市黄桥镇敬老院高低压配电工程施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896989&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [徐州]阳光学校新建（一期）施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897011&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [铜山]徐州高新区汽车零部件产业园道路工程勘察设计二标段
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897008&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [铜山]徐州高新区汽车零部件产业园道路工程勘察设计一标段
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897007&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [铜山]徐州高新区汽车零部件产业园排水工程勘察设计
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897006&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [宿迁市]文澜苑项目电梯采购及安装
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897003&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [丰县]丰黄路东辅道建设工程施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897000&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [省属]江苏电子信息职业学院工程中心项目施工总承包
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897001&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [徐州]徐工智能制造产业协同创新发展示范基地基础设施一期工程勘察设计
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896997&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896992&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896984&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [淮安]淮安清江浦高端装备制造产业园基础设施项目-园区污水提升泵站新...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896990&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [宜兴]官林水运能力提升工程-宜兴市新材料产业园智能仓储枢纽建设项目...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896987&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [江都]2025年江都区居民小区二次供水设施改造项目泵房改造工程
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897009&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [扬州]扬州市古城小秦淮河保护更新二期工程(台地园、浮生园、大涤园节...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897005&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [灌南]灌南县航天产业园启动区工程总承包（EPC）
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897004&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [连云港]连云港市第一人民医院应急救治中心项目一标段施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897002&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [苏州工业园区]2.5产业园五区东侧凤里街出入口桥梁工程及科技园地块西侧新建支...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896999&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','2')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','3')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','4')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','5')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','6')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','7')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','8')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','9')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','10')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','11')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','2')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','25454')
+    onclick: 
+[TR 24] 项目名称： | 标段名称： | 标段编号： | 建设单位： | 时间： | 至 | 地    区： | 所有 | 江苏省 | 南京市 | 无锡市 | 徐州市 | 常州市 | 苏州市 | 南通市 | 连云港市 | 淮安市 | 盐城市 | 扬州市 | 镇江市 | 泰州市 | 宿迁市 | 省外 | 所有
+[TR 25] 项目名称： | 标段名称：
+[TR 26] 标段编号： | 建设单位：
+[TR 27] 时间： | 至 | 地    区： | 所有 | 江苏省 | 南京市 | 无锡市 | 徐州市 | 常州市 | 苏州市 | 南通市 | 连云港市 | 淮安市 | 盐城市 | 扬州市 | 镇江市 | 泰州市 | 宿迁市 | 省外 | 所有
+[TR 29] [扬中]经开区S238省道东侧辅道（港隆路至东新港）工程 | 市政工程施工 | 2026-10-21 | [泰兴]一期工程污水处理设施实施技术改造项目施工 | 市政工程施工 | 2026-10-21 | [泰兴]黄桥镇敬老院建设项目泰兴市黄桥镇敬老院高低压配电工程施工 | 电力 | 2026-10-21 | [徐州]阳光学校新建（一期）施工 | 房屋建筑施工 | 2026-10-20 | [铜山]徐州高新区汽车零部件产业园道路工程勘察设计二标段 | 设计 | 2026-10-20 | [铜山]徐州高新区汽车零部件产业园道路工程勘察设计一标段 | 设计 | 2026-10-20 | [铜山]徐州高新区汽车零部件产业园排水工程勘察设计 | 其它 | 2026-10-20 | [宿迁市]文澜苑项目电梯采购及安装 | 材料设备采购 | 2026-10-20 | [丰县]丰黄路东辅道建设工程施工 | 市政工程施工 | 2026-10-20 | [省属]江苏电子信息职业学院工程中心项目施工总承包 | 房屋建筑工程 | 2026-10-20 | [徐州]徐工智能制造产业协同创新发展示范基地基础设施一期工程勘察设计 | 设计 | 2026-10-20 | [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包 | 房屋建筑施工 | 2026-10-20 | [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包 | 房屋建筑施工 | 2026-10-20 | [淮安]淮安清江浦高端装备制造产业园基础设施项目-园区污水提升泵站新... | 市政工程施工 | 2026-10-20 | [宜兴]官林水运能力提升工程-宜兴市新材料产业园智能仓储枢纽建设项目... | 设计 | 2026-10-20 | [江都]2025年江都区居民小区二次供水设施改造项目泵房改造工程 | 市政工程施工 | 2026-10-20 | [扬州]扬州市古城小秦淮河保护更新二期工程(台地园、浮生园、大涤园节... | 房屋建筑施工 | 2026-10-20 | [灌南]灌南县航天产业园启动区工程总承包（EPC） | 房屋建筑施工 | 2026-10-20 | [连云港]连云港市第一人民医院应急救治中心项目一标段施工 | 房屋建筑施工 | 2026-10-20 | [苏州工业园区]2.5产业园五区东侧凤里街出入口桥梁工程及科技园地块西侧新建支... | 市政工程施工 | 2026-10-20
+    链接文字: [扬中]经开区S238省道东侧辅道（港隆路至东新港）工程
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897010&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [泰兴]一期工程污水处理设施实施技术改造项目施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896994&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [泰兴]黄桥镇敬老院建设项目泰兴市黄桥镇敬老院高低压配电工程施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896989&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [徐州]阳光学校新建（一期）施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897011&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [铜山]徐州高新区汽车零部件产业园道路工程勘察设计二标段
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897008&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [铜山]徐州高新区汽车零部件产业园道路工程勘察设计一标段
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897007&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [铜山]徐州高新区汽车零部件产业园排水工程勘察设计
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897006&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [宿迁市]文澜苑项目电梯采购及安装
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897003&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [丰县]丰黄路东辅道建设工程施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897000&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [省属]江苏电子信息职业学院工程中心项目施工总承包
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897001&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [徐州]徐工智能制造产业协同创新发展示范基地基础设施一期工程勘察设计
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896997&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896992&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896984&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [淮安]淮安清江浦高端装备制造产业园基础设施项目-园区污水提升泵站新...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896990&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [宜兴]官林水运能力提升工程-宜兴市新材料产业园智能仓储枢纽建设项目...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896987&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [江都]2025年江都区居民小区二次供水设施改造项目泵房改造工程
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897009&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [扬州]扬州市古城小秦淮河保护更新二期工程(台地园、浮生园、大涤园节...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897005&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [灌南]灌南县航天产业园启动区工程总承包（EPC）
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897004&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [连云港]连云港市第一人民医院应急救治中心项目一标段施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897002&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+    链接文字: [苏州工业园区]2.5产业园五区东侧凤里街出入口桥梁工程及科技园地块西侧新建支...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896999&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 30] [扬中]经开区S238省道东侧辅道（港隆路至东新港）工程 | 市政工程施工 | 2026-10-21
+    链接文字: [扬中]经开区S238省道东侧辅道（港隆路至东新港）工程
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897010&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 31] [泰兴]一期工程污水处理设施实施技术改造项目施工 | 市政工程施工 | 2026-10-21
+    链接文字: [泰兴]一期工程污水处理设施实施技术改造项目施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896994&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 32] [泰兴]黄桥镇敬老院建设项目泰兴市黄桥镇敬老院高低压配电工程施工 | 电力 | 2026-10-21
+    链接文字: [泰兴]黄桥镇敬老院建设项目泰兴市黄桥镇敬老院高低压配电工程施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896989&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 33] [徐州]阳光学校新建（一期）施工 | 房屋建筑施工 | 2026-10-20
+    链接文字: [徐州]阳光学校新建（一期）施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897011&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 34] [铜山]徐州高新区汽车零部件产业园道路工程勘察设计二标段 | 设计 | 2026-10-20
+    链接文字: [铜山]徐州高新区汽车零部件产业园道路工程勘察设计二标段
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897008&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 35] [铜山]徐州高新区汽车零部件产业园道路工程勘察设计一标段 | 设计 | 2026-10-20
+    链接文字: [铜山]徐州高新区汽车零部件产业园道路工程勘察设计一标段
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897007&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 36] [铜山]徐州高新区汽车零部件产业园排水工程勘察设计 | 其它 | 2026-10-20
+    链接文字: [铜山]徐州高新区汽车零部件产业园排水工程勘察设计
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897006&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 37] [宿迁市]文澜苑项目电梯采购及安装 | 材料设备采购 | 2026-10-20
+    链接文字: [宿迁市]文澜苑项目电梯采购及安装
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897003&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 38] [丰县]丰黄路东辅道建设工程施工 | 市政工程施工 | 2026-10-20
+    链接文字: [丰县]丰黄路东辅道建设工程施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897000&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 39] [省属]江苏电子信息职业学院工程中心项目施工总承包 | 房屋建筑工程 | 2026-10-20
+    链接文字: [省属]江苏电子信息职业学院工程中心项目施工总承包
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897001&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 40] [徐州]徐工智能制造产业协同创新发展示范基地基础设施一期工程勘察设计 | 设计 | 2026-10-20
+    链接文字: [徐州]徐工智能制造产业协同创新发展示范基地基础设施一期工程勘察设计
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896997&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 41] [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包 | 房屋建筑施工 | 2026-10-20
+    链接文字: [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896992&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 42] [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包 | 房屋建筑施工 | 2026-10-20
+    链接文字: [吴江]中国移动长三角（苏州）汾湖智算中心项目二阶段工程总承包
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896984&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 43] [淮安]淮安清江浦高端装备制造产业园基础设施项目-园区污水提升泵站新... | 市政工程施工 | 2026-10-20
+    链接文字: [淮安]淮安清江浦高端装备制造产业园基础设施项目-园区污水提升泵站新...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896990&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 44] [宜兴]官林水运能力提升工程-宜兴市新材料产业园智能仓储枢纽建设项目... | 设计 | 2026-10-20
+    链接文字: [宜兴]官林水运能力提升工程-宜兴市新材料产业园智能仓储枢纽建设项目...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896987&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 45] [江都]2025年江都区居民小区二次供水设施改造项目泵房改造工程 | 市政工程施工 | 2026-10-20
+    链接文字: [江都]2025年江都区居民小区二次供水设施改造项目泵房改造工程
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897009&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 46] [扬州]扬州市古城小秦淮河保护更新二期工程(台地园、浮生园、大涤园节... | 房屋建筑施工 | 2026-10-20
+    链接文字: [扬州]扬州市古城小秦淮河保护更新二期工程(台地园、浮生园、大涤园节...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897005&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 47] [灌南]灌南县航天产业园启动区工程总承包（EPC） | 房屋建筑施工 | 2026-10-20
+    链接文字: [灌南]灌南县航天产业园启动区工程总承包（EPC）
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897004&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 48] [连云港]连云港市第一人民医院应急救治中心项目一标段施工 | 房屋建筑施工 | 2026-10-20
+    链接文字: [连云港]连云港市第一人民医院应急救治中心项目一标段施工
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=897002&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 49] [苏州工业园区]2.5产业园五区东侧凤里街出入口桥梁工程及科技园地块西侧新建支... | 市政工程施工 | 2026-10-20
+    链接文字: [苏州工业园区]2.5产业园五区东侧凤里街出入口桥梁工程及科技园地块西侧新建支...
+    href: javascript:void(0);
+    onclick: window.open("../ZhaoBiaoGG/ViewReportDetail.aspx?RowID=896999&categoryNum=012&siteid=1","","Width=800,Height=800,scrollbars=yes,resizable=yes")
+[TR 52] 共： | 509073 | 条 第： | 1/25454 | 页
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','2')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','3')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','4')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','5')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','6')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','7')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','8')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','9')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','10')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','11')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','2')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','25454')
+    onclick: 
+[TR 53] 共： | 509073 | 条 第： | 1/25454 | 页
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','2')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','3')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','4')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','5')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','6')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','7')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','8')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','9')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','10')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','11')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','2')
+    onclick: 
+    链接文字: 
+    href: javascript:__doPostBack('MoreInfoList1$Pager','25454')
+    onclick: 
