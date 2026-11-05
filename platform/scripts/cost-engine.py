@@ -28,18 +28,39 @@ from openpyxl import load_workbook
 
 DATA_ROOT_CANDIDATES = [
     Path(os.getenv("COST_DATA_ROOT", "")) if os.getenv("COST_DATA_ROOT") else None,
+    Path(r"D:\AI工程造价\AI工程造价系统"),
     Path(r"D:\AI工程造价系统"),
     Path(r"D:\AI+BIM"),
 ]
 DATA_ROOT = next((path for path in DATA_ROOT_CANDIDATES if path and path.exists()), Path(r"D:\AI工程造价系统"))
-PROFESSION_FILES = {
-    "建筑工程": DATA_ROOT / "建筑工程清单库" / "山东2013清单规范-建筑工程.xlsx",
-    "安装工程": DATA_ROOT / "安装工程清单库" / "山东2013清单规范-安装工程.xlsx",
-    "市政工程": DATA_ROOT / "市政工程清单库" / "山东2013清单规范-市政工程.xlsx",
-    "矿山工程": DATA_ROOT / "矿山工程清单库" / "山东2013清单规范-矿山工程.xlsx",
-    "园林绿化工程": DATA_ROOT / "园林绿化工程清单库" / "山东2013清单规范-园林绿化工程.xlsx",
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+JIANGSU_DATA_ROOT = REPOSITORY_ROOT / "modules" / "module-2" / "data" / "江苏省"
+PROVINCE_PROFESSION_FILES = {
+    "山东省": {
+        "建筑工程": DATA_ROOT / "建筑工程清单库" / "山东2013清单规范-建筑工程.xlsx",
+        "安装工程": DATA_ROOT / "安装工程清单库" / "山东2013清单规范-安装工程.xlsx",
+        "市政工程": DATA_ROOT / "市政工程清单库" / "山东2013清单规范-市政工程.xlsx",
+        "矿山工程": DATA_ROOT / "矿山工程清单库" / "山东2013清单规范-矿山工程.xlsx",
+        "园林绿化工程": DATA_ROOT / "园林绿化工程清单库" / "山东2013清单规范-园林绿化工程.xlsx",
+    },
+    "江苏省": {
+        "建筑工程": JIANGSU_DATA_ROOT / "清单" / "房屋建筑与装饰工程" / "江苏2024清单规范-房屋建筑与装饰工程.xlsx",
+    },
 }
 QUOTA_FILE = DATA_ROOT / "建筑工程价目表.json"
+
+
+def catalog_paths(province: str, profession: str) -> tuple[Path, Path | None]:
+    province_files = PROVINCE_PROFESSION_FILES.get(province)
+    if not province_files:
+        raise ValueError(f"{province}清单库待补充")
+    list_file = province_files.get(profession)
+    if not list_file:
+        raise ValueError(f"{province}暂未配置{profession}清单库")
+    if not list_file.exists():
+        raise ValueError(f"{province}{profession}清单文件不存在：{list_file}")
+    quota_file = QUOTA_FILE if province == "山东省" and profession == "建筑工程" and QUOTA_FILE.exists() else None
+    return list_file, quota_file
 
 if hasattr(sys.stdin, "reconfigure"):
     sys.stdin.reconfigure(encoding="utf-8")
@@ -524,8 +545,8 @@ def price_block(value, general=False):
     }
 
 
-def load_quotas() -> list[dict]:
-    source = json.loads(QUOTA_FILE.read_text(encoding="utf-8"))
+def load_quotas(path: Path) -> list[dict]:
+    source = json.loads(path.read_text(encoding="utf-8"))
     result = []
     def walk(node, parents=()):
         if isinstance(node, dict):
@@ -549,12 +570,12 @@ def load_quotas() -> list[dict]:
 
 
 def catalog_for_ui(payload: dict) -> dict:
+    province = payload.get("province", "山东省")
     profession = payload.get("profession", "建筑工程")
-    if profession not in PROFESSION_FILES:
-        raise ValueError("不支持的工程专业")
+    list_file, quota_file = catalog_paths(province, profession)
     tax_key = "general" if payload.get("taxMode", "一般计税") == "一般计税" else "simple"
-    lists = load_lists(PROFESSION_FILES[profession])
-    quotas = load_quotas() if profession == "建筑工程" else []
+    lists = load_lists(list_file)
+    quotas = load_quotas(quota_file) if quota_file else []
     return {
         "lists": lists,
         "quotas": [{
@@ -591,15 +612,15 @@ def top_matches(query: str, unit: str, candidates: list[dict], limit=5):
 
 
 def calculate(payload: dict) -> dict:
+    province = payload.get("province", "山东省")
     profession = payload.get("profession", "建筑工程")
-    if profession not in PROFESSION_FILES:
-        raise ValueError("不支持的工程专业")
+    list_file, quota_file = catalog_paths(province, profession)
     emit_progress(8, "读取清单文件", "正在校验文件并识别工作表")
     ai = AIClient()
     rows, parsing = read_rows(payload.get("fileName", ""), payload.get("fileBase64", ""), ai)
     emit_progress(24, "字段智能识别", f"已识别 {len(rows)} 条清单记录")
-    lists = load_lists(PROFESSION_FILES[profession])
-    quotas = load_quotas() if profession == "建筑工程" else []
+    lists = load_lists(list_file)
+    quotas = load_quotas(quota_file) if quota_file else []
     emit_progress(32, "加载定额数据库", f"清单库 {len(lists)} 条，定额库 {len(quotas)} 条")
     list_by_code = {item["code"]: item for item in lists}
     quota_by_code = {item["code"]: item for item in quotas}
@@ -720,7 +741,8 @@ def calculate(payload: dict) -> dict:
         sensitivity.append({"change": change, "total": round(changed_before_tax * (1 + tax_rate), 2)})
     emit_progress(98, "生成测算结果", "正在汇总报价方案与风险分析")
     return {
-        "source": "AI工程造价系统V2.0本地清单库/定额库",
+        "source": f"{province}{profession}清单库" + ("/定额库" if quotas else "（定额待补充）"),
+        "province": province,
         "profession": profession,
         "taxMode": tax_mode,
         "catalog": {"lists": len(lists), "quotas": len(quotas)},
@@ -740,7 +762,11 @@ def calculate(payload: dict) -> dict:
             "competitive": round(total * 1.02, 2),
         },
         "sensitivity": sensitivity,
-        "limitations": "当前价格库仅覆盖山东建筑工程；其他专业先完成国标清单匹配，价格结果需补充对应地区定额库。AI不可用时系统会自动切换到本地规则，不会中断测算。",
+        "limitations": (
+            "江苏省建筑工程清单库已接入；江苏省定额价格库尚未导入，当前仅提供清单识别与匹配，价格结果为零且不可用于报价。"
+            if province == "江苏省" else
+            "当前价格库仅覆盖山东建筑工程；其他专业先完成清单匹配，价格结果需补充对应地区定额库。"
+        ) + "AI不可用时系统会自动切换到本地规则，不会中断测算。",
     }
 
 
