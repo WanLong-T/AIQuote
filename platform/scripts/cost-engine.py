@@ -337,11 +337,30 @@ def infer_fields(headers: list[str], data_rows: list[list], ai: AIClient | None 
             combined = header_value * 0.68 + sample_value * 0.32
             scores.append((combined, header_value, sample_value, field, column))
     fields, used = {}, set()
-    ai_mappings = ai.field_mapping(headers, [[text(cell) for cell in row] for row in data_rows[:8]]) if ai else {}
     mappings = []
+    # Exact standard headers are authoritative. In particular, when a source has
+    # both "工程名称" (group/project heading) and "项目名称" (bill item), AI must
+    # not replace the exact 项目名称 column with the broader alias 工程名称.
+    for field, definition in FIELD_DEFINITIONS.items():
+        expected = normalized(definition["label"])
+        column = next((index for index, header in enumerate(headers) if normalized(header) == expected), None)
+        if column is None or column in used:
+            continue
+        fields[field] = column
+        used.add(column)
+        mappings.append({
+            "standardField": field,
+            "standardLabel": definition["label"],
+            "sourceHeader": headers[column],
+            "column": column + 1,
+            "confidence": 100.0,
+            "method": "标准表头精确匹配",
+            "reason": "原始表头与标准字段完全一致，优先级高于AI和别名推断",
+        })
+    ai_mappings = ai.field_mapping(headers, [[text(cell) for cell in row] for row in data_rows[:8]]) if ai else {}
     for field, decision in ai_mappings.items():
         column = decision["column"]
-        if column in used:
+        if field in fields or column in used:
             continue
         fields[field] = column
         used.add(column)

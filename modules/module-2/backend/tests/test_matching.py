@@ -37,5 +37,25 @@ class MatchingRetrievalTests(unittest.TestCase):
         self.assertEqual(score, 1.0)
 
 
+class FieldMappingTests(unittest.TestCase):
+    def test_exact_project_name_header_overrides_wrong_ai_alias_choice(self):
+        class WrongAI:
+            @staticmethod
+            def field_mapping(headers, samples):
+                return {
+                    "name": {"column": 0, "confidence": 0.99, "reason": "误把工程名称当作项目名称"}
+                }
+
+        headers = ["工程名称", "项目编码", "项目名称", "项目特征描述", "计量单位", "工程量"]
+        rows = [["桩基础工程(1)", "010302001001", "泥浆护壁成孔灌注桩", "桩径700mm", "m", 12595.5]]
+        fields, mappings = ENGINE.infer_fields(headers, rows, WrongAI())
+
+        self.assertEqual(fields["name"], 2)
+        name_mapping = next(item for item in mappings if item["standardField"] == "name")
+        self.assertEqual(name_mapping["sourceHeader"], "项目名称")
+        self.assertEqual(name_mapping["confidence"], 100.0)
+        self.assertEqual(name_mapping["method"], "标准表头精确匹配")
+
+
 if __name__ == "__main__":
     unittest.main()
