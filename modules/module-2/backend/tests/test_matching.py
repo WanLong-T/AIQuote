@@ -57,5 +57,37 @@ class FieldMappingTests(unittest.TestCase):
         self.assertEqual(name_mapping["method"], "标准表头精确匹配")
 
 
+class MultiQuotaTests(unittest.TestCase):
+    def test_normalizes_multiple_quotas_and_removes_duplicates(self):
+        selections = ENGINE.normalize_quota_selections({
+            "quotaSelections": [
+                {"code": "1-1", "coefficient": 2.5, "reason": "主体工序"},
+                {"code": "1-2", "coefficient": 1},
+                {"code": "1-1", "coefficient": 9},
+            ]
+        })
+        self.assertEqual([entry["code"] for entry in selections], ["1-1", "1-2"])
+        self.assertEqual(selections[0]["coefficient"], 2.5)
+
+    def test_legacy_single_quota_response_remains_supported(self):
+        self.assertEqual(
+            ENGINE.normalize_quota_selections({"quotaCode": "OLD-1"}),
+            [{"code": "OLD-1", "coefficient": 1.0, "reason": ""}],
+        )
+
+    def test_multiple_quota_prices_are_combined_with_coefficients(self):
+        base = {"code": "1-1", "name": "定额一", "unit": "m3", "chapter": "章",
+                "general": {"unitPrice": 10, "labour": 2, "material": 7, "machine": 1},
+                "simple": {"unitPrice": 12, "labour": 3, "material": 8, "machine": 1}}
+        second = {**base, "code": "1-2", "name": "定额二",
+                  "general": {"unitPrice": 5, "labour": 1, "material": 2, "machine": 2}}
+        contributions = [
+            ENGINE.quota_contribution(base, "一般计税", 2),
+            ENGINE.quota_contribution(second, "一般计税", 0.5),
+        ]
+        total = ENGINE.sum_quota_contributions(contributions)
+        self.assertEqual(total, {"unitPrice": 22.5, "labour": 4.5, "material": 15.0, "machine": 3.0})
+
+
 if __name__ == "__main__":
     unittest.main()

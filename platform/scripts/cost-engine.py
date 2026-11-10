@@ -149,9 +149,13 @@ class AIClient:
             return {}
         response = self.json_completion(
             "你是工程造价清单与定额匹配专家。只能从每个项目提供的候选清单和候选定额中选择，"
-            "禁止生成不存在的编码或价格。结合名称、项目特征、单位和施工工艺判断。返回JSON："
-            '{"results":[{"id":"项目id","listCode":"候选编码或空","quotaCode":"候选编码或空",'
-            '"confidence":0到1,"reason":"选择依据或无法确定原因"}]}。',
+            "禁止生成不存在的编码或价格。结合名称、项目特征、单位和施工工艺判断。"
+            "一个清单项目通常需要多条定额共同覆盖，必须选择能够完整覆盖工作内容的最小、不重复组合，"
+            "不要把互斥施工方案同时选入。每个项目最多选择8条定额；coefficient是将该定额单位价格换算到"
+            "当前清单计量单位所需的正数系数，无法可靠换算时填1并在reason中明确要求复核。无可靠定额则返回空数组。返回JSON："
+            '{"results":[{"id":"项目id","listCode":"候选编码或空","quotaSelections":'
+            '[{"code":"候选定额编码","coefficient":1,"reason":"该定额覆盖的工序"}],'
+            '"confidence":0到1,"reason":"组合选择依据或无法确定原因"}]}。',
             {"projects": entries},
         )
         return {text(item.get("id")): item for item in (response or {}).get("results", []) if text(item.get("id"))}
@@ -201,6 +205,56 @@ def number(value) -> float:
         return float(cleaned) if cleaned else 0.0
     except ValueError:
         return 0.0
+
+
+def normalize_quota_selections(choice: dict | None) -> list[dict]:
+    """Normalize the new multi-quota response and legacy single-code responses."""
+    if not choice:
+        return []
+    raw = choice.get("quotaSelections")
+    if not isinstance(raw, list):
+        raw = [{"code": code} for code in choice.get("quotaCodes", [])] if isinstance(choice.get("quotaCodes"), list) else []
+    legacy_code = text(choice.get("quotaCode"))
+    if not raw and legacy_code:
+        raw = [{"code": legacy_code}]
+    result = []
+    seen = set()
+    for entry in raw:
+        entry = entry if isinstance(entry, dict) else {"code": entry}
+        code = text(entry.get("code"))
+        if not code or code in seen:
+            continue
+        coefficient = number(entry.get("coefficient")) or 1.0
+        if coefficient <= 0 or coefficient > 10000:
+            coefficient = 1.0
+        result.append({"code": code, "coefficient": coefficient, "reason": text(entry.get("reason"))})
+        seen.add(code)
+        if len(result) == 8:
+            break
+    return result
+
+
+def quota_contribution(item: dict, tax_mode: str, coefficient=1.0, reason="") -> dict:
+    prices = item["general" if tax_mode == "一般计税" else "simple"]
+    coefficient = max(0.0, number(coefficient))
+    return {
+        "code": item.get("code", ""), "name": item.get("name", ""),
+        "unit": item.get("unit", ""), "chapter": item.get("chapter", ""),
+        "coefficient": coefficient, "reason": reason,
+        "unitLabour": prices["labour"] * coefficient,
+        "unitMaterial": prices["material"] * coefficient,
+        "unitMachine": prices["machine"] * coefficient,
+        "unitPrice": prices["unitPrice"] * coefficient,
+    }
+
+
+def sum_quota_contributions(selections: list[dict]) -> dict:
+    return {
+        "unitPrice": sum(item.get("unitPrice", 0.0) for item in selections),
+        "labour": sum(item.get("unitLabour", 0.0) for item in selections),
+        "material": sum(item.get("unitMaterial", 0.0) for item in selections),
+        "machine": sum(item.get("unitMachine", 0.0) for item in selections),
+    }
 
 
 def normalized(value) -> str:
@@ -749,35 +803,45 @@ def calculate(payload: dict) -> dict:
         source_code = row["originalCode"]
         list_item, quota_item = item["listItem"], item["quotaItem"]
         list_score, quota_score = item["listScore"], item["quotaScore"]
+        selected_quotas = []
+        quota_scores = []
         ai_choice = ai_choices.get(str(index))
         ai_reason = ""
         if ai_choice:
             selected_list = text(ai_choice.get("listCode"))
-            selected_quota = text(ai_choice.get("quotaCode"))
             ai_confidence = max(0.0, min(1.0, number(ai_choice.get("confidence"))))
             allowed_lists = {candidate[1]["code"]: candidate for candidate in item["listCandidates"]}
             allowed_quotas = {candidate[1]["code"]: candidate for candidate in item["quotaCandidates"]}
             if selected_list in allowed_lists:
                 retrieval_score, list_item = allowed_lists[selected_list]
                 list_score = max(retrieval_score, ai_confidence)
-            if selected_quota in allowed_quotas:
-                retrieval_score, quota_item = allowed_quotas[selected_quota]
-                quota_score = max(retrieval_score, ai_confidence)
+            for selection in normalize_quota_selections(ai_choice):
+                if selection["code"] not in allowed_quotas:
+                    continue
+                retrieval_score, selected_item = allowed_quotas[selection["code"]]
+                selected_quotas.append(quota_contribution(
+                    selected_item, tax_mode, selection["coefficient"], selection["reason"]
+                ))
+                quota_scores.append(max(retrieval_score, ai_confidence))
             ai_reason = text(ai_choice.get("reason"))
-        prices = {"unitPrice": 0.0, "labour": 0.0, "material": 0.0, "machine": 0.0}
-        if quota_item:
-            prices = quota_item["general" if tax_mode == "一般计税" else "simple"]
+        if not selected_quotas and quota_item and not ai_choice:
+            selected_quotas = [quota_contribution(quota_item, tax_mode)]
+            quota_scores = [quota_score]
+        prices = sum_quota_contributions(selected_quotas)
         quantity = row["quantity"]
         for field in totals:
             totals[field] += prices[field] * quantity
         # The final confidence must reflect the complete list + quota chain.
         # Using max() made a strong list match hide a weak quota match (for
         # example showing 95% while still requiring review).
-        confidence = round((min(list_score, quota_score) if quotas else list_score) * 100, 1)
+        quota_confidence = min(quota_scores) if quota_scores else 0.0
+        confidence = round((min(list_score, quota_confidence) if quotas else list_score) * 100, 1)
         review_reasons = []
-        matched = list_score >= 0.72 and (not quotas or quota_score >= 0.62)
+        matched = list_score >= 0.72 and (not quotas or (selected_quotas and quota_confidence >= 0.62))
         if not matched:
             review_reasons.append("清单/定额匹配置信度不足")
+        if quotas and not selected_quotas:
+            review_reasons.append("未形成可靠的定额组合")
         if not row["quantityRecognized"]:
             review_reasons.append("未识别到明确工程量")
         if not row["unit"]:
@@ -787,12 +851,13 @@ def calculate(payload: dict) -> dict:
             **row,
             "listCode": (list_item or {}).get("code", ""),
             "listName": (list_item or {}).get("name", ""),
-            "quotaCode": (quota_item or {}).get("code", ""),
-            "quotaName": (quota_item or {}).get("name", ""),
+            "quotaCode": "；".join(entry["code"] for entry in selected_quotas),
+            "quotaName": "；".join(entry["name"] for entry in selected_quotas),
+            "quotaSelections": selected_quotas,
             "confidence": confidence,
             "status": status,
             "reviewReasons": review_reasons,
-            "matchMethod": "AI候选定额复核" if ai_choice else ("编码精确匹配" if source_code in list_by_code or source_code in quota_by_code else "本地相似度匹配"),
+            "matchMethod": "AI多定额组合匹配" if ai_choice else ("编码精确匹配" if source_code in list_by_code or source_code in quota_by_code else "本地相似度匹配"),
             "aiReason": ai_reason,
             "unitLabour": prices["labour"],
             "unitMaterial": prices["material"],
