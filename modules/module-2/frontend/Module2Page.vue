@@ -151,7 +151,7 @@ function provinceOptionSuffix(province:string){return supportedCatalogs[province
 const selectedFile=ref<File|null>(null),analyzing=ref(false),errorMessage=ref(''),result=ref<CostResult|null>(null);
 const exporting=ref(false);
 const progress=reactive({percent:0,stage:'准备任务',detail:'正在准备清单文件'});
-const progressSteps=[{label:'读取清单文件',at:8},{label:'字段智能识别',at:24},{label:'加载定额数据库',at:32},{label:'本地清单与定额初筛',at:40},{label:'AI语义复核',at:61},{label:'汇总人材机成本',at:83},{label:'生成测算结果',at:98}];
+const progressSteps=[{label:'读取清单文件',at:8},{label:'字段智能识别',at:24},{label:'加载定额数据库',at:32},{label:'本地清单与定额初筛',at:40},{label:'AI全库检索扩展',at:60},{label:'AI语义复核',at:68},{label:'汇总人材机成本',at:83},{label:'生成测算结果',at:98}];
 const aiStatus=reactive<AIConfigPublic>({enabled:false,configured:false,hasApiKey:false,baseUrl:'',provider:'',model:'',timeout:45,matchLimit:150,fallback:''});
 const aiForm=reactive({enabled:true,baseUrl:'https://c4ai.ccccltd.cn/api/compatible/v1',model:'jiaorong-kimi-k2.6',apiKey:'',timeout:45,matchLimit:150});
 const aiModels=[

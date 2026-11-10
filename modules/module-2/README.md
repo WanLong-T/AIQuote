@@ -9,3 +9,5 @@
 - 当前计算脚本暂存于 `platform/scripts/cost-engine.py` 和 `platform/scripts/export-cost-report.py`，后续抽离时应通过模块接口适配，不要让页面直接依赖脚本路径。
 
 模块接口统一使用 `/api/cost/...` 命名空间。
+
+匹配采用“编码精确匹配 → 本地多特征初筛 → AI独立生成检索词并重新扫描完整清单/定额库 → 合并候选后AI复核”的流程，避免正确答案因首轮候选数量限制而永久出局。

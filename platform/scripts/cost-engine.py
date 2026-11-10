@@ -156,6 +156,25 @@ class AIClient:
         )
         return {text(item.get("id")): item for item in (response or {}).get("results", []) if text(item.get("id"))}
 
+    def expand_match_queries(self, entries: list[dict]) -> dict[str, dict]:
+        """Generate independent retrieval queries before the model sees candidates.
+
+        This prevents the first local top-N ranking from permanently excluding a
+        semantically correct catalog item. The generated terms are searched
+        against the complete local list and quota libraries.
+        """
+        if not entries:
+            return {}
+        response = self.json_completion(
+            "你是工程造价检索专家。不要选择答案，也不要编造价格。根据项目名称、项目特征和单位，"
+            "独立生成用于检索完整清单库和完整定额库的规范化短语、同义词和施工工艺词。"
+            "不要受任何候选列表影响。每类最多4个短语；可能的编码仅在十分确定时给出。返回JSON："
+            '{"results":[{"id":"项目id","listSearchTerms":["短语"],'
+            '"quotaSearchTerms":["短语"],"possibleCodes":["编码"]}]}。',
+            {"projects": entries},
+        )
+        return {text(item.get("id")): item for item in (response or {}).get("results", []) if text(item.get("id"))}
+
     def summary(self):
         mode = "AI+定额双驱动" if self.enabled and self.calls > self.failures else "本地规则+定额降级"
         return {
@@ -595,8 +614,11 @@ def similarity(query: str, candidate: str, source_unit="", candidate_unit="") ->
     ratio = SequenceMatcher(None, left, right).ratio()
     contains = 1.0 if left in right or right in left else 0.0
     common = len(set(left) & set(right)) / max(1, len(set(left)))
+    left_bigrams = {left[index:index + 2] for index in range(max(1, len(left) - 1))}
+    right_bigrams = {right[index:index + 2] for index in range(max(1, len(right) - 1))}
+    bigram = len(left_bigrams & right_bigrams) / max(1, len(left_bigrams | right_bigrams))
     unit_bonus = 0.08 if source_unit and candidate_unit and normalized(source_unit) == normalized(candidate_unit) else 0.0
-    return min(1.0, ratio * 0.58 + common * 0.27 + contains * 0.15 + unit_bonus)
+    return min(1.0, ratio * 0.42 + bigram * 0.25 + common * 0.18 + contains * 0.15 + unit_bonus)
 
 
 def best_match(query: str, unit: str, candidates: list[dict]):
@@ -609,6 +631,21 @@ def top_matches(query: str, unit: str, candidates: list[dict], limit=5):
         ((similarity(query, item["name"] + item.get("chapter", ""), unit, item.get("unit", "")), item) for item in candidates),
         key=lambda value: value[0], reverse=True,
     )[:limit]
+
+
+def expanded_matches(queries: list[str], unit: str, candidates: list[dict], existing: list, possible_codes: list[str], limit=30):
+    """Search the complete library with multiple independent queries and merge results."""
+    by_code = {item["code"]: item for item in candidates}
+    merged = {item["code"]: (score, item) for score, item in existing}
+    for code in possible_codes:
+        if code in by_code:
+            merged[code] = (1.0, by_code[code])
+    for query in queries[:8]:
+        for score, item in top_matches(query, unit, candidates, 12):
+            previous = merged.get(item["code"])
+            if previous is None or score > previous[0]:
+                merged[item["code"]] = (score, item)
+    return sorted(merged.values(), key=lambda value: value[0], reverse=True)[:limit]
 
 
 def calculate(payload: dict) -> dict:
@@ -636,12 +673,12 @@ def calculate(payload: dict) -> dict:
         source_code = row["originalCode"]
         list_item = list_by_code.get(source_code)
         list_score = 1.0 if list_item else 0.0
-        list_candidates = top_matches(query, row["unit"], lists)
+        list_candidates = top_matches(query, row["unit"], lists, 20)
         if not list_item:
             list_score, list_item = list_candidates[0] if list_candidates else (0.0, None)
         quota_item = quota_by_code.get(source_code)
         quota_score = 1.0 if quota_item else 0.0
-        quota_candidates = top_matches(query + " " + (list_item or {}).get("name", ""), row["unit"], quotas)
+        quota_candidates = top_matches(query + " " + (list_item or {}).get("name", ""), row["unit"], quotas, 20)
         if not quota_item:
             quota_score, quota_item = quota_candidates[0] if quota_candidates else (0.0, None)
         prepared.append({
@@ -649,21 +686,40 @@ def calculate(payload: dict) -> dict:
             "listScore": list_score, "quotaScore": quota_score,
             "listCandidates": list_candidates, "quotaCandidates": quota_candidates,
         })
-        exact = source_code in list_by_code or source_code in quota_by_code
+        exact = source_code in list_by_code and (not quotas or source_code in quota_by_code)
         if ai.enabled and not exact and len(ai_requests) < ai_match_limit:
             ai_requests.append({
                 "id": str(index), "name": row["name"], "features": row["features"], "unit": row["unit"],
-                "listCandidates": [{"code": item["code"], "name": item["name"], "unit": item["unit"], "localScore": round(score, 3)} for score, item in list_candidates],
-                "quotaCandidates": [{"code": item["code"], "name": item["name"], "unit": item["unit"], "chapter": item.get("chapter", ""), "localScore": round(score, 3)} for score, item in quota_candidates],
             })
         if index == 0 or (index + 1) % 50 == 0 or index + 1 == min(len(rows), 2000):
             ratio = (index + 1) / max(1, min(len(rows), 2000))
             emit_progress(32 + round(ratio * 28), "本地清单与定额初筛", f"已处理 {index + 1}/{min(len(rows), 2000)} 条")
     ai_choices = {}
     request_batches = max(1, (len(ai_requests) + 11) // 12)
+    query_expansions = {}
     for batch_index, start in enumerate(range(0, len(ai_requests), 12)):
-        ai_choices.update(ai.choose_matches(ai_requests[start : start + 12]))
-        emit_progress(60 + round((batch_index + 1) / request_batches * 22), "AI语义复核", f"已复核 {min(start + 12, len(ai_requests))}/{len(ai_requests)} 条疑难项")
+        query_expansions.update(ai.expand_match_queries(ai_requests[start : start + 12]))
+        emit_progress(60 + round((batch_index + 1) / request_batches * 8), "AI全库检索扩展", f"已扩展 {min(start + 12, len(ai_requests))}/{len(ai_requests)} 条检索词")
+    enriched_requests = []
+    for request in ai_requests:
+        index = int(request["id"])
+        item = prepared[index]
+        expansion = query_expansions.get(request["id"], {})
+        possible_codes = [text(code) for code in expansion.get("possibleCodes", []) if text(code)]
+        list_queries = [f'{item["row"]["name"]} {item["row"]["features"]}'.strip()]
+        list_queries.extend(text(value) for value in expansion.get("listSearchTerms", []) if text(value))
+        quota_queries = list(list_queries)
+        quota_queries.extend(text(value) for value in expansion.get("quotaSearchTerms", []) if text(value))
+        item["listCandidates"] = expanded_matches(list_queries, item["row"]["unit"], lists, item["listCandidates"], possible_codes)
+        item["quotaCandidates"] = expanded_matches(quota_queries, item["row"]["unit"], quotas, item["quotaCandidates"], possible_codes)
+        enriched_requests.append({
+            **request,
+            "listCandidates": [{"code": candidate["code"], "name": candidate["name"], "unit": candidate["unit"], "retrievalScore": round(score, 3)} for score, candidate in item["listCandidates"]],
+            "quotaCandidates": [{"code": candidate["code"], "name": candidate["name"], "unit": candidate["unit"], "chapter": candidate.get("chapter", ""), "retrievalScore": round(score, 3)} for score, candidate in item["quotaCandidates"]],
+        })
+    for batch_index, start in enumerate(range(0, len(enriched_requests), 12)):
+        ai_choices.update(ai.choose_matches(enriched_requests[start : start + 12]))
+        emit_progress(68 + round((batch_index + 1) / request_batches * 14), "AI语义复核", f"已复核 {min(start + 12, len(enriched_requests))}/{len(enriched_requests)} 条疑难项")
     if not ai_requests:
         emit_progress(82, "匹配结果复核", "编码与本地语义匹配已完成")
 
@@ -679,14 +735,15 @@ def calculate(payload: dict) -> dict:
         if ai_choice:
             selected_list = text(ai_choice.get("listCode"))
             selected_quota = text(ai_choice.get("quotaCode"))
-            allowed_lists = {candidate[1]["code"]: candidate[1] for candidate in item["listCandidates"]}
-            allowed_quotas = {candidate[1]["code"]: candidate[1] for candidate in item["quotaCandidates"]}
+            ai_confidence = max(0.0, min(1.0, number(ai_choice.get("confidence"))))
+            allowed_lists = {candidate[1]["code"]: candidate for candidate in item["listCandidates"]}
+            allowed_quotas = {candidate[1]["code"]: candidate for candidate in item["quotaCandidates"]}
             if selected_list in allowed_lists:
-                list_item = allowed_lists[selected_list]
-                list_score = max(list_score, number(ai_choice.get("confidence")))
+                retrieval_score, list_item = allowed_lists[selected_list]
+                list_score = max(retrieval_score, ai_confidence)
             if selected_quota in allowed_quotas:
-                quota_item = allowed_quotas[selected_quota]
-                quota_score = max(quota_score, number(ai_choice.get("confidence")))
+                retrieval_score, quota_item = allowed_quotas[selected_quota]
+                quota_score = max(retrieval_score, ai_confidence)
             ai_reason = text(ai_choice.get("reason"))
         prices = {"unitPrice": 0.0, "labour": 0.0, "material": 0.0, "machine": 0.0}
         if quota_item:
