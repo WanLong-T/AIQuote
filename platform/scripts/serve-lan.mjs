@@ -12,6 +12,11 @@ import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'node:
 import { hostname, userInfo } from 'node:os';
 import { extname, join, normalize } from 'node:path';
 import mysql from 'mysql2/promise';
+import {
+  buildGapAnalysis,
+  summarizeCase,
+  validateComparisonScope,
+} from '../../modules/module-3/backend/result-domain.mjs';
 
 function loadLocalEnvironment() {
   const file = join(import.meta.dirname, '..', '.env.local');
@@ -288,6 +293,67 @@ async function ensureDatabaseSchema() {
       INDEX idx_tracking_project_created (project_id, created_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
+  await dbPool.query(`
+    CREATE TABLE IF NOT EXISTS bid_result_cases (
+      id BIGINT NOT NULL AUTO_INCREMENT,
+      project_name VARCHAR(300) NOT NULL,
+      section_code VARCHAR(100) NOT NULL,
+      bid_round VARCHAR(50) NOT NULL,
+      tax_basis VARCHAR(100) NOT NULL,
+      cost_basis VARCHAR(200) NOT NULL,
+      current_version INT NOT NULL DEFAULT 1,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      INDEX idx_bid_result_scope (section_code, bid_round, tax_basis)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+  await dbPool.query(`
+    CREATE TABLE IF NOT EXISTS bid_result_versions (
+      id BIGINT NOT NULL AUTO_INCREMENT,
+      case_id BIGINT NOT NULL,
+      version_no INT NOT NULL,
+      fact_payload JSON NOT NULL,
+      change_reason VARCHAR(500) NOT NULL,
+      created_by VARCHAR(100) NOT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      UNIQUE KEY uq_bid_result_version (case_id, version_no),
+      CONSTRAINT fk_bid_result_version_case FOREIGN KEY (case_id) REFERENCES bid_result_cases(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+  await dbPool.query(`
+    CREATE TABLE IF NOT EXISTS bid_result_audit_logs (
+      id BIGINT NOT NULL AUTO_INCREMENT,
+      case_id BIGINT NOT NULL,
+      source_type ENUM('official','internal','ai','system') NOT NULL,
+      action_type VARCHAR(80) NOT NULL,
+      detail TEXT NOT NULL,
+      operator_name VARCHAR(100) NOT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      INDEX idx_bid_result_audit (case_id, created_at),
+      CONSTRAINT fk_bid_result_audit_case FOREIGN KEY (case_id) REFERENCES bid_result_cases(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+  await dbPool.query(`
+    CREATE TABLE IF NOT EXISTS bid_knowledge_change_requests (
+      id BIGINT NOT NULL AUTO_INCREMENT,
+      case_id BIGINT NOT NULL,
+      target_type ENUM('template','cost_parameter','experience_rule') NOT NULL,
+      target_name VARCHAR(200) NOT NULL,
+      proposed_change TEXT NOT NULL,
+      status ENUM('pending','approved','rejected','applied') NOT NULL DEFAULT 'pending',
+      requested_by VARCHAR(100) NOT NULL,
+      reviewed_by VARCHAR(100) NULL,
+      review_comment VARCHAR(500) NULL,
+      reviewed_at DATETIME NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      INDEX idx_knowledge_request_case (case_id, status),
+      CONSTRAINT fk_knowledge_request_case FOREIGN KEY (case_id) REFERENCES bid_result_cases(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
   const [projectColumns] = await dbPool.query('SHOW COLUMNS FROM projects');
   const existingColumns = new Set(projectColumns.map((column) => column.Field));
   const locationColumns = [
@@ -503,6 +569,30 @@ function readJsonBody(request, maximumLength = 1_000_000) {
   });
 }
 
+function parseJsonColumn(value, fallback = {}) {
+  if (value && typeof value === 'object') return value;
+  try {
+    return JSON.parse(value || '');
+  } catch {
+    return fallback;
+  }
+}
+
+function resultCaseForUi(row) {
+  const payload = parseJsonColumn(row.fact_payload);
+  return {
+    id: Number(row.id),
+    version: Number(row.current_version),
+    projectName: row.project_name,
+    sectionCode: row.section_code,
+    bidRound: row.bid_round,
+    taxBasis: row.tax_basis,
+    costBasis: row.cost_basis,
+    updatedAt: row.updated_at,
+    ...payload,
+  };
+}
+
 function trackingLogForUi(row) {
   return {
     id: Number(row.id),
@@ -637,6 +727,180 @@ async function handleApi(request, urlPath, response) {
         'Access-Control-Allow-Headers': 'Content-Type, Accept',
       });
       response.end();
+      return true;
+    }
+    if (urlPath === '/api/results/cases' && request.method === 'GET') {
+      const [rows] = await dbPool.query(`
+        SELECT c.*, v.fact_payload
+        FROM bid_result_cases c
+        JOIN bid_result_versions v ON v.case_id = c.id AND v.version_no = c.current_version
+        ORDER BY c.updated_at DESC, c.id DESC
+      `);
+      sendJson(response, 200, { count: rows.length, data: rows.map(resultCaseForUi) });
+      return true;
+    }
+    if (urlPath === '/api/results/cases' && request.method === 'POST') {
+      const body = await readJsonBody(request, 8_000_000);
+      const scope = body.scope || {};
+      const scopeValidation = validateComparisonScope(scope);
+      if (!String(body.projectName || '').trim() || !scopeValidation.valid) {
+        sendJson(response, 400, {
+          message: `请填写项目名称及完整比较口径：${scopeValidation.missing.join('、')}`,
+        });
+        return true;
+      }
+      if (!Array.isArray(body.bids) || body.bids.length < 2) {
+        sendJson(response, 400, { message: '至少需要录入两家投标人' });
+        return true;
+      }
+      const operator = String(body.operator || '当前用户').trim().slice(0, 100);
+      const reason = String(body.changeReason || '录入投标结果').trim().slice(0, 500);
+      const payload = {
+        projectName: String(body.projectName).trim(),
+        controlPrice: Number(body.controlPrice) || 0,
+        openingDate: String(body.openingDate || ''),
+        scope: {
+          sectionCode: String(scope.sectionCode).trim(),
+          bidRound: String(scope.bidRound).trim(),
+          taxBasis: String(scope.taxBasis).trim(),
+          costBasis: String(scope.costBasis).trim(),
+        },
+        bids: body.bids,
+        scores: Array.isArray(body.scores) ? body.scores : [],
+        causes: Array.isArray(body.causes) ? body.causes : [],
+        improvements: Array.isArray(body.improvements) ? body.improvements : [],
+        evidence: Array.isArray(body.evidence) ? body.evidence : [],
+      };
+      const connection = await dbPool.getConnection();
+      try {
+        await connection.beginTransaction();
+        let caseId = Number(body.id) || null;
+        let version = 1;
+        if (caseId) {
+          const [existing] = await connection.query(
+            'SELECT current_version FROM bid_result_cases WHERE id = ? FOR UPDATE',
+            [caseId],
+          );
+          if (!existing.length) throw new Error('复盘项目不存在');
+          version = Number(existing[0].current_version) + 1;
+          await connection.query(
+            `UPDATE bid_result_cases SET project_name = ?, section_code = ?, bid_round = ?,
+              tax_basis = ?, cost_basis = ?, current_version = ? WHERE id = ?`,
+            [payload.projectName, payload.scope.sectionCode, payload.scope.bidRound, payload.scope.taxBasis, payload.scope.costBasis, version, caseId],
+          );
+        } else {
+          const [insert] = await connection.query(
+            `INSERT INTO bid_result_cases
+              (project_name, section_code, bid_round, tax_basis, cost_basis, current_version)
+             VALUES (?, ?, ?, ?, ?, 1)`,
+            [payload.projectName, payload.scope.sectionCode, payload.scope.bidRound, payload.scope.taxBasis, payload.scope.costBasis],
+          );
+          caseId = Number(insert.insertId);
+        }
+        await connection.query(
+          `INSERT INTO bid_result_versions
+            (case_id, version_no, fact_payload, change_reason, created_by)
+           VALUES (?, ?, ?, ?, ?)`,
+          [caseId, version, JSON.stringify(payload), reason, operator],
+        );
+        await connection.query(
+          `INSERT INTO bid_result_audit_logs
+            (case_id, source_type, action_type, detail, operator_name)
+           VALUES (?, 'official', ?, ?, ?)`,
+          [caseId, version === 1 ? 'create_snapshot' : 'create_new_version', reason, operator],
+        );
+        await connection.commit();
+        sendJson(response, 200, {
+          success: true,
+          id: caseId,
+          version,
+          summary: summarizeCase(payload),
+          message: `已保存不可变事实版本 V${version}`,
+        });
+      } catch (error) {
+        await connection.rollback();
+        throw error;
+      } finally {
+        connection.release();
+      }
+      return true;
+    }
+    const resultCaseMatch = urlPath.match(/^\/api\/results\/cases\/(\d+)$/);
+    if (resultCaseMatch && request.method === 'GET') {
+      const caseId = Number(resultCaseMatch[1]);
+      const [rows] = await dbPool.query(
+        `SELECT c.*, v.fact_payload, v.change_reason, v.created_by AS version_created_by,
+          v.created_at AS version_created_at
+         FROM bid_result_cases c
+         JOIN bid_result_versions v ON v.case_id = c.id
+         WHERE c.id = ? ORDER BY v.version_no DESC`,
+        [caseId],
+      );
+      if (!rows.length) {
+        sendJson(response, 404, { message: '复盘项目不存在' });
+        return true;
+      }
+      const current = resultCaseForUi(rows[0]);
+      const scores = Array.isArray(current.scores) ? current.scores : [];
+      const ours = current.bids?.find((bid) => bid.isOurs);
+      const leader = current.bids?.find((bid) => bid.isWinner) || current.bids?.find((bid) => Number(bid.candidateRank) === 1);
+      const ourScores = scores.filter((score) => score.bidderName === ours?.bidderName);
+      const leaderScores = scores.filter((score) => score.bidderName === leader?.bidderName);
+      const [audits] = await dbPool.query(
+        'SELECT * FROM bid_result_audit_logs WHERE case_id = ? ORDER BY created_at DESC, id DESC',
+        [caseId],
+      );
+      const [requests] = await dbPool.query(
+        'SELECT * FROM bid_knowledge_change_requests WHERE case_id = ? ORDER BY created_at DESC, id DESC',
+        [caseId],
+      );
+      sendJson(response, 200, {
+        data: current,
+        summary: summarizeCase(current),
+        gaps: buildGapAnalysis(ourScores, leaderScores),
+        versions: rows.map((row) => ({
+          version: Number(row.version_no),
+          reason: row.change_reason,
+          createdBy: row.version_created_by,
+          createdAt: row.version_created_at,
+        })),
+        audits,
+        knowledgeRequests: requests,
+      });
+      return true;
+    }
+    const knowledgeCaseMatch = urlPath.match(/^\/api\/results\/cases\/(\d+)\/knowledge-requests$/);
+    if (knowledgeCaseMatch && request.method === 'POST') {
+      const caseId = Number(knowledgeCaseMatch[1]);
+      const body = await readJsonBody(request);
+      const allowed = ['template', 'cost_parameter', 'experience_rule'];
+      if (!allowed.includes(body.targetType) || !String(body.targetName || '').trim() || !String(body.proposedChange || '').trim()) {
+        sendJson(response, 400, { message: '请完整填写知识更新类型、对象和建议内容' });
+        return true;
+      }
+      const [insert] = await dbPool.query(
+        `INSERT INTO bid_knowledge_change_requests
+          (case_id, target_type, target_name, proposed_change, requested_by)
+         VALUES (?, ?, ?, ?, ?)`,
+        [caseId, body.targetType, String(body.targetName).trim(), String(body.proposedChange).trim(), String(body.requestedBy || '当前用户').trim()],
+      );
+      sendJson(response, 200, { success: true, id: Number(insert.insertId), status: 'pending' });
+      return true;
+    }
+    const knowledgeReviewMatch = urlPath.match(/^\/api\/results\/knowledge-requests\/(\d+)\/review$/);
+    if (knowledgeReviewMatch && request.method === 'POST') {
+      const body = await readJsonBody(request);
+      const status = body.approved ? 'approved' : 'rejected';
+      const [update] = await dbPool.query(
+        `UPDATE bid_knowledge_change_requests SET status = ?, reviewed_by = ?,
+          review_comment = ?, reviewed_at = NOW() WHERE id = ? AND status = 'pending'`,
+        [status, String(body.reviewer || '审核人').trim(), String(body.comment || '').trim(), Number(knowledgeReviewMatch[1])],
+      );
+      if (!update.affectedRows) {
+        sendJson(response, 409, { message: '该申请不存在或已经审核' });
+        return true;
+      }
+      sendJson(response, 200, { success: true, status });
       return true;
     }
     if (urlPath === '/api/cost/analyze' && request.method === 'POST') {

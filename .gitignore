@@ -7,6 +7,7 @@
 
 # Generated dependencies/build metadata for workspace apps.
 **/node_modules/
+**/.pnpm-store/
 **/.quasar/
 **/dist/
 
