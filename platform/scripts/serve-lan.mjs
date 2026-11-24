@@ -44,11 +44,12 @@ const aiSecretKey = scryptSync(
 );
 const defaultAiConfig = {
   enabled: true,
-  baseUrl: 'https://c4ai.ccccltd.cn/api/compatible/v1',
-  model: 'jiaorong-kimi-k2.6',
+  baseUrl: 'https://api.deepseek.com',
+  model: 'deepseek-flash',
   timeout: 45,
   matchLimit: 150,
 };
+const supportedAiModels = new Set(['deepseek-flash', 'deepseek-v4-pro']);
 
 function encryptSecret(value) {
   if (!value) return null;
@@ -86,12 +87,14 @@ function readCostAiConfig() {
     }
   }
   const apiKey = decryptSecret(saved.apiKeyEncrypted) || process.env.COST_AI_API_KEY || '';
+  const savedModel = saved.model || process.env.COST_AI_MODEL || defaultAiConfig.model;
+  const model = supportedAiModels.has(savedModel) ? savedModel : defaultAiConfig.model;
   return {
     enabled:
       saved.enabled ??
       !['0', 'false', 'off'].includes(String(process.env.COST_AI_ENABLED || 'true').toLowerCase()),
-    baseUrl: saved.baseUrl || process.env.COST_AI_BASE_URL || defaultAiConfig.baseUrl,
-    model: saved.model || process.env.COST_AI_MODEL || defaultAiConfig.model,
+    baseUrl: defaultAiConfig.baseUrl,
+    model,
     timeout: Number(saved.timeout || process.env.COST_AI_TIMEOUT || defaultAiConfig.timeout),
     matchLimit: Number(
       saved.matchLimit || process.env.COST_AI_MATCH_LIMIT || defaultAiConfig.matchLimit,
@@ -118,16 +121,12 @@ function publicAiConfig(config = readCostAiConfig()) {
 
 function saveCostAiConfig(input) {
   const current = readCostAiConfig();
-  const baseUrl = String(input.baseUrl || '')
-    .trim()
-    .replace(/\/$/, '');
   const model = String(input.model || '').trim();
-  if (!/^https?:\/\//i.test(baseUrl)) throw new Error('接口地址必须以 http:// 或 https:// 开头');
-  if (!model) throw new Error('请填写模型名称');
+  if (!supportedAiModels.has(model)) throw new Error('请选择当前支持的 DeepSeek 模型');
   const apiKey = input.clearApiKey ? '' : String(input.apiKey || '').trim() || current.apiKey;
   const stored = {
     enabled: input.enabled !== false,
-    baseUrl,
+    baseUrl: defaultAiConfig.baseUrl,
     model,
     timeout: Math.max(10, Math.min(120, Number(input.timeout) || defaultAiConfig.timeout)),
     matchLimit: Math.max(0, Math.min(500, Number(input.matchLimit) || defaultAiConfig.matchLimit)),
@@ -145,13 +144,12 @@ function saveCostAiConfig(input) {
 async function testCostAiConfig(input) {
   const current = readCostAiConfig();
   const config = {
-    baseUrl: String(input.baseUrl || current.baseUrl)
-      .trim()
-      .replace(/\/$/, ''),
+    baseUrl: defaultAiConfig.baseUrl,
     model: String(input.model || current.model).trim(),
     apiKey: String(input.apiKey || '').trim() || current.apiKey,
     timeout: Math.max(10, Math.min(120, Number(input.timeout) || current.timeout)),
   };
+  if (!supportedAiModels.has(config.model)) throw new Error('请选择当前支持的 DeepSeek 模型');
   const endpoint = config.baseUrl.endsWith('/chat/completions')
     ? config.baseUrl
     : `${config.baseUrl}/chat/completions`;

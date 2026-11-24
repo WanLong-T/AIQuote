@@ -121,7 +121,7 @@
     </q-dialog>
     <q-dialog v-model="showModelPicker">
       <section class="model-picker-modal">
-        <header><div><span>AI MODEL LIBRARY</span><h2>选择大语言模型</h2><p>模型清单来源于交融 MaaS 服务，单击一行选择模型。</p></div><button type="button" @click="showModelPicker=false"><q-icon name="close" /></button></header>
+        <header><div><span>AI MODEL LIBRARY</span><h2>选择大语言模型</h2><p>模型清单来源于 DeepSeek 官方 API，单击一行选择模型。</p></div><button type="button" @click="showModelPicker=false"><q-icon name="close" /></button></header>
         <div class="model-table-wrap"><table><thead><tr><th>选择</th><th>模型名称</th><th>参数量</th><th>上下文</th><th>支持深度思考</th></tr></thead><tbody><tr v-for="model in aiModels" :key="model.value" :class="{ selected: modelDraft === model.value }" @click="modelDraft=model.value"><td><input v-model="modelDraft" type="radio" name="ai-model" :value="model.value" :aria-label="`选择${model.label}`"></td><td><strong>{{ model.label }}</strong></td><td>{{ model.parameters }}</td><td>{{ model.context }}</td><td>{{ model.deepThinking ? '是' : '否' }}</td></tr></tbody></table></div>
         <footer><span>当前选择：<b>{{ modelDraft }}</b></span><button type="button" class="secondary" @click="showModelPicker=false">取消</button><button type="button" class="primary" :disabled="!modelDraft" @click="confirmModelPicker">确认选择</button></footer>
       </section>
@@ -153,24 +153,15 @@ const exporting=ref(false);
 const progress=reactive({percent:0,stage:'准备任务',detail:'正在准备清单文件'});
 const progressSteps=[{label:'读取清单文件',at:8},{label:'字段智能识别',at:24},{label:'加载定额数据库',at:32},{label:'本地清单与定额初筛',at:40},{label:'AI全库检索扩展',at:60},{label:'AI语义复核',at:68},{label:'汇总人材机成本',at:83},{label:'生成测算结果',at:98}];
 const aiStatus=reactive<AIConfigPublic>({enabled:false,configured:false,hasApiKey:false,baseUrl:'',provider:'',model:'',timeout:45,matchLimit:150,fallback:''});
-const aiForm=reactive({enabled:true,baseUrl:'https://c4ai.ccccltd.cn/api/compatible/v1',model:'jiaorong-kimi-k2.6',apiKey:'',timeout:45,matchLimit:150});
+const defaultAiModel='deepseek-flash';
+const deepSeekBaseUrl='https://api.deepseek.com';
+const aiForm=reactive({enabled:true,baseUrl:deepSeekBaseUrl,model:defaultAiModel,apiKey:'',timeout:45,matchLimit:150});
 const aiModels=[
-  {value:'jiaorong-instruct',label:'jiaorong-instruct',parameters:'72b',context:'128K',deepThinking:false},
-  {value:'jiaorong-glm-5.2',label:'jiaorong-glm-5.2',parameters:'753b',context:'1M',deepThinking:true},
-  {value:'jiaorong-deepseek-v4-flash',label:'jiaorong-deepseek-v4-flash',parameters:'284b',context:'1M',deepThinking:true},
-  {value:'jiaorong-glm-5.1',label:'jiaorong-glm-5.1',parameters:'754b',context:'198K',deepThinking:true},
-  {value:'jiaorong-kimi-k2.6',label:'jiaorong-kimi-k2.6',parameters:'1t',context:'256K',deepThinking:true},
-  {value:'jiaorong-deepseek-v4-pro',label:'jiaorong-deepseek-v4-pro',parameters:'1.6t',context:'1M',deepThinking:true},
-  {value:'jiaorong-deepseek-v3.2',label:'jiaorong-deepseek-v3.2',parameters:'671b',context:'160K',deepThinking:true},
-  {value:'jiaorong-kimi-k2.5',label:'jiaorong-kimi-k2.5',parameters:'1t',context:'256K',deepThinking:true},
-  {value:'jiaorong-glm-5',label:'jiaorong-glm-5',parameters:'744b',context:'198K',deepThinking:true},
-  {value:'jiaorong-minimax-m2.5',label:'jiaorong-minimax-m2.5',parameters:'229b',context:'192K',deepThinking:false},
-  {value:'jiaorong-qwen3.5-397b-a17b',label:'jiaorong-qwen3.5-397b-a17b',parameters:'397b',context:'256K',deepThinking:true},
-  {value:'jiaorong-qwen3.5-122b-a10b',label:'jiaorong-qwen3.5-122b-a10b',parameters:'122b',context:'256K',deepThinking:true},
-  {value:'jiaorong-qwen3.5-35b-a3b',label:'jiaorong-qwen3.5-35b-a3b',parameters:'35b',context:'256K',deepThinking:true},
+  {value:'deepseek-flash',label:'deepseek-flash',parameters:'V4.1 Flash',context:'1M',deepThinking:true},
+  {value:'deepseek-v4-pro',label:'deepseek-v4-pro',parameters:'V4 Pro',context:'1M',deepThinking:true},
 ] as const;
-const selectedAiModel=ref('jiaorong-kimi-k2.6');
-const showModelPicker=ref(false),modelDraft=ref('jiaorong-kimi-k2.6');
+const selectedAiModel=ref(defaultAiModel);
+const showModelPicker=ref(false),modelDraft=ref(defaultAiModel);
 const showAiConfig=ref(false),showApiKey=ref(false),testingConfig=ref(false),savingConfig=ref(false),configMessage=ref(''),configMessageType=ref<'success'|'error'|''>('');
 const showItemEditor=ref(false),editItem=ref<CostItem|null>(null),editItemIndex=ref(-1),editReviewReasons=ref(''),editError=ref('');
 const catalogLists=ref<CatalogList[]>([]),catalogQuotas=ref<CatalogQuota[]>([]),catalogLoading=ref(false),listSearch=ref(''),quotaSearch=ref('');
@@ -182,13 +173,13 @@ const filteredQuotas=computed(()=>filterCatalog(catalogQuotas.value,quotaSearch.
 const fieldMappings=computed(()=>(result.value?.parsing.sheets||[]).flatMap(sheet=>sheet.mappings.map(mapping=>({...mapping,sourceName:sheet.sourceName}))));
 const unmappedFields=computed(()=>[...new Set((result.value?.parsing.sheets||[]).flatMap(sheet=>sheet.unmappedHeaders.map(header=>`${sheet.sourceName}：${header}`)))]);
 const breakdown:{key:SummaryKey;label:string}[]=[{key:'labour',label:'人工费'},{key:'material',label:'材料费'},{key:'machine',label:'机械费'},{key:'management',label:'管理费'},{key:'profit',label:'利润'},{key:'tax',label:'税金'}];
-async function loadAiStatus(){try{const response=await fetch('/api/cost/ai-config');if(!response.ok)throw new Error();Object.assign(aiStatus,await response.json());selectedAiModel.value=aiModels.some(item=>item.value===aiStatus.model)?aiStatus.model:'jiaorong-kimi-k2.6'}catch{aiStatus.enabled=false}}
+async function loadAiStatus(){try{const response=await fetch('/api/cost/ai-config');if(!response.ok)throw new Error();Object.assign(aiStatus,await response.json());selectedAiModel.value=aiModels.some(item=>item.value===aiStatus.model)?aiStatus.model:defaultAiModel}catch{aiStatus.enabled=false}}
 onMounted(loadAiStatus);
-function openAiConfig(){Object.assign(aiForm,{enabled:aiStatus.enabled||!aiStatus.configured,baseUrl:aiStatus.baseUrl||'https://c4ai.ccccltd.cn/api/compatible/v1',model:selectedAiModel.value,apiKey:'',timeout:aiStatus.timeout||45,matchLimit:aiStatus.matchLimit??150});configMessage.value='';configMessageType.value='';showApiKey.value=false;showAiConfig.value=true}
+function openAiConfig(){Object.assign(aiForm,{enabled:aiStatus.enabled||!aiStatus.configured,baseUrl:deepSeekBaseUrl,model:selectedAiModel.value,apiKey:'',timeout:aiStatus.timeout||45,matchLimit:aiStatus.matchLimit??150});configMessage.value='';configMessageType.value='';showApiKey.value=false;showAiConfig.value=true}
 function openModelPicker(){modelDraft.value=selectedAiModel.value;showModelPicker.value=true}
 async function confirmModelPicker(){selectedAiModel.value=modelDraft.value;showModelPicker.value=false;await changeAiModel()}
 async function postAiConfig(path:string){const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(aiForm)});const payload=await response.json() as {success?:boolean;message?:string}&Partial<AIConfigPublic>;if(!response.ok||!payload.success)throw new Error(payload.message||'操作失败');return payload}
-async function changeAiModel(){aiForm.model=selectedAiModel.value;if(!aiStatus.configured){openAiConfig();return}savingConfig.value=true;try{Object.assign(aiForm,{enabled:aiStatus.enabled,baseUrl:aiStatus.baseUrl,model:selectedAiModel.value,apiKey:'',timeout:aiStatus.timeout,matchLimit:aiStatus.matchLimit});const payload=await postAiConfig('/api/cost/ai-config');Object.assign(aiStatus,payload)}catch{selectedAiModel.value=aiStatus.model||'jiaorong-kimi-k2.6'}finally{savingConfig.value=false}}
+async function changeAiModel(){aiForm.model=selectedAiModel.value;if(!aiStatus.configured){openAiConfig();return}savingConfig.value=true;try{Object.assign(aiForm,{enabled:aiStatus.enabled,baseUrl:deepSeekBaseUrl,model:selectedAiModel.value,apiKey:'',timeout:aiStatus.timeout,matchLimit:aiStatus.matchLimit});const payload=await postAiConfig('/api/cost/ai-config');Object.assign(aiStatus,payload)}catch{selectedAiModel.value=aiModels.some(item=>item.value===aiStatus.model)?aiStatus.model:defaultAiModel}finally{savingConfig.value=false}}
 async function testAiConfig(){testingConfig.value=true;configMessage.value='';aiForm.model=selectedAiModel.value;try{const payload=await postAiConfig('/api/cost/ai-config/test');configMessage.value=payload.message||'连接成功';configMessageType.value='success'}catch(e){configMessage.value=e instanceof Error?e.message:'连接测试失败';configMessageType.value='error'}finally{testingConfig.value=false}}
 async function saveAiConfig(){savingConfig.value=true;configMessage.value='';aiForm.model=selectedAiModel.value;try{const payload=await postAiConfig('/api/cost/ai-config');Object.assign(aiStatus,payload);aiForm.apiKey='';configMessage.value='配置已保存，下一次测算立即生效';configMessageType.value='success'}catch(e){configMessage.value=e instanceof Error?e.message:'配置保存失败';configMessageType.value='error'}finally{savingConfig.value=false}}
 function selectFile(e:Event){selectedFile.value=(e.target as HTMLInputElement).files?.[0]||null;result.value=null;errorMessage.value=''}
