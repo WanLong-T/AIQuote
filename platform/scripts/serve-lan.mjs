@@ -1181,6 +1181,21 @@ async function handleApi(request, urlPath, response) {
       });
       return true;
     }
+    if (urlPath === '/api/cost/resource-prices/preview' && request.method === 'POST') {
+      const body = await readJsonBody(request, 16_000_000);
+      const pythonExecutable = process.env.PYTHON_EXECUTABLE || 'D:\\Python313\\python.exe';
+      const parserScript = join(import.meta.dirname, 'parse-resource-prices.py');
+      const result = await runCostEngine(pythonExecutable, parserScript, body, {
+        enabled: false,
+        baseUrl: '',
+        model: '',
+        apiKey: '',
+        timeout: 60,
+        matchLimit: 0,
+      });
+      sendJson(response, 200, result);
+      return true;
+    }
     if (urlPath === '/api/cost/resource-price-versions' && request.method === 'POST') {
       const body = await readJsonBody(request, 12_000_000);
       const province = String(body.province || '').trim();

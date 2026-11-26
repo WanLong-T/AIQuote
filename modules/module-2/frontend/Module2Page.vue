@@ -6,22 +6,25 @@
         <h1 class="page-title">AI 成本测算</h1>
         <p class="page-description">大模型智能解析与语义匹配＋定额库确定性计价</p>
       </div>
-      <button
-        class="status-pill ai-config-trigger"
-        :class="{ offline: !aiStatus.enabled }"
-        type="button"
-        @click="openAiConfig"
-      >
-        <q-icon name="settings_suggest" />{{
-          analyzing
-            ? 'AI与定额引擎正在联合测算'
-            : result
-              ? result.ai.mode
-              : aiStatus.enabled
-                ? `${aiStatus.model} 已接入`
-                : 'AI未配置 · 点击配置'
-        }}
-      </button>
+      <div class="page-title-actions">
+        <button class="status-pill price-library-trigger" type="button" @click="openPriceManager"><q-icon name="price_change" />人材机价格库</button>
+        <button
+          class="status-pill ai-config-trigger"
+          :class="{ offline: !aiStatus.enabled }"
+          type="button"
+          @click="openAiConfig"
+        >
+          <q-icon name="settings_suggest" />{{
+            analyzing
+              ? 'AI与定额引擎正在联合测算'
+              : result
+                ? result.ai.mode
+                : aiStatus.enabled
+                  ? `${aiStatus.model} 已接入`
+                  : 'AI未配置 · 点击配置'
+          }}
+        </button>
+      </div>
     </div>
     <section class="tech-panel controls">
       <label
@@ -703,6 +706,32 @@
         </footer>
       </section>
     </q-dialog>
+    <q-dialog v-model="showPriceManager">
+      <section class="price-manager-modal">
+        <header><div><span>RESOURCE PRICE LIBRARY</span><h2>人材机价格版本</h2><p>导入价格后先预览校验，提交审核通过后才可用于正式计价。</p></div><button type="button" @click="showPriceManager=false"><q-icon name="close" /></button></header>
+        <div class="price-manager-body">
+          <section class="price-import-panel">
+            <h3>导入新价格版本</h3>
+            <div class="price-form-grid">
+              <label><span>省份</span><input v-model.trim="priceForm.province" required></label><label><span>城市</span><input v-model.trim="priceForm.city" placeholder="可留空"></label>
+              <label><span>价格期</span><input v-model.trim="priceForm.pricePeriod" type="month" required></label><label><span>来源类型</span><select v-model="priceForm.sourceType"><option value="official">官方信息价</option><option value="supplier_quote">供应商询价</option><option value="purchase">公司采购价</option><option value="historical_cost">历史实际成本</option><option value="ai_suggestion">AI建议</option><option value="manual">人工录入</option></select></label>
+              <label><span>税费口径</span><select v-model="priceForm.taxBasis"><option>一般计税</option><option>简易计税</option></select></label><label><span>提交人</span><input v-model.trim="priceForm.createdBy" required></label>
+              <label class="wide"><span>来源及证据</span><input v-model.trim="priceForm.sourceReference" required placeholder="文件名称、信息价期刊、询价单编号或采购记录"></label>
+              <label class="wide price-file"><span>价格文件</span><input type="file" accept=".xlsx,.xlsm,.csv" @change="selectPriceFile"><small>{{ priceFile?.name || '支持xlsx、xlsm、csv；表头至少包含资源名称、单位和单价' }}</small></label>
+            </div>
+            <div class="price-import-actions"><button type="button" class="secondary" :disabled="!priceFile||previewingPrices" @click="previewResourcePrices">{{ previewingPrices?'正在解析…':'预览价格文件' }}</button><button type="button" class="primary" :disabled="!pricePreview.length||submittingPrices" @click="submitResourcePrices">{{ submittingPrices?'正在提交…':`提交 ${pricePreview.length} 条价格审核` }}</button></div>
+            <p v-if="priceMessage" class="config-message" :class="priceMessageType">{{ priceMessage }}</p>
+            <div v-if="priceWarnings.length" class="price-warnings"><span v-for="warning in priceWarnings" :key="warning">{{ warning }}</span></div>
+            <div v-if="pricePreview.length" class="price-preview"><table><thead><tr><th>编码</th><th>资源名称</th><th>类型</th><th>规格</th><th>单位</th><th>单价</th><th>含税</th></tr></thead><tbody><tr v-for="item in pricePreview.slice(0,100)" :key="item.resourceCode"><td>{{ item.resourceCode }}</td><td>{{ item.resourceName }}</td><td>{{ resourceTypeLabel(item.resourceType) }}</td><td>{{ item.specification||'—' }}</td><td>{{ item.unit }}</td><td>{{ money(item.unitPrice) }}</td><td>{{ item.taxIncluded?'是':'否' }}</td></tr></tbody></table><small v-if="pricePreview.length>100">当前显示前100条，共{{ pricePreview.length }}条</small></div>
+          </section>
+          <section class="price-history-panel">
+            <div class="price-history-heading"><h3>历史价格版本</h3><button type="button" @click="loadPriceVersions">刷新</button></div>
+            <label class="reviewer-field"><span>审核人</span><input v-model.trim="priceReviewer" placeholder="审核操作前必填"></label>
+            <div class="price-version-list"><article v-for="item in priceVersions" :key="item.id"><div><strong>{{ item.province }}{{ item.city?` · ${item.city}`:'' }} · {{ item.pricePeriod }}</strong><span>V{{ item.version }} · {{ sourceTypeLabel(item.sourceType) }} · {{ item.resourceCount }}条</span><small>{{ item.sourceReference }}</small></div><b :class="item.status">{{ statusLabel(item.status) }}</b><div v-if="item.status==='pending'" class="review-actions"><button type="button" class="approve" @click="reviewPriceVersion(item.id,true)">通过</button><button type="button" class="reject" @click="reviewPriceVersion(item.id,false)">驳回</button></div></article><p v-if="!priceVersions.length">暂无价格版本</p></div>
+          </section>
+        </div>
+      </section>
+    </q-dialog>
     <q-dialog v-model="showVersionDialog">
       <form class="ai-config-modal version-modal" @submit.prevent="saveEstimateVersion">
         <header>
@@ -859,6 +888,8 @@ interface CatalogQuota {
   unitMaterial: number;
   unitMachine: number;
 }
+interface ResourcePriceRow{resourceCode:string;resourceName:string;resourceType:'labour'|'material'|'machine';specification:string;unit:string;unitPrice:number;taxIncluded:boolean;taxRate:number;evidenceReference:string}
+interface ResourcePriceVersion{id:number;province:string;city:string;pricePeriod:string;version:number;sourceType:string;sourceReference:string;taxBasis:string;status:string;resourceCount:number;createdBy:string;createdAt:string}
 const professions = ['建筑工程', '安装工程', '市政工程', '矿山工程', '园林绿化工程'];
 const form = reactive({
   profession: '建筑工程',
@@ -929,6 +960,8 @@ const selectedFile = ref<File | null>(null),
   errorMessage = ref(''),
   result = ref<CostResult | null>(null);
 const exporting = ref(false);
+const showPriceManager=ref(false),priceFile=ref<File|null>(null),previewingPrices=ref(false),submittingPrices=ref(false),pricePreview=ref<ResourcePriceRow[]>([]),priceWarnings=ref<string[]>([]),priceVersions=ref<ResourcePriceVersion[]>([]),priceReviewer=ref(''),priceMessage=ref(''),priceMessageType=ref<'success'|'error'|''>('');
+const priceForm=reactive({province:'山东省',city:'',pricePeriod:new Date().toISOString().slice(0,7),sourceType:'official',sourceReference:'',taxBasis:'一般计税',createdBy:''});
 const showVersionDialog = ref(false),
   savingVersion = ref(false),
   versionMessage = ref(''),
@@ -1229,6 +1262,15 @@ function encode(file: File) {
     r.readAsDataURL(file);
   });
 }
+function resourceTypeLabel(value:string){return ({labour:'人工',material:'材料',machine:'机械'} as Record<string,string>)[value]||value}
+function sourceTypeLabel(value:string){return ({official:'官方信息价',supplier_quote:'供应商询价',purchase:'公司采购价',historical_cost:'历史实际成本',ai_suggestion:'AI建议',manual:'人工录入'} as Record<string,string>)[value]||value}
+function statusLabel(value:string){return ({pending:'待审核',approved:'已通过',rejected:'已驳回'} as Record<string,string>)[value]||value}
+async function openPriceManager(){priceForm.province=form.province;priceForm.taxBasis=form.taxMode;priceMessage.value='';priceMessageType.value='';showPriceManager.value=true;await loadPriceVersions()}
+function selectPriceFile(event:Event){priceFile.value=(event.target as HTMLInputElement).files?.[0]||null;pricePreview.value=[];priceWarnings.value=[];priceMessage.value=''}
+async function previewResourcePrices(){if(!priceFile.value||previewingPrices.value)return;previewingPrices.value=true;priceMessage.value='';try{const response=await fetch('/api/cost/resource-prices/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fileName:priceFile.value.name,fileBase64:await encode(priceFile.value)})});const payload=await response.json() as {success?:boolean;message?:string;data?:{resources:ResourcePriceRow[];warnings:string[]}};if(!response.ok||!payload.success||!payload.data)throw new Error(payload.message||'价格文件解析失败');pricePreview.value=payload.data.resources;priceWarnings.value=payload.data.warnings||[];priceMessage.value=`已识别 ${pricePreview.value.length} 条资源价格，请核对后提交审核`;priceMessageType.value='success'}catch(error){pricePreview.value=[];priceMessage.value=error instanceof Error?error.message:'价格文件解析失败';priceMessageType.value='error'}finally{previewingPrices.value=false}}
+async function submitResourcePrices(){if(!pricePreview.value.length||submittingPrices.value)return;submittingPrices.value=true;priceMessage.value='';try{const response=await fetch('/api/cost/resource-price-versions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...priceForm,resources:pricePreview.value})});const payload=await response.json() as {success?:boolean;message?:string};if(!response.ok||!payload.success)throw new Error(payload.message||'价格版本提交失败');priceMessage.value=payload.message||'价格版本已提交审核';priceMessageType.value='success';pricePreview.value=[];priceFile.value=null;await loadPriceVersions()}catch(error){priceMessage.value=error instanceof Error?error.message:'价格版本提交失败';priceMessageType.value='error'}finally{submittingPrices.value=false}}
+async function loadPriceVersions(){try{const query=new URLSearchParams({province:priceForm.province});const response=await fetch(`/api/cost/resource-price-versions?${query}`);const payload=await response.json() as {success?:boolean;data?:ResourcePriceVersion[];message?:string};if(!response.ok||!payload.success)throw new Error(payload.message||'价格版本加载失败');priceVersions.value=payload.data||[]}catch(error){priceMessage.value=error instanceof Error?error.message:'价格版本加载失败';priceMessageType.value='error'}}
+async function reviewPriceVersion(id:number,approved:boolean){if(!priceReviewer.value){priceMessage.value='请先填写审核人';priceMessageType.value='error';return}try{const response=await fetch(`/api/cost/resource-price-versions/${id}/review`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({approved,reviewer:priceReviewer.value,comment:approved?'审核通过':'审核驳回'})});const payload=await response.json() as {success?:boolean;message?:string};if(!response.ok||!payload.success)throw new Error(payload.message||'审核操作失败');priceMessage.value=approved?'价格版本已审核通过':'价格版本已驳回';priceMessageType.value='success';await loadPriceVersions()}catch(error){priceMessage.value=error instanceof Error?error.message:'审核操作失败';priceMessageType.value='error'}}
 async function analyze() {
   if (!selectedFile.value) return;
   if (!catalogAvailable.value) {
@@ -3430,4 +3472,5 @@ async function saveEstimateVersion() {
   border: 1px solid rgb(230 164 56/25%);
   font-size: 9px;
 }
+.page-title-actions{display:flex;align-items:center;gap:10px}.price-library-trigger{color:#8ce5fa;background:rgb(7 61 101/75%);border-color:#237da7}.price-manager-modal{pointer-events:auto;width:min(1500px,96vw);height:min(900px,94vh);overflow:hidden;color:#d7eeff;background:#071d3f;border:1px solid #2874a9;box-shadow:0 25px 90px rgb(0 0 0/65%)}.price-manager-modal>header{display:flex;padding:18px 22px;align-items:flex-start;justify-content:space-between;background:linear-gradient(120deg,#0b3970,#092653);border-bottom:1px solid #1c5685}.price-manager-modal header span{color:#49c9f4;font-size:9px;letter-spacing:2px}.price-manager-modal h2{margin:5px 0;color:#fff;font-size:22px}.price-manager-modal header p{margin:0;color:#89abc5;font-size:11px}.price-manager-modal header button{color:#80a8c7;background:none;border:0;font-size:20px}.price-manager-body{display:grid;height:calc(100% - 91px);grid-template-columns:minmax(0,1.35fr) minmax(360px,.65fr);overflow:hidden}.price-import-panel,.price-history-panel{padding:18px;overflow:auto}.price-import-panel{border-right:1px solid #194a73}.price-manager-modal h3{margin:0 0 14px;color:#dff4ff;font-size:15px}.price-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.price-form-grid label,.reviewer-field{display:grid;gap:5px}.price-form-grid label.wide{grid-column:1/-1}.price-form-grid label>span,.reviewer-field span{color:#91b4ce;font-size:10px}.price-form-grid input,.price-form-grid select,.reviewer-field input{height:36px;padding:0 9px;color:#e3f4ff;background:#061a38;border:1px solid #20547d}.price-file{padding:10px;background:#08254a;border:1px dashed #286c98}.price-file input{padding:6px}.price-file small{color:#6f99b7;font-size:10px}.price-import-actions{display:flex;margin:12px 0;justify-content:flex-end;gap:9px}.price-import-actions button,.price-history-heading button,.review-actions button{height:34px;padding:0 12px;border-radius:3px}.price-import-actions .primary{color:#fff;background:#087fc7;border:1px solid #29b6e7}.price-import-actions .secondary,.price-history-heading button{color:#9bc6df;background:#092b54;border:1px solid #225d88}.price-import-actions button:disabled{opacity:.45}.price-warnings{display:grid;max-height:90px;padding:8px;overflow:auto;gap:3px;color:#ffc56d;background:rgb(126 80 13/15%);font-size:9px}.price-preview{margin-top:12px;overflow:auto;border:1px solid #1b4e77}.price-preview table{width:100%;min-width:760px;border-collapse:collapse}.price-preview th,.price-preview td{padding:8px;text-align:left;border-bottom:1px solid rgb(45 104 151/25%);font-size:10px}.price-preview th{position:sticky;top:0;color:#9dcbe5;background:#0a315f}.price-preview small{display:block;padding:7px;color:#6d96b3}.price-history-heading{display:flex;align-items:center;justify-content:space-between}.reviewer-field{margin-bottom:12px}.price-version-list{display:grid;gap:8px}.price-version-list article{display:grid;padding:11px;grid-template-columns:1fr auto;gap:7px;background:#08254a;border:1px solid #194f79}.price-version-list article>div:first-child{display:grid;gap:4px}.price-version-list strong{font-size:12px}.price-version-list span,.price-version-list small{color:#7da4c1;font-size:9px}.price-version-list b{height:max-content;padding:4px 7px;font-size:9px}.price-version-list b.pending{color:#ffc566;background:rgb(181 108 15/18%)}.price-version-list b.approved{color:#5ce2b8;background:rgb(22 146 108/18%)}.price-version-list b.rejected{color:#ff8298;background:rgb(166 31 63/18%)}.review-actions{display:flex;grid-column:1/-1;justify-content:flex-end;gap:7px}.review-actions .approve{color:#6ae2bd;background:#0b4b42;border:1px solid #258b74}.review-actions .reject{color:#ff9bad;background:#552039;border:1px solid #963755}@media(max-width:900px){.page-title-actions{align-items:flex-end;flex-direction:column}.price-manager-body{grid-template-columns:1fr;overflow:auto}.price-import-panel,.price-history-panel{overflow:visible}.price-import-panel{border-right:0;border-bottom:1px solid #194a73}.price-form-grid{grid-template-columns:1fr}.price-form-grid label.wide{grid-column:auto}}
 </style>
