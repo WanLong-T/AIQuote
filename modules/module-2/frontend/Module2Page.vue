@@ -32,7 +32,7 @@
       </aside>
       <main class="cost-main">
         <section class="tech-panel result-panel">
-          <div class="panel-heading"><h2 class="panel-title"><q-icon name="calculate" />成本测算结果</h2><button v-if="result" class="text-action" :disabled="exporting" @click="exportReport">{{ exporting ? '正在生成报表…' : '导出测算明细' }}</button></div>
+          <div class="panel-heading"><h2 class="panel-title"><q-icon name="calculate" />成本测算结果</h2><div v-if="result" class="result-actions"><button class="text-action save-version-action" :disabled="savingVersion" @click="openVersionDialog"><q-icon name="save" />保存计价版本</button><button class="text-action" :disabled="exporting" @click="exportReport">{{ exporting ? '正在生成报表…' : '导出测算明细' }}</button></div></div>
           <div class="quote-grid">
             <article class="total-card"><span>测算总成本</span><strong>{{ money(result?.summary.total) }}<small> 元</small></strong><em>人材机＋管理费＋利润＋税金</em></article>
             <article class="quote-card cyan"><span>保本成本价</span><strong>{{ money(result?.quotes.breakEven) }}<small> 元</small></strong><em>成本红线</em></article>
@@ -126,6 +126,21 @@
         <footer><span>当前选择：<b>{{ modelDraft }}</b></span><button type="button" class="secondary" @click="showModelPicker=false">取消</button><button type="button" class="primary" :disabled="!modelDraft" @click="confirmModelPicker">确认选择</button></footer>
       </section>
     </q-dialog>
+    <q-dialog v-model="showVersionDialog">
+      <form class="ai-config-modal version-modal" @submit.prevent="saveEstimateVersion">
+        <header><div><span>COST VERSION</span><h2>保存计价方案版本</h2><p>每次保存都会生成新版本，历史测算事实不会被覆盖。</p></div><button type="button" @click="showVersionDialog=false"><q-icon name="close" /></button></header>
+        <div class="config-fields">
+          <label class="wide"><span>项目名称</span><input v-model.trim="versionForm.projectName" required placeholder="请输入项目名称"></label>
+          <label><span>标段编号</span><input v-model.trim="versionForm.sectionCode" required placeholder="例如：一标段"></label>
+          <label><span>招标轮次</span><input v-model.trim="versionForm.bidRound" required></label>
+          <label><span>方案类型</span><select v-model="versionForm.scenarioType"><option value="baseline">基础测算</option><option value="break_even">保本方案</option><option value="regular">常规报价</option><option value="competitive">竞争报价</option><option value="final">最终审核报价</option></select></label>
+          <label><span>操作人</span><input v-model.trim="versionForm.createdBy" required></label>
+          <label class="wide"><span>版本说明</span><textarea v-model.trim="versionForm.changeReason" rows="3" required placeholder="说明本版本的价格来源、调整内容或保存原因"></textarea></label>
+        </div>
+        <p v-if="versionMessage" class="config-message" :class="versionMessageType">{{ versionMessage }}</p>
+        <footer><span></span><span></span><button class="secondary" type="button" @click="showVersionDialog=false">取消</button><button class="primary" type="submit" :disabled="savingVersion">{{ savingVersion ? '正在保存…' : '保存新版本' }}</button></footer>
+      </form>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -150,6 +165,8 @@ const catalogStatusText=computed(()=>!catalogAvailable.value?`${form.province}${
 function provinceOptionSuffix(province:string){return supportedCatalogs[province]?.length?'':'（待补充）'}
 const selectedFile=ref<File|null>(null),analyzing=ref(false),errorMessage=ref(''),result=ref<CostResult|null>(null);
 const exporting=ref(false);
+const showVersionDialog=ref(false),savingVersion=ref(false),versionMessage=ref(''),versionMessageType=ref<'success'|'error'|''>('');
+const versionForm=reactive({projectName:'',sectionCode:'',bidRound:'1',scenarioType:'baseline',createdBy:'',changeReason:'首次保存计价测算结果'});
 const progress=reactive({percent:0,stage:'准备任务',detail:'正在准备清单文件'});
 const progressSteps=[{label:'读取清单文件',at:8},{label:'字段智能识别',at:24},{label:'加载定额数据库',at:32},{label:'本地清单与定额初筛',at:40},{label:'AI全库检索扩展',at:60},{label:'AI语义复核',at:68},{label:'汇总人材机成本',at:83},{label:'生成测算结果',at:98}];
 const aiStatus=reactive<AIConfigPublic>({enabled:false,configured:false,hasApiKey:false,baseUrl:'',provider:'',model:'',timeout:45,matchLimit:150,fallback:''});
@@ -204,6 +221,8 @@ function confirmQuotaPicker(){selectedQuotas.value=quotaPickerSelections.value.m
 function recalculateResult(){if(!result.value)return;const summary=result.value.summary;summary.labour=result.value.items.reduce((s,i)=>s+Number(i.unitLabour||0)*Number(i.quantity||0),0);summary.material=result.value.items.reduce((s,i)=>s+Number(i.unitMaterial||0)*Number(i.quantity||0),0);summary.machine=result.value.items.reduce((s,i)=>s+Number(i.unitMachine||0)*Number(i.quantity||0),0);summary.management=(summary.labour+summary.material+summary.machine)*form.manageRate/100;summary.profit=(summary.labour+summary.material+summary.machine+summary.management)*form.profitRate/100;summary.tax=(summary.labour+summary.material+summary.machine+summary.management+summary.profit)*form.taxRate/100;summary.total=summary.labour+summary.material+summary.machine+summary.management+summary.profit+summary.tax;summary.matched=result.value.items.filter(i=>i.status==='已匹配').length;summary.review=result.value.items.length-summary.matched;result.value.quotes={breakEven:summary.total,regular:summary.total*1.05,competitive:summary.total*1.02}}
 function saveItemEdit(){if(!result.value||!editItem.value||editItemIndex.value<0)return;if(selectedQuotas.value.length){editItem.value.quotaSelections=selectedQuotas.value.map(entry=>({...entry}));editItem.value.quotaCode=selectedQuotas.value.map(entry=>entry.code).join('；');editItem.value.quotaName=selectedQuotas.value.map(entry=>entry.name).join('；');editItem.value.unitLabour=selectedQuotas.value.reduce((sum,entry)=>sum+Number(entry.unitLabour||0),0);editItem.value.unitMaterial=selectedQuotas.value.reduce((sum,entry)=>sum+Number(entry.unitMaterial||0),0);editItem.value.unitMachine=selectedQuotas.value.reduce((sum,entry)=>sum+Number(entry.unitMachine||0),0)}else{editItem.value.quotaSelections=[];editItem.value.quotaCode='';editItem.value.quotaName='';editItem.value.unitLabour=0;editItem.value.unitMaterial=0;editItem.value.unitMachine=0}editItem.value.quantityRecognized=Number.isFinite(Number(editItem.value.quantity));editItem.value.subtotal=(Number(editItem.value.unitLabour||0)+Number(editItem.value.unitMaterial||0)+Number(editItem.value.unitMachine||0))*Number(editItem.value.quantity||0);result.value.items.splice(editItemIndex.value,1,cloneItem(editItem.value));recalculateResult();showItemEditor.value=false}
 async function exportReport(){if(!result.value||exporting.value)return;exporting.value=true;errorMessage.value='';try{const response=await fetch('/api/cost/export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({result:result.value,manageRate:form.manageRate,profitRate:form.profitRate,taxRate:form.taxRate})});if(!response.ok){let message='报表生成失败';try{const payload=await response.json() as {message?:string};message=payload.message||message}catch{/* 响应可能不是 JSON */}throw new Error(message)}const url=URL.createObjectURL(await response.blob()),a=document.createElement('a');a.href=url;a.download=`工程量清单与计价表-${new Date().toISOString().slice(0,10)}.xlsx`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}catch(e){errorMessage.value=e instanceof Error?e.message:'报表生成失败'}finally{exporting.value=false}}
+function openVersionDialog(){versionMessage.value='';versionMessageType.value='';if(!versionForm.projectName&&selectedFile.value)versionForm.projectName=selectedFile.value.name.replace(/\.[^.]+$/,'');showVersionDialog.value=true}
+async function saveEstimateVersion(){if(!result.value||savingVersion.value)return;savingVersion.value=true;versionMessage.value='';try{const response=await fetch('/api/cost/versions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...versionForm,province:form.province,profession:form.profession,taxBasis:form.taxMode,sourceFileName:selectedFile.value?.name||result.value.source,aiModel:result.value.ai.model,rates:{manageRate:form.manageRate,profitRate:form.profitRate,taxRate:form.taxRate},savedContext:{catalog:result.value.catalog,ai:result.value.ai,limitations:result.value.limitations},result:result.value})});const payload=await response.json() as {success?:boolean;message?:string;version?:number};if(!response.ok||!payload.success)throw new Error(payload.message||'计价版本保存失败');versionMessage.value=payload.message||`已保存版本 V${payload.version}`;versionMessageType.value='success';versionForm.changeReason='基于上一版本形成新的计价测算结果'}catch(e){versionMessage.value=e instanceof Error?e.message:'计价版本保存失败';versionMessageType.value='error'}finally{savingVersion.value=false}}
 </script>
 
 <style scoped lang="scss">
@@ -220,4 +239,5 @@ async function exportReport(){if(!result.value||exporting.value)return;exporting
 .engine-strip{padding:0;align-items:stretch;background:transparent!important;border:0!important;gap:16px}.engine-strip>div{box-sizing:border-box;height:100%;min-height:94px;padding:12px 14px;align-content:center;column-gap:11px;background:linear-gradient(120deg,rgb(7 45 88/78%),rgb(5 65 94/44%));border:1px solid rgb(43 171 205/28%)}.engine-strip>div>.q-icon{align-self:center;justify-self:center;font-size:24px}.engine-strip span{line-height:1.25}.engine-strip strong{line-height:1.4}.engine-strip>.engine-model-control{grid-template-rows:auto auto;row-gap:5px}.engine-model-control>.q-icon{grid-row:1/3}.engine-strip>.province-quota-control{grid-template-rows:auto 30px auto;row-gap:4px}.province-quota-control>.q-icon{grid-row:1/4}.engine-model-control>button{align-self:center}@media(max-width:760px){.engine-strip{gap:10px}}
 .breakdown article{padding:16px 14px}.breakdown span{color:#8eb6d5;font-size:13px}.breakdown strong{display:block;margin:6px 0 2px;color:#e5f5ff;font-size:20px;line-height:1.25}.breakdown small{color:#8eb6d5;font-size:12px}
 .upload-zone strong{font-size:17px}.upload-zone span{font-size:13px}.mini-summary span{font-size:13px}.mini-summary strong{margin-top:4px;font-size:29px}.total-card>span,.quote-card>span{font-size:14px}.total-card strong,.quote-card strong{font-size:30px}.total-card small,.quote-card small{font-size:13px}.total-card em,.quote-card em{font-size:12px;line-height:1.5}
+.result-actions{display:flex;align-items:center;gap:14px}.result-actions button{display:inline-flex;align-items:center;gap:5px}.save-version-action{color:#60e2b7}.version-modal select{height:40px;padding:0 10px;color:#d9efff;background:#071f48;border:1px solid #1f5585;border-radius:3px}
 </style>

@@ -307,6 +307,41 @@ async function ensureDatabaseSchema() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
   await dbPool.query(`
+    CREATE TABLE IF NOT EXISTS cost_estimate_cases (
+      id BIGINT NOT NULL AUTO_INCREMENT,
+      project_name VARCHAR(300) NOT NULL,
+      section_code VARCHAR(100) NOT NULL,
+      bid_round VARCHAR(50) NOT NULL DEFAULT '1',
+      province VARCHAR(80) NOT NULL,
+      profession VARCHAR(100) NOT NULL,
+      tax_basis VARCHAR(100) NOT NULL,
+      current_version INT NOT NULL DEFAULT 1,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      UNIQUE KEY uq_cost_estimate_scope (project_name, section_code, bid_round),
+      INDEX idx_cost_estimate_scope (section_code, bid_round, tax_basis)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+  await dbPool.query(`
+    CREATE TABLE IF NOT EXISTS cost_estimate_versions (
+      id BIGINT NOT NULL AUTO_INCREMENT,
+      case_id BIGINT NOT NULL,
+      version_no INT NOT NULL,
+      scenario_type ENUM('baseline','break_even','regular','competitive','final') NOT NULL,
+      estimate_payload JSON NOT NULL,
+      source_file_name VARCHAR(300) NOT NULL,
+      ai_model VARCHAR(120) NULL,
+      change_reason VARCHAR(500) NOT NULL,
+      created_by VARCHAR(100) NOT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      UNIQUE KEY uq_cost_estimate_version (case_id, version_no),
+      INDEX idx_cost_estimate_version_created (case_id, created_at),
+      CONSTRAINT fk_cost_estimate_version_case FOREIGN KEY (case_id) REFERENCES cost_estimate_cases(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+  await dbPool.query(`
     CREATE TABLE IF NOT EXISTS bid_result_versions (
       id BIGINT NOT NULL AUTO_INCREMENT,
       case_id BIGINT NOT NULL,
@@ -907,6 +942,76 @@ async function handleApi(request, urlPath, response) {
       const engineScript = join(import.meta.dirname, 'cost-engine.py');
       const result = await runCostEngine(pythonExecutable, engineScript, body);
       sendJson(response, 200, result);
+      return true;
+    }
+    if (urlPath === '/api/cost/versions' && request.method === 'POST') {
+      const body = await readJsonBody(request, 24_000_000);
+      const projectName = String(body.projectName || '').trim();
+      const sectionCode = String(body.sectionCode || '').trim();
+      const bidRound = String(body.bidRound || '1').trim();
+      const changeReason = String(body.changeReason || '').trim();
+      const createdBy = String(body.createdBy || '').trim();
+      const scenarioType = String(body.scenarioType || 'baseline').trim();
+      const allowedScenarios = new Set(['baseline', 'break_even', 'regular', 'competitive', 'final']);
+      if (!projectName || !sectionCode || !changeReason || !createdBy || !body.result) {
+        sendJson(response, 400, { message: '项目名称、标段编号、版本说明、操作人和测算结果均不能为空' });
+        return true;
+      }
+      if (!allowedScenarios.has(scenarioType)) {
+        sendJson(response, 400, { message: '计价方案类型无效' });
+        return true;
+      }
+      const connection = await dbPool.getConnection();
+      try {
+        await connection.beginTransaction();
+        const [existing] = await connection.query(
+          `SELECT id, current_version FROM cost_estimate_cases
+           WHERE project_name = ? AND section_code = ? AND bid_round = ? FOR UPDATE`,
+          [projectName, sectionCode, bidRound],
+        );
+        let caseId;
+        let version = 1;
+        if (existing.length) {
+          caseId = Number(existing[0].id);
+          version = Number(existing[0].current_version) + 1;
+          await connection.query(
+            `UPDATE cost_estimate_cases SET province = ?, profession = ?, tax_basis = ?,
+              current_version = ? WHERE id = ?`,
+            [String(body.province || ''), String(body.profession || ''), String(body.taxBasis || ''), version, caseId],
+          );
+        } else {
+          const [insert] = await connection.query(
+            `INSERT INTO cost_estimate_cases
+              (project_name, section_code, bid_round, province, profession, tax_basis, current_version)
+             VALUES (?, ?, ?, ?, ?, ?, 1)`,
+            [projectName, sectionCode, bidRound, String(body.province || ''), String(body.profession || ''), String(body.taxBasis || '')],
+          );
+          caseId = Number(insert.insertId);
+        }
+        await connection.query(
+          `INSERT INTO cost_estimate_versions
+            (case_id, version_no, scenario_type, estimate_payload, source_file_name,
+             ai_model, change_reason, created_by)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [caseId, version, scenarioType, JSON.stringify({
+            result: body.result,
+            rates: body.rates || {},
+            savedContext: body.savedContext || {},
+          }), String(body.sourceFileName || ''), String(body.aiModel || ''), changeReason, createdBy],
+        );
+        await connection.commit();
+        sendJson(response, 200, {
+          success: true,
+          caseId,
+          version,
+          message: `计价方案已保存为不可覆盖版本 V${version}`,
+        });
+      } catch (error) {
+        await connection.rollback();
+        throw error;
+      } finally {
+        connection.release();
+      }
       return true;
     }
     if (urlPath === '/api/cost/analyze-stream' && request.method === 'POST') {
