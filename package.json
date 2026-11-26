@@ -20,7 +20,7 @@
     "dev:result": "npm --workspace @aiquote/bid-result-analysis run dev",
     "dev:portal": "npm --workspace @aiquote/portal run dev",
     "build": "npm --workspace @aiquote/portal run build",
-    "build:platform": "npm --prefix platform exec quasar build",
+    "build:platform": "cd platform && quasar build",
     "serve:lan": "node platform/scripts/serve-lan.mjs",
     "typecheck": "vue-tsc --noEmit"
   },

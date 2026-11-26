@@ -1196,6 +1196,198 @@ async function handleApi(request, urlPath, response) {
       sendJson(response, 200, result);
       return true;
     }
+    if (urlPath === '/api/cost/quota-consumptions/preview' && request.method === 'POST') {
+      const body = await readJsonBody(request, 16_000_000);
+      const pythonExecutable = process.env.PYTHON_EXECUTABLE || 'D:\\Python313\\python.exe';
+      const parserScript = join(import.meta.dirname, 'parse-quota-consumptions.py');
+      const result = await runCostEngine(pythonExecutable, parserScript, body, {
+        enabled: false,
+        baseUrl: '',
+        model: '',
+        apiKey: '',
+        timeout: 60,
+        matchLimit: 0,
+      });
+      sendJson(response, 200, result);
+      return true;
+    }
+    if (urlPath === '/api/cost/quota-consumptions' && request.method === 'POST') {
+      const body = await readJsonBody(request, 16_000_000);
+      const province = String(body.province || '').trim();
+      const profession = String(body.profession || '').trim();
+      const quotaVersion = String(body.quotaVersion || '').trim();
+      const sourceReference = String(body.sourceReference || '').trim();
+      const consumptions = Array.isArray(body.consumptions) ? body.consumptions : [];
+      const allowedTypes = new Set(['labour', 'material', 'machine']);
+      if (!province || !profession || !quotaVersion || !sourceReference || !consumptions.length) {
+        sendJson(response, 400, { message: '地区、专业、定额版本、来源依据和消耗量均不能为空' });
+        return true;
+      }
+      const normalized = [];
+      const keys = new Set();
+      for (const item of consumptions) {
+        const quotaCode = String(item.quotaCode || '').trim();
+        const resourceCode = String(item.resourceCode || '').trim();
+        const resourceName = String(item.resourceName || '').trim();
+        const resourceType = String(item.resourceType || '').trim();
+        const unit = String(item.unit || '').trim();
+        const consumption = Number(item.consumption);
+        const key = `${quotaCode}\u0000${resourceCode}`;
+        if (!quotaCode || !resourceCode || !resourceName || !allowedTypes.has(resourceType) ||
+          !unit || !Number.isFinite(consumption) || consumption <= 0 || keys.has(key)) {
+          sendJson(response, 400, { message: `定额消耗量无效或重复：${quotaCode || '未知定额'} / ${resourceCode || resourceName || '未知资源'}` });
+          return true;
+        }
+        keys.add(key);
+        normalized.push({ quotaCode, resourceCode, resourceName, resourceType, unit, consumption,
+          sourceReference: String(item.sourceReference || sourceReference).trim() || sourceReference });
+      }
+      const connection = await dbPool.getConnection();
+      try {
+        await connection.beginTransaction();
+        for (const item of normalized) {
+          await connection.query(
+            `INSERT INTO cost_quota_resource_consumptions
+              (province, profession, quota_version, quota_code, resource_code, resource_name,
+               resource_type, unit, consumption, source_reference)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE resource_name = VALUES(resource_name), resource_type = VALUES(resource_type),
+               unit = VALUES(unit), consumption = VALUES(consumption), source_reference = VALUES(source_reference)`,
+            [province, profession, quotaVersion, item.quotaCode, item.resourceCode, item.resourceName,
+              item.resourceType, item.unit, item.consumption, item.sourceReference],
+          );
+        }
+        await connection.commit();
+      } catch (error) {
+        await connection.rollback();
+        throw error;
+      } finally {
+        connection.release();
+      }
+      sendJson(response, 200, { success: true, count: normalized.length,
+        message: `已导入 ${normalized.length} 条定额人材机消耗量` });
+      return true;
+    }
+    if (urlPath === '/api/cost/reprice' && request.method === 'POST') {
+      const body = await readJsonBody(request, 24_000_000);
+      const priceVersionId = Number(body.priceVersionId);
+      const province = String(body.province || '').trim();
+      const profession = String(body.profession || '').trim();
+      const quotaVersion = String(body.quotaVersion || '').trim();
+      const taxBasis = String(body.taxBasis || '').trim();
+      const items = Array.isArray(body.items) ? body.items : [];
+      if (!Number.isInteger(priceVersionId) || priceVersionId <= 0 || !province || !profession || !items.length) {
+        sendJson(response, 400, { message: '请选择审核通过的价格版本并提供有效测算项目' });
+        return true;
+      }
+      const [versionRows] = await dbPool.query(
+        `SELECT * FROM cost_resource_price_versions WHERE id = ? AND status = 'approved'`,
+        [priceVersionId],
+      );
+      if (!versionRows.length) {
+        sendJson(response, 409, { message: '所选价格版本不存在或尚未审核通过' });
+        return true;
+      }
+      const version = versionRows[0];
+      if (version.province !== province || (taxBasis && version.tax_basis !== taxBasis)) {
+        sendJson(response, 409, { message: '价格版本与当前地区或计税口径不一致，不能用于正式重计价' });
+        return true;
+      }
+      const [priceRows] = await dbPool.query(
+        `SELECT resource_code, resource_name, resource_type, unit, unit_price, tax_included, tax_rate
+         FROM cost_resource_prices WHERE price_version_id = ?`, [priceVersionId],
+      );
+      const quotaCodes = [...new Set(items.flatMap((item) => {
+        const selections = Array.isArray(item.quotaSelections) ? item.quotaSelections : [];
+        if (selections.length) return selections.map((entry) => String(entry.code || '').trim());
+        return String(item.quotaCode || '').split(/[；;]/).map((code) => code.trim());
+      }).filter(Boolean))];
+      let consumptionRows = [];
+      if (quotaCodes.length) {
+        const placeholders = quotaCodes.map(() => '?').join(',');
+        const params = [province, profession, ...quotaCodes];
+        const versionCondition = quotaVersion ? ' AND quota_version = ?' : '';
+        if (quotaVersion) params.push(quotaVersion);
+        [consumptionRows] = await dbPool.query(
+          `SELECT * FROM cost_quota_resource_consumptions
+           WHERE province = ? AND profession = ? AND quota_code IN (${placeholders})${versionCondition}`,
+          params,
+        );
+      }
+      const normalizeUnit = (value) => String(value || '').trim().toLowerCase().replace(/\s+/g, '');
+      const priceMap = new Map(priceRows.map((row) => [String(row.resource_code), row]));
+      const consumptionsByQuota = new Map();
+      for (const row of consumptionRows) {
+        const code = String(row.quota_code);
+        if (!consumptionsByQuota.has(code)) consumptionsByQuota.set(code, []);
+        consumptionsByQuota.get(code).push(row);
+      }
+      const issues = [];
+      let repricedCount = 0;
+      const repricedItems = items.map((item, itemIndex) => {
+        const selections = Array.isArray(item.quotaSelections) && item.quotaSelections.length
+          ? item.quotaSelections
+          : String(item.quotaCode || '').split(/[；;]/).filter(Boolean).map((code) => ({ code, coefficient: 1 }));
+        const detail = [];
+        let labour = 0, material = 0, machine = 0, complete = selections.length > 0;
+        for (const selection of selections) {
+          const code = String(selection.code || '').trim();
+          const coefficient = Math.max(0, Number(selection.coefficient) || 1);
+          const rows = consumptionsByQuota.get(code) || [];
+          if (!rows.length) {
+            complete = false;
+            issues.push({ itemIndex, itemName: item.name, quotaCode: code, type: 'missing_consumption',
+              message: `定额 ${code} 缺少人材机消耗量` });
+            continue;
+          }
+          for (const consumption of rows) {
+            const price = priceMap.get(String(consumption.resource_code));
+            if (!price) {
+              complete = false;
+              issues.push({ itemIndex, itemName: item.name, quotaCode: code,
+                resourceCode: consumption.resource_code, resourceName: consumption.resource_name,
+                type: 'missing_price', message: `资源 ${consumption.resource_code} 缺少价格` });
+              continue;
+            }
+            if (normalizeUnit(price.unit) !== normalizeUnit(consumption.unit)) {
+              complete = false;
+              issues.push({ itemIndex, itemName: item.name, quotaCode: code,
+                resourceCode: consumption.resource_code, resourceName: consumption.resource_name,
+                type: 'unit_mismatch', message: `资源 ${consumption.resource_code} 单位不一致：${consumption.unit} / ${price.unit}` });
+              continue;
+            }
+            const amount = Number(consumption.consumption) * coefficient * Number(price.unit_price);
+            if (consumption.resource_type === 'labour') labour += amount;
+            if (consumption.resource_type === 'material') material += amount;
+            if (consumption.resource_type === 'machine') machine += amount;
+            detail.push({ quotaCode: code, resourceCode: consumption.resource_code,
+              resourceName: consumption.resource_name, resourceType: consumption.resource_type,
+              unit: consumption.unit, consumption: Number(consumption.consumption) * coefficient,
+              unitPrice: Number(price.unit_price), amount });
+          }
+        }
+        if (!complete) return { ...item, repricing: { applied: false, detail } };
+        repricedCount += 1;
+        const quantity = Number(item.quantity) || 0;
+        return { ...item, unitLabour: labour, unitMaterial: material, unitMachine: machine,
+          subtotal: (labour + material + machine) * quantity,
+          repricing: { applied: true, originalUnitCost: Number(item.unitLabour || 0) + Number(item.unitMaterial || 0) + Number(item.unitMachine || 0), detail } };
+      });
+      const rates = body.rates || {};
+      const summary = {
+        labour: repricedItems.reduce((sum, item) => sum + Number(item.unitLabour || 0) * Number(item.quantity || 0), 0),
+        material: repricedItems.reduce((sum, item) => sum + Number(item.unitMaterial || 0) * Number(item.quantity || 0), 0),
+        machine: repricedItems.reduce((sum, item) => sum + Number(item.unitMachine || 0) * Number(item.quantity || 0), 0),
+      };
+      summary.management = (summary.labour + summary.material + summary.machine) * (Number(rates.manageRate) || 0) / 100;
+      summary.profit = (summary.labour + summary.material + summary.machine + summary.management) * (Number(rates.profitRate) || 0) / 100;
+      summary.tax = (summary.labour + summary.material + summary.machine + summary.management + summary.profit) * (Number(rates.taxRate) || 0) / 100;
+      summary.total = summary.labour + summary.material + summary.machine + summary.management + summary.profit + summary.tax;
+      sendJson(response, 200, { success: true, data: { items: repricedItems, summary, issues,
+        repricedCount, totalCount: items.length, priceVersion: { id: Number(version.id), version: Number(version.version_no),
+          pricePeriod: version.price_period, sourceReference: version.source_reference, taxBasis: version.tax_basis } } });
+      return true;
+    }
     if (urlPath === '/api/cost/resource-price-versions' && request.method === 'POST') {
       const body = await readJsonBody(request, 12_000_000);
       const province = String(body.province || '').trim();

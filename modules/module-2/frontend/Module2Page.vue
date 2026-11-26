@@ -159,6 +159,12 @@
               </button>
             </div>
           </div>
+          <div v-if="result" class="repricing-toolbar">
+            <label><span>审核价格版本</span><select v-model.number="selectedPriceVersionId"><option :value="0">请选择</option><option v-for="item in approvedPriceVersions" :key="item.id" :value="item.id">{{ item.pricePeriod }} · V{{ item.version }} · {{ item.resourceCount }}条</option></select></label>
+            <label><span>定额消耗量版本</span><input v-model.trim="quotaVersion" placeholder="例如：山东2016建筑定额"></label>
+            <button type="button" :disabled="!selectedPriceVersionId||repricing" @click="repriceResult"><q-icon name="price_check" />{{ repricing?'正在重计价…':'按价格版本重计价' }}</button>
+            <p v-if="repricingMessage" :class="repricingMessageType">{{ repricingMessage }}</p>
+          </div>
           <div class="quote-grid">
             <article class="total-card">
               <span>测算总成本</span
@@ -723,6 +729,12 @@
             <p v-if="priceMessage" class="config-message" :class="priceMessageType">{{ priceMessage }}</p>
             <div v-if="priceWarnings.length" class="price-warnings"><span v-for="warning in priceWarnings" :key="warning">{{ warning }}</span></div>
             <div v-if="pricePreview.length" class="price-preview"><table><thead><tr><th>编码</th><th>资源名称</th><th>类型</th><th>规格</th><th>单位</th><th>单价</th><th>含税</th></tr></thead><tbody><tr v-for="item in pricePreview.slice(0,100)" :key="item.resourceCode"><td>{{ item.resourceCode }}</td><td>{{ item.resourceName }}</td><td>{{ resourceTypeLabel(item.resourceType) }}</td><td>{{ item.specification||'—' }}</td><td>{{ item.unit }}</td><td>{{ money(item.unitPrice) }}</td><td>{{ item.taxIncluded?'是':'否' }}</td></tr></tbody></table><small v-if="pricePreview.length>100">当前显示前100条，共{{ pricePreview.length }}条</small></div>
+            <div class="consumption-import">
+              <h3>导入定额人材机消耗量</h3><p>用于把审核价格换算为定额单价；缺项和单位冲突会进入人工复核。</p>
+              <div class="price-form-grid"><label><span>定额版本</span><input v-model.trim="consumptionForm.quotaVersion" placeholder="例如：山东2016建筑定额"></label><label><span>来源依据</span><input v-model.trim="consumptionForm.sourceReference" placeholder="定额书、数据库或文件名称"></label><label class="wide price-file"><span>消耗量文件</span><input type="file" accept=".xlsx,.xlsm,.csv" @change="selectConsumptionFile"><small>{{ consumptionFile?.name||'表头需包含定额编码、资源编码、名称、类型、单位、消耗量' }}</small></label></div>
+              <div class="price-import-actions"><button type="button" class="secondary" :disabled="!consumptionFile||previewingConsumptions" @click="previewConsumptions">{{ previewingConsumptions?'正在解析…':'预览消耗量' }}</button><button type="button" class="primary" :disabled="!consumptionPreview.length||submittingConsumptions" @click="submitConsumptions">{{ submittingConsumptions?'正在导入…':`导入 ${consumptionPreview.length} 条消耗量` }}</button></div>
+              <p v-if="consumptionMessage" class="config-message" :class="consumptionMessageType">{{ consumptionMessage }}</p>
+            </div>
           </section>
           <section class="price-history-panel">
             <div class="price-history-heading"><h3>历史价格版本</h3><button type="button" @click="loadPriceVersions">刷新</button></div>
@@ -890,6 +902,7 @@ interface CatalogQuota {
 }
 interface ResourcePriceRow{resourceCode:string;resourceName:string;resourceType:'labour'|'material'|'machine';specification:string;unit:string;unitPrice:number;taxIncluded:boolean;taxRate:number;evidenceReference:string}
 interface ResourcePriceVersion{id:number;province:string;city:string;pricePeriod:string;version:number;sourceType:string;sourceReference:string;taxBasis:string;status:string;resourceCount:number;createdBy:string;createdAt:string}
+interface QuotaConsumptionRow{quotaCode:string;resourceCode:string;resourceName:string;resourceType:'labour'|'material'|'machine';unit:string;consumption:number;sourceReference:string}
 const professions = ['建筑工程', '安装工程', '市政工程', '矿山工程', '园林绿化工程'];
 const form = reactive({
   profession: '建筑工程',
@@ -962,6 +975,10 @@ const selectedFile = ref<File | null>(null),
 const exporting = ref(false);
 const showPriceManager=ref(false),priceFile=ref<File|null>(null),previewingPrices=ref(false),submittingPrices=ref(false),pricePreview=ref<ResourcePriceRow[]>([]),priceWarnings=ref<string[]>([]),priceVersions=ref<ResourcePriceVersion[]>([]),priceReviewer=ref(''),priceMessage=ref(''),priceMessageType=ref<'success'|'error'|''>('');
 const priceForm=reactive({province:'山东省',city:'',pricePeriod:new Date().toISOString().slice(0,7),sourceType:'official',sourceReference:'',taxBasis:'一般计税',createdBy:''});
+const selectedPriceVersionId=ref(0),quotaVersion=ref(''),repricing=ref(false),repricingMessage=ref(''),repricingMessageType=ref<'success'|'error'|''>('');
+const approvedPriceVersions=computed(()=>priceVersions.value.filter(item=>item.status==='approved'&&item.province===form.province&&item.taxBasis===form.taxMode));
+const consumptionFile=ref<File|null>(null),consumptionPreview=ref<QuotaConsumptionRow[]>([]),previewingConsumptions=ref(false),submittingConsumptions=ref(false),consumptionMessage=ref(''),consumptionMessageType=ref<'success'|'error'|''>('');
+const consumptionForm=reactive({quotaVersion:'',sourceReference:''});
 const showVersionDialog = ref(false),
   savingVersion = ref(false),
   versionMessage = ref(''),
@@ -1138,7 +1155,7 @@ async function loadAiStatus() {
     aiStatus.enabled = false;
   }
 }
-onMounted(loadAiStatus);
+onMounted(()=>{void loadAiStatus();void loadPriceVersions()});
 function openAiConfig() {
   Object.assign(aiForm, {
     enabled: aiStatus.enabled || !aiStatus.configured,
@@ -1271,6 +1288,10 @@ async function previewResourcePrices(){if(!priceFile.value||previewingPrices.val
 async function submitResourcePrices(){if(!pricePreview.value.length||submittingPrices.value)return;submittingPrices.value=true;priceMessage.value='';try{const response=await fetch('/api/cost/resource-price-versions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...priceForm,resources:pricePreview.value})});const payload=await response.json() as {success?:boolean;message?:string};if(!response.ok||!payload.success)throw new Error(payload.message||'价格版本提交失败');priceMessage.value=payload.message||'价格版本已提交审核';priceMessageType.value='success';pricePreview.value=[];priceFile.value=null;await loadPriceVersions()}catch(error){priceMessage.value=error instanceof Error?error.message:'价格版本提交失败';priceMessageType.value='error'}finally{submittingPrices.value=false}}
 async function loadPriceVersions(){try{const query=new URLSearchParams({province:priceForm.province});const response=await fetch(`/api/cost/resource-price-versions?${query}`);const payload=await response.json() as {success?:boolean;data?:ResourcePriceVersion[];message?:string};if(!response.ok||!payload.success)throw new Error(payload.message||'价格版本加载失败');priceVersions.value=payload.data||[]}catch(error){priceMessage.value=error instanceof Error?error.message:'价格版本加载失败';priceMessageType.value='error'}}
 async function reviewPriceVersion(id:number,approved:boolean){if(!priceReviewer.value){priceMessage.value='请先填写审核人';priceMessageType.value='error';return}try{const response=await fetch(`/api/cost/resource-price-versions/${id}/review`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({approved,reviewer:priceReviewer.value,comment:approved?'审核通过':'审核驳回'})});const payload=await response.json() as {success?:boolean;message?:string};if(!response.ok||!payload.success)throw new Error(payload.message||'审核操作失败');priceMessage.value=approved?'价格版本已审核通过':'价格版本已驳回';priceMessageType.value='success';await loadPriceVersions()}catch(error){priceMessage.value=error instanceof Error?error.message:'审核操作失败';priceMessageType.value='error'}}
+function selectConsumptionFile(event:Event){consumptionFile.value=(event.target as HTMLInputElement).files?.[0]||null;consumptionPreview.value=[];consumptionMessage.value=''}
+async function previewConsumptions(){if(!consumptionFile.value||previewingConsumptions.value)return;previewingConsumptions.value=true;consumptionMessage.value='';try{const response=await fetch('/api/cost/quota-consumptions/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fileName:consumptionFile.value.name,fileBase64:await encode(consumptionFile.value)})});const payload=await response.json() as {success?:boolean;message?:string;data?:{consumptions:QuotaConsumptionRow[];warnings:string[]}};if(!response.ok||!payload.success||!payload.data)throw new Error(payload.message||'消耗量文件解析失败');consumptionPreview.value=payload.data.consumptions;consumptionMessage.value=`已识别 ${consumptionPreview.value.length} 条消耗量，确认定额版本和来源后导入`;consumptionMessageType.value='success'}catch(error){consumptionPreview.value=[];consumptionMessage.value=error instanceof Error?error.message:'消耗量文件解析失败';consumptionMessageType.value='error'}finally{previewingConsumptions.value=false}}
+async function submitConsumptions(){if(!consumptionPreview.value.length||submittingConsumptions.value)return;if(!consumptionForm.quotaVersion||!consumptionForm.sourceReference){consumptionMessage.value='定额版本和来源依据不能为空';consumptionMessageType.value='error';return}submittingConsumptions.value=true;try{const response=await fetch('/api/cost/quota-consumptions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({province:form.province,profession:form.profession,...consumptionForm,consumptions:consumptionPreview.value})});const payload=await response.json() as {success?:boolean;message?:string};if(!response.ok||!payload.success)throw new Error(payload.message||'消耗量导入失败');quotaVersion.value=consumptionForm.quotaVersion;consumptionMessage.value=payload.message||'消耗量导入成功';consumptionMessageType.value='success';consumptionPreview.value=[];consumptionFile.value=null}catch(error){consumptionMessage.value=error instanceof Error?error.message:'消耗量导入失败';consumptionMessageType.value='error'}finally{submittingConsumptions.value=false}}
+async function repriceResult(){if(!result.value||!selectedPriceVersionId.value||repricing.value)return;repricing.value=true;repricingMessage.value='';try{const response=await fetch('/api/cost/reprice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({priceVersionId:selectedPriceVersionId.value,province:form.province,profession:form.profession,quotaVersion:quotaVersion.value,taxBasis:form.taxMode,rates:{manageRate:form.manageRate,profitRate:form.profitRate,taxRate:form.taxRate},items:result.value.items})});const payload=await response.json() as {success?:boolean;message?:string;data?:{items:CostItem[];summary:Record<string,number>;issues:{message:string}[];repricedCount:number;totalCount:number;priceVersion:{version:number;pricePeriod:string;sourceReference:string}}};if(!response.ok||!payload.success||!payload.data)throw new Error(payload.message||'重计价失败');result.value.items=payload.data.items;Object.assign(result.value.summary,payload.data.summary);result.value.quotes={breakEven:result.value.summary.total,regular:result.value.summary.total*1.05,competitive:result.value.summary.total*1.02};result.value.sensitivity=[-10,-5,0,5,10].map(change=>({change,total:result.value!.summary.total+result.value!.summary.material*change/100}));repricingMessage.value=`已按${payload.data.priceVersion.pricePeriod} V${payload.data.priceVersion.version}重计价：${payload.data.repricedCount}/${payload.data.totalCount}项成功，${payload.data.issues.length}项问题待复核`;repricingMessageType.value=payload.data.issues.length?'error':'success'}catch(error){repricingMessage.value=error instanceof Error?error.message:'重计价失败';repricingMessageType.value='error'}finally{repricing.value=false}}
 async function analyze() {
   if (!selectedFile.value) return;
   if (!catalogAvailable.value) {
@@ -1647,6 +1668,25 @@ async function saveEstimateVersion() {
 .ai-config-modal {
   pointer-events: auto;
 }
+.repricing-toolbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(190px, 0.8fr) auto minmax(220px, 1.2fr);
+  gap: 10px;
+  align-items: end;
+  padding: 12px 16px;
+  border-top: 1px solid rgb(50 126 180 / 35%);
+  border-bottom: 1px solid rgb(50 126 180 / 35%);
+  background: rgb(5 35 72 / 52%);
+}
+.repricing-toolbar label { display: grid; gap: 5px; color: #7198b9; font-size: 10px; }
+.repricing-toolbar select,
+.repricing-toolbar input { height: 32px; padding: 0 9px; color: #d9f3ff; background: #061f42; border: 1px solid #235f8b; }
+.repricing-toolbar button { height: 32px; padding: 0 14px; color: #fff; background: #1976c9; border: 1px solid #4eb9ef; cursor: pointer; }
+.repricing-toolbar button:disabled { opacity: .45; cursor: not-allowed; }
+.repricing-toolbar p { margin: 0; padding: 6px 9px; color: #58e0b7; font-size: 10px; line-height: 1.5; }
+.repricing-toolbar p.error { color: #ffc169; }
+.consumption-import { margin-top: 20px; padding-top: 18px; border-top: 1px solid rgb(55 132 187 / 38%); }
+.consumption-import > p { margin: -3px 0 12px; color: #789bb7; font-size: 10px; }
 .status-pill.offline {
   color: #ffbd66;
   border-color: rgb(255 181 72/35%);
