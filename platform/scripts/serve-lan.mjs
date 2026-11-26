@@ -342,6 +342,65 @@ async function ensureDatabaseSchema() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
   await dbPool.query(`
+    CREATE TABLE IF NOT EXISTS cost_resource_price_versions (
+      id BIGINT NOT NULL AUTO_INCREMENT,
+      province VARCHAR(80) NOT NULL,
+      city VARCHAR(80) NOT NULL DEFAULT '',
+      price_period VARCHAR(30) NOT NULL,
+      version_no INT NOT NULL,
+      source_type ENUM('official','supplier_quote','purchase','historical_cost','ai_suggestion','manual') NOT NULL,
+      source_reference VARCHAR(500) NOT NULL,
+      tax_basis VARCHAR(100) NOT NULL,
+      status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+      created_by VARCHAR(100) NOT NULL,
+      reviewed_by VARCHAR(100) NULL,
+      review_comment VARCHAR(500) NULL,
+      reviewed_at DATETIME NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      UNIQUE KEY uq_resource_price_version (province, city, price_period, version_no),
+      INDEX idx_resource_price_lookup (province, city, price_period, status)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+  await dbPool.query(`
+    CREATE TABLE IF NOT EXISTS cost_resource_prices (
+      id BIGINT NOT NULL AUTO_INCREMENT,
+      price_version_id BIGINT NOT NULL,
+      resource_code VARCHAR(100) NOT NULL,
+      resource_name VARCHAR(300) NOT NULL,
+      resource_type ENUM('labour','material','machine') NOT NULL,
+      specification VARCHAR(300) NOT NULL DEFAULT '',
+      unit VARCHAR(50) NOT NULL,
+      unit_price DECIMAL(18,6) NOT NULL,
+      tax_included TINYINT(1) NOT NULL DEFAULT 1,
+      tax_rate DECIMAL(8,4) NOT NULL DEFAULT 0,
+      evidence_reference VARCHAR(500) NOT NULL DEFAULT '',
+      PRIMARY KEY (id),
+      UNIQUE KEY uq_resource_in_version (price_version_id, resource_code),
+      INDEX idx_resource_code (resource_code),
+      CONSTRAINT fk_resource_price_version FOREIGN KEY (price_version_id) REFERENCES cost_resource_price_versions(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+  await dbPool.query(`
+    CREATE TABLE IF NOT EXISTS cost_quota_resource_consumptions (
+      id BIGINT NOT NULL AUTO_INCREMENT,
+      province VARCHAR(80) NOT NULL,
+      profession VARCHAR(100) NOT NULL,
+      quota_version VARCHAR(100) NOT NULL,
+      quota_code VARCHAR(100) NOT NULL,
+      resource_code VARCHAR(100) NOT NULL,
+      resource_name VARCHAR(300) NOT NULL,
+      resource_type ENUM('labour','material','machine') NOT NULL,
+      unit VARCHAR(50) NOT NULL,
+      consumption DECIMAL(18,8) NOT NULL,
+      source_reference VARCHAR(500) NOT NULL DEFAULT '',
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      UNIQUE KEY uq_quota_resource (province, profession, quota_version, quota_code, resource_code),
+      INDEX idx_quota_resource_lookup (province, profession, quota_code)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+  await dbPool.query(`
     CREATE TABLE IF NOT EXISTS bid_result_versions (
       id BIGINT NOT NULL AUTO_INCREMENT,
       case_id BIGINT NOT NULL,
@@ -786,8 +845,12 @@ async function handleApi(request, urlPath, response) {
         sendJson(response, 400, { message: '至少需要录入两家投标人' });
         return true;
       }
-      const operator = String(body.operator || '当前用户').trim().slice(0, 100);
-      const reason = String(body.changeReason || '录入投标结果').trim().slice(0, 500);
+      const operator = String(body.operator || '当前用户')
+        .trim()
+        .slice(0, 100);
+      const reason = String(body.changeReason || '录入投标结果')
+        .trim()
+        .slice(0, 500);
       const payload = {
         projectName: String(body.projectName).trim(),
         controlPrice: Number(body.controlPrice) || 0,
@@ -819,14 +882,28 @@ async function handleApi(request, urlPath, response) {
           await connection.query(
             `UPDATE bid_result_cases SET project_name = ?, section_code = ?, bid_round = ?,
               tax_basis = ?, cost_basis = ?, current_version = ? WHERE id = ?`,
-            [payload.projectName, payload.scope.sectionCode, payload.scope.bidRound, payload.scope.taxBasis, payload.scope.costBasis, version, caseId],
+            [
+              payload.projectName,
+              payload.scope.sectionCode,
+              payload.scope.bidRound,
+              payload.scope.taxBasis,
+              payload.scope.costBasis,
+              version,
+              caseId,
+            ],
           );
         } else {
           const [insert] = await connection.query(
             `INSERT INTO bid_result_cases
               (project_name, section_code, bid_round, tax_basis, cost_basis, current_version)
              VALUES (?, ?, ?, ?, ?, 1)`,
-            [payload.projectName, payload.scope.sectionCode, payload.scope.bidRound, payload.scope.taxBasis, payload.scope.costBasis],
+            [
+              payload.projectName,
+              payload.scope.sectionCode,
+              payload.scope.bidRound,
+              payload.scope.taxBasis,
+              payload.scope.costBasis,
+            ],
           );
           caseId = Number(insert.insertId);
         }
@@ -876,7 +953,9 @@ async function handleApi(request, urlPath, response) {
       const current = resultCaseForUi(rows[0]);
       const scores = Array.isArray(current.scores) ? current.scores : [];
       const ours = current.bids?.find((bid) => bid.isOurs);
-      const leader = current.bids?.find((bid) => bid.isWinner) || current.bids?.find((bid) => Number(bid.candidateRank) === 1);
+      const leader =
+        current.bids?.find((bid) => bid.isWinner) ||
+        current.bids?.find((bid) => Number(bid.candidateRank) === 1);
       const ourScores = scores.filter((score) => score.bidderName === ours?.bidderName);
       const leaderScores = scores.filter((score) => score.bidderName === leader?.bidderName);
       const [audits] = await dbPool.query(
@@ -907,7 +986,11 @@ async function handleApi(request, urlPath, response) {
       const caseId = Number(knowledgeCaseMatch[1]);
       const body = await readJsonBody(request);
       const allowed = ['template', 'cost_parameter', 'experience_rule'];
-      if (!allowed.includes(body.targetType) || !String(body.targetName || '').trim() || !String(body.proposedChange || '').trim()) {
+      if (
+        !allowed.includes(body.targetType) ||
+        !String(body.targetName || '').trim() ||
+        !String(body.proposedChange || '').trim()
+      ) {
         sendJson(response, 400, { message: '请完整填写知识更新类型、对象和建议内容' });
         return true;
       }
@@ -915,19 +998,32 @@ async function handleApi(request, urlPath, response) {
         `INSERT INTO bid_knowledge_change_requests
           (case_id, target_type, target_name, proposed_change, requested_by)
          VALUES (?, ?, ?, ?, ?)`,
-        [caseId, body.targetType, String(body.targetName).trim(), String(body.proposedChange).trim(), String(body.requestedBy || '当前用户').trim()],
+        [
+          caseId,
+          body.targetType,
+          String(body.targetName).trim(),
+          String(body.proposedChange).trim(),
+          String(body.requestedBy || '当前用户').trim(),
+        ],
       );
       sendJson(response, 200, { success: true, id: Number(insert.insertId), status: 'pending' });
       return true;
     }
-    const knowledgeReviewMatch = urlPath.match(/^\/api\/results\/knowledge-requests\/(\d+)\/review$/);
+    const knowledgeReviewMatch = urlPath.match(
+      /^\/api\/results\/knowledge-requests\/(\d+)\/review$/,
+    );
     if (knowledgeReviewMatch && request.method === 'POST') {
       const body = await readJsonBody(request);
       const status = body.approved ? 'approved' : 'rejected';
       const [update] = await dbPool.query(
         `UPDATE bid_knowledge_change_requests SET status = ?, reviewed_by = ?,
           review_comment = ?, reviewed_at = NOW() WHERE id = ? AND status = 'pending'`,
-        [status, String(body.reviewer || '审核人').trim(), String(body.comment || '').trim(), Number(knowledgeReviewMatch[1])],
+        [
+          status,
+          String(body.reviewer || '审核人').trim(),
+          String(body.comment || '').trim(),
+          Number(knowledgeReviewMatch[1]),
+        ],
       );
       if (!update.affectedRows) {
         sendJson(response, 409, { message: '该申请不存在或已经审核' });
@@ -952,9 +1048,17 @@ async function handleApi(request, urlPath, response) {
       const changeReason = String(body.changeReason || '').trim();
       const createdBy = String(body.createdBy || '').trim();
       const scenarioType = String(body.scenarioType || 'baseline').trim();
-      const allowedScenarios = new Set(['baseline', 'break_even', 'regular', 'competitive', 'final']);
+      const allowedScenarios = new Set([
+        'baseline',
+        'break_even',
+        'regular',
+        'competitive',
+        'final',
+      ]);
       if (!projectName || !sectionCode || !changeReason || !createdBy || !body.result) {
-        sendJson(response, 400, { message: '项目名称、标段编号、版本说明、操作人和测算结果均不能为空' });
+        sendJson(response, 400, {
+          message: '项目名称、标段编号、版本说明、操作人和测算结果均不能为空',
+        });
         return true;
       }
       if (!allowedScenarios.has(scenarioType)) {
@@ -977,14 +1081,27 @@ async function handleApi(request, urlPath, response) {
           await connection.query(
             `UPDATE cost_estimate_cases SET province = ?, profession = ?, tax_basis = ?,
               current_version = ? WHERE id = ?`,
-            [String(body.province || ''), String(body.profession || ''), String(body.taxBasis || ''), version, caseId],
+            [
+              String(body.province || ''),
+              String(body.profession || ''),
+              String(body.taxBasis || ''),
+              version,
+              caseId,
+            ],
           );
         } else {
           const [insert] = await connection.query(
             `INSERT INTO cost_estimate_cases
               (project_name, section_code, bid_round, province, profession, tax_basis, current_version)
              VALUES (?, ?, ?, ?, ?, ?, 1)`,
-            [projectName, sectionCode, bidRound, String(body.province || ''), String(body.profession || ''), String(body.taxBasis || '')],
+            [
+              projectName,
+              sectionCode,
+              bidRound,
+              String(body.province || ''),
+              String(body.profession || ''),
+              String(body.taxBasis || ''),
+            ],
           );
           caseId = Number(insert.insertId);
         }
@@ -993,11 +1110,20 @@ async function handleApi(request, urlPath, response) {
             (case_id, version_no, scenario_type, estimate_payload, source_file_name,
              ai_model, change_reason, created_by)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-          [caseId, version, scenarioType, JSON.stringify({
-            result: body.result,
-            rates: body.rates || {},
-            savedContext: body.savedContext || {},
-          }), String(body.sourceFileName || ''), String(body.aiModel || ''), changeReason, createdBy],
+          [
+            caseId,
+            version,
+            scenarioType,
+            JSON.stringify({
+              result: body.result,
+              rates: body.rates || {},
+              savedContext: body.savedContext || {},
+            }),
+            String(body.sourceFileName || ''),
+            String(body.aiModel || ''),
+            changeReason,
+            createdBy,
+          ],
         );
         await connection.commit();
         sendJson(response, 200, {
@@ -1012,6 +1138,194 @@ async function handleApi(request, urlPath, response) {
       } finally {
         connection.release();
       }
+      return true;
+    }
+    if (urlPath === '/api/cost/resource-price-versions' && request.method === 'GET') {
+      const requestUrl = new URL(request.url || urlPath, 'http://localhost');
+      const province = String(requestUrl.searchParams.get('province') || '').trim();
+      const pricePeriod = String(requestUrl.searchParams.get('period') || '').trim();
+      const conditions = [];
+      const params = [];
+      if (province) {
+        conditions.push('v.province = ?');
+        params.push(province);
+      }
+      if (pricePeriod) {
+        conditions.push('v.price_period = ?');
+        params.push(pricePeriod);
+      }
+      const [rows] = await dbPool.query(
+        `SELECT v.*, COUNT(p.id) AS resource_count
+         FROM cost_resource_price_versions v
+         LEFT JOIN cost_resource_prices p ON p.price_version_id = v.id
+         ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
+         GROUP BY v.id ORDER BY v.created_at DESC, v.id DESC LIMIT 200`,
+        params,
+      );
+      sendJson(response, 200, {
+        success: true,
+        data: rows.map((row) => ({
+          id: Number(row.id),
+          province: row.province,
+          city: row.city,
+          pricePeriod: row.price_period,
+          version: Number(row.version_no),
+          sourceType: row.source_type,
+          sourceReference: row.source_reference,
+          taxBasis: row.tax_basis,
+          status: row.status,
+          resourceCount: Number(row.resource_count),
+          createdBy: row.created_by,
+          createdAt: row.created_at,
+        })),
+      });
+      return true;
+    }
+    if (urlPath === '/api/cost/resource-price-versions' && request.method === 'POST') {
+      const body = await readJsonBody(request, 12_000_000);
+      const province = String(body.province || '').trim();
+      const city = String(body.city || '').trim();
+      const pricePeriod = String(body.pricePeriod || '').trim();
+      const sourceType = String(body.sourceType || '').trim();
+      const sourceReference = String(body.sourceReference || '').trim();
+      const taxBasis = String(body.taxBasis || '').trim();
+      const createdBy = String(body.createdBy || '').trim();
+      const resources = Array.isArray(body.resources) ? body.resources : [];
+      const allowedSources = new Set([
+        'official',
+        'supplier_quote',
+        'purchase',
+        'historical_cost',
+        'ai_suggestion',
+        'manual',
+      ]);
+      const allowedTypes = new Set(['labour', 'material', 'machine']);
+      if (
+        !province ||
+        !pricePeriod ||
+        !allowedSources.has(sourceType) ||
+        !sourceReference ||
+        !taxBasis ||
+        !createdBy ||
+        !resources.length
+      ) {
+        sendJson(response, 400, {
+          message: '地区、价格期、来源、税费口径、操作人和资源价格均不能为空',
+        });
+        return true;
+      }
+      const normalizedResources = [];
+      const seenCodes = new Set();
+      for (const item of resources) {
+        const code = String(item.resourceCode || '').trim();
+        const name = String(item.resourceName || '').trim();
+        const type = String(item.resourceType || '').trim();
+        const unit = String(item.unit || '').trim();
+        const price = Number(item.unitPrice);
+        if (
+          !code ||
+          !name ||
+          !allowedTypes.has(type) ||
+          !unit ||
+          !Number.isFinite(price) ||
+          price < 0 ||
+          seenCodes.has(code)
+        ) {
+          sendJson(response, 400, {
+            message: `资源价格数据无效或编码重复：${code || name || '未知资源'}`,
+          });
+          return true;
+        }
+        seenCodes.add(code);
+        normalizedResources.push({
+          code,
+          name,
+          type,
+          unit,
+          price,
+          specification: String(item.specification || '').trim(),
+          taxIncluded: item.taxIncluded !== false,
+          taxRate: Math.max(0, Number(item.taxRate) || 0),
+          evidenceReference: String(item.evidenceReference || '').trim(),
+        });
+      }
+      const connection = await dbPool.getConnection();
+      try {
+        await connection.beginTransaction();
+        const [versions] = await connection.query(
+          `SELECT COALESCE(MAX(version_no), 0) AS max_version
+           FROM cost_resource_price_versions
+           WHERE province = ? AND city = ? AND price_period = ? FOR UPDATE`,
+          [province, city, pricePeriod],
+        );
+        const version = Number(versions[0].max_version) + 1;
+        const [insert] = await connection.query(
+          `INSERT INTO cost_resource_price_versions
+            (province, city, price_period, version_no, source_type, source_reference,
+             tax_basis, status, created_by)
+           VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
+          [province, city, pricePeriod, version, sourceType, sourceReference, taxBasis, createdBy],
+        );
+        const priceVersionId = Number(insert.insertId);
+        for (const item of normalizedResources) {
+          await connection.query(
+            `INSERT INTO cost_resource_prices
+              (price_version_id, resource_code, resource_name, resource_type, specification,
+               unit, unit_price, tax_included, tax_rate, evidence_reference)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              priceVersionId,
+              item.code,
+              item.name,
+              item.type,
+              item.specification,
+              item.unit,
+              item.price,
+              item.taxIncluded ? 1 : 0,
+              item.taxRate,
+              item.evidenceReference,
+            ],
+          );
+        }
+        await connection.commit();
+        sendJson(response, 200, {
+          success: true,
+          id: priceVersionId,
+          version,
+          status: 'pending',
+          resourceCount: normalizedResources.length,
+          message: `资源价格版本 V${version} 已提交审核，审核通过前不会用于正式计价`,
+        });
+      } catch (error) {
+        await connection.rollback();
+        throw error;
+      } finally {
+        connection.release();
+      }
+      return true;
+    }
+    const resourcePriceReviewMatch = urlPath.match(
+      /^\/api\/cost\/resource-price-versions\/(\d+)\/review$/,
+    );
+    if (resourcePriceReviewMatch && request.method === 'POST') {
+      const body = await readJsonBody(request);
+      const status = body.approved ? 'approved' : 'rejected';
+      const reviewer = String(body.reviewer || '').trim();
+      const comment = String(body.comment || '').trim();
+      if (!reviewer) {
+        sendJson(response, 400, { message: '审核人不能为空' });
+        return true;
+      }
+      const [update] = await dbPool.query(
+        `UPDATE cost_resource_price_versions SET status = ?, reviewed_by = ?,
+          review_comment = ?, reviewed_at = NOW() WHERE id = ? AND status = 'pending'`,
+        [status, reviewer, comment, Number(resourcePriceReviewMatch[1])],
+      );
+      if (!update.affectedRows) {
+        sendJson(response, 409, { message: '该价格版本不存在或已经审核' });
+        return true;
+      }
+      sendJson(response, 200, { success: true, status });
       return true;
     }
     if (urlPath === '/api/cost/analyze-stream' && request.method === 'POST') {
