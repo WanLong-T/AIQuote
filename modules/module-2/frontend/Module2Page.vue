@@ -165,6 +165,13 @@
             <button type="button" :disabled="!selectedPriceVersionId||repricing" @click="repriceResult"><q-icon name="price_check" />{{ repricing?'正在重计价…':'按价格版本重计价' }}</button>
             <p v-if="repricingMessage" :class="repricingMessageType">{{ repricingMessage }}</p>
           </div>
+          <div v-if="repricingAudit" class="repricing-audit">
+            <article><span>重计价前</span><strong>{{ money(repricingAudit.originalTotal) }}</strong></article>
+            <article><span>重计价后</span><strong>{{ money(repricingAudit.currentTotal) }}</strong></article>
+            <article :class="{negative:repricingAudit.delta<0}"><span>总价差</span><strong>{{ repricingAudit.delta>0?'+':'' }}{{ money(repricingAudit.delta) }}</strong></article>
+            <article><span>变化率</span><strong>{{ repricingAudit.changeRate>0?'+':'' }}{{ repricingAudit.changeRate.toFixed(2) }}%</strong></article>
+            <details v-if="repricingAudit.issues.length"><summary>{{ repricingAudit.issues.length }} 项匹配问题（点击查看）</summary><ul><li v-for="(issue,index) in repricingAudit.issues" :key="index"><b>{{ issue.itemName||'未命名项目' }}</b><span>{{ issue.message }}</span></li></ul></details>
+          </div>
           <div class="quote-grid">
             <article class="total-card">
               <span>测算总成本</span
@@ -849,6 +856,7 @@ interface CostItem {
   unitMaterial: number;
   unitMachine: number;
   subtotal: number;
+  repricing?: {applied:boolean;originalUnitCost?:number;detail:unknown[]};
 }
 interface AIState {
   enabled: boolean;
@@ -903,6 +911,8 @@ interface CatalogQuota {
 interface ResourcePriceRow{resourceCode:string;resourceName:string;resourceType:'labour'|'material'|'machine';specification:string;unit:string;unitPrice:number;taxIncluded:boolean;taxRate:number;evidenceReference:string}
 interface ResourcePriceVersion{id:number;province:string;city:string;pricePeriod:string;version:number;sourceType:string;sourceReference:string;taxBasis:string;status:string;resourceCount:number;createdBy:string;createdAt:string}
 interface QuotaConsumptionRow{quotaCode:string;resourceCode:string;resourceName:string;resourceType:'labour'|'material'|'machine';unit:string;consumption:number;sourceReference:string}
+interface RepricingIssue{itemName?:string;message:string;type?:string;quotaCode?:string;resourceCode?:string}
+interface RepricingAudit{priceVersionId:number;pricePeriod:string;version:number;sourceReference:string;quotaVersion:string;originalTotal:number;currentTotal:number;delta:number;changeRate:number;repricedCount:number;totalCount:number;issues:RepricingIssue[]}
 const professions = ['建筑工程', '安装工程', '市政工程', '矿山工程', '园林绿化工程'];
 const form = reactive({
   profession: '建筑工程',
@@ -976,6 +986,7 @@ const exporting = ref(false);
 const showPriceManager=ref(false),priceFile=ref<File|null>(null),previewingPrices=ref(false),submittingPrices=ref(false),pricePreview=ref<ResourcePriceRow[]>([]),priceWarnings=ref<string[]>([]),priceVersions=ref<ResourcePriceVersion[]>([]),priceReviewer=ref(''),priceMessage=ref(''),priceMessageType=ref<'success'|'error'|''>('');
 const priceForm=reactive({province:'山东省',city:'',pricePeriod:new Date().toISOString().slice(0,7),sourceType:'official',sourceReference:'',taxBasis:'一般计税',createdBy:''});
 const selectedPriceVersionId=ref(0),quotaVersion=ref(''),repricing=ref(false),repricingMessage=ref(''),repricingMessageType=ref<'success'|'error'|''>('');
+const repricingAudit=ref<RepricingAudit|null>(null);
 const approvedPriceVersions=computed(()=>priceVersions.value.filter(item=>item.status==='approved'&&item.province===form.province&&item.taxBasis===form.taxMode));
 const consumptionFile=ref<File|null>(null),consumptionPreview=ref<QuotaConsumptionRow[]>([]),previewingConsumptions=ref(false),submittingConsumptions=ref(false),consumptionMessage=ref(''),consumptionMessageType=ref<'success'|'error'|''>('');
 const consumptionForm=reactive({quotaVersion:'',sourceReference:''});
@@ -1253,10 +1264,12 @@ async function saveAiConfig() {
 function selectFile(e: Event) {
   selectedFile.value = (e.target as HTMLInputElement).files?.[0] || null;
   result.value = null;
+  repricingAudit.value = null;
   errorMessage.value = '';
 }
 function handleCatalogChange() {
   result.value = null;
+  repricingAudit.value = null;
   catalogLists.value = [];
   catalogQuotas.value = [];
   errorMessage.value = catalogAvailable.value
@@ -1291,7 +1304,23 @@ async function reviewPriceVersion(id:number,approved:boolean){if(!priceReviewer.
 function selectConsumptionFile(event:Event){consumptionFile.value=(event.target as HTMLInputElement).files?.[0]||null;consumptionPreview.value=[];consumptionMessage.value=''}
 async function previewConsumptions(){if(!consumptionFile.value||previewingConsumptions.value)return;previewingConsumptions.value=true;consumptionMessage.value='';try{const response=await fetch('/api/cost/quota-consumptions/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fileName:consumptionFile.value.name,fileBase64:await encode(consumptionFile.value)})});const payload=await response.json() as {success?:boolean;message?:string;data?:{consumptions:QuotaConsumptionRow[];warnings:string[]}};if(!response.ok||!payload.success||!payload.data)throw new Error(payload.message||'消耗量文件解析失败');consumptionPreview.value=payload.data.consumptions;consumptionMessage.value=`已识别 ${consumptionPreview.value.length} 条消耗量，确认定额版本和来源后导入`;consumptionMessageType.value='success'}catch(error){consumptionPreview.value=[];consumptionMessage.value=error instanceof Error?error.message:'消耗量文件解析失败';consumptionMessageType.value='error'}finally{previewingConsumptions.value=false}}
 async function submitConsumptions(){if(!consumptionPreview.value.length||submittingConsumptions.value)return;if(!consumptionForm.quotaVersion||!consumptionForm.sourceReference){consumptionMessage.value='定额版本和来源依据不能为空';consumptionMessageType.value='error';return}submittingConsumptions.value=true;try{const response=await fetch('/api/cost/quota-consumptions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({province:form.province,profession:form.profession,...consumptionForm,consumptions:consumptionPreview.value})});const payload=await response.json() as {success?:boolean;message?:string};if(!response.ok||!payload.success)throw new Error(payload.message||'消耗量导入失败');quotaVersion.value=consumptionForm.quotaVersion;consumptionMessage.value=payload.message||'消耗量导入成功';consumptionMessageType.value='success';consumptionPreview.value=[];consumptionFile.value=null}catch(error){consumptionMessage.value=error instanceof Error?error.message:'消耗量导入失败';consumptionMessageType.value='error'}finally{submittingConsumptions.value=false}}
-async function repriceResult(){if(!result.value||!selectedPriceVersionId.value||repricing.value)return;repricing.value=true;repricingMessage.value='';try{const response=await fetch('/api/cost/reprice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({priceVersionId:selectedPriceVersionId.value,province:form.province,profession:form.profession,quotaVersion:quotaVersion.value,taxBasis:form.taxMode,rates:{manageRate:form.manageRate,profitRate:form.profitRate,taxRate:form.taxRate},items:result.value.items})});const payload=await response.json() as {success?:boolean;message?:string;data?:{items:CostItem[];summary:Record<string,number>;issues:{message:string}[];repricedCount:number;totalCount:number;priceVersion:{version:number;pricePeriod:string;sourceReference:string}}};if(!response.ok||!payload.success||!payload.data)throw new Error(payload.message||'重计价失败');result.value.items=payload.data.items;Object.assign(result.value.summary,payload.data.summary);result.value.quotes={breakEven:result.value.summary.total,regular:result.value.summary.total*1.05,competitive:result.value.summary.total*1.02};result.value.sensitivity=[-10,-5,0,5,10].map(change=>({change,total:result.value!.summary.total+result.value!.summary.material*change/100}));repricingMessage.value=`已按${payload.data.priceVersion.pricePeriod} V${payload.data.priceVersion.version}重计价：${payload.data.repricedCount}/${payload.data.totalCount}项成功，${payload.data.issues.length}项问题待复核`;repricingMessageType.value=payload.data.issues.length?'error':'success'}catch(error){repricingMessage.value=error instanceof Error?error.message:'重计价失败';repricingMessageType.value='error'}finally{repricing.value=false}}
+async function repriceResult(){
+  if(!result.value||!selectedPriceVersionId.value||repricing.value)return;
+  repricing.value=true;repricingMessage.value='';
+  const originalTotal=Number(result.value.summary.total||0);
+  try{
+    const response=await fetch('/api/cost/reprice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({priceVersionId:selectedPriceVersionId.value,province:form.province,profession:form.profession,quotaVersion:quotaVersion.value,taxBasis:form.taxMode,rates:{manageRate:form.manageRate,profitRate:form.profitRate,taxRate:form.taxRate},items:result.value.items})});
+    const payload=await response.json() as {success?:boolean;message?:string;data?:{items:CostItem[];summary:Record<string,number>;issues:RepricingIssue[];repricedCount:number;totalCount:number;priceVersion:{version:number;pricePeriod:string;sourceReference:string}}};
+    if(!response.ok||!payload.success||!payload.data)throw new Error(payload.message||'重计价失败');
+    result.value.items=payload.data.items;Object.assign(result.value.summary,payload.data.summary);
+    result.value.quotes={breakEven:result.value.summary.total,regular:result.value.summary.total*1.05,competitive:result.value.summary.total*1.02};
+    result.value.sensitivity=[-10,-5,0,5,10].map(change=>({change,total:result.value!.summary.total+result.value!.summary.material*change/100}));
+    const currentTotal=Number(result.value.summary.total||0),delta=currentTotal-originalTotal;
+    repricingAudit.value={priceVersionId:selectedPriceVersionId.value,pricePeriod:payload.data.priceVersion.pricePeriod,version:payload.data.priceVersion.version,sourceReference:payload.data.priceVersion.sourceReference,quotaVersion:quotaVersion.value,originalTotal,currentTotal,delta,changeRate:originalTotal?delta/originalTotal*100:0,repricedCount:payload.data.repricedCount,totalCount:payload.data.totalCount,issues:payload.data.issues};
+    repricingMessage.value=`已按${payload.data.priceVersion.pricePeriod} V${payload.data.priceVersion.version}重计价：${payload.data.repricedCount}/${payload.data.totalCount}项成功，${payload.data.issues.length}项问题待复核`;
+    repricingMessageType.value=payload.data.issues.length?'error':'success';
+  }catch(error){repricingMessage.value=error instanceof Error?error.message:'重计价失败';repricingMessageType.value='error'}finally{repricing.value=false}
+}
 async function analyze() {
   if (!selectedFile.value) return;
   if (!catalogAvailable.value) {
@@ -1642,6 +1671,7 @@ async function saveEstimateVersion() {
           catalog: result.value.catalog,
           ai: result.value.ai,
           limitations: result.value.limitations,
+          repricing: repricingAudit.value,
         },
         result: result.value,
       }),
@@ -1685,6 +1715,16 @@ async function saveEstimateVersion() {
 .repricing-toolbar button:disabled { opacity: .45; cursor: not-allowed; }
 .repricing-toolbar p { margin: 0; padding: 6px 9px; color: #58e0b7; font-size: 10px; line-height: 1.5; }
 .repricing-toolbar p.error { color: #ffc169; }
+.repricing-audit { display: grid; grid-template-columns: repeat(4,minmax(120px,1fr)); gap: 1px; padding: 1px; background: rgb(44 112 164 / 32%); }
+.repricing-audit article { display: grid; gap: 4px; padding: 10px 14px; background: #0a2855; }
+.repricing-audit article span { color: #769cbb; font-size: 9px; }
+.repricing-audit article strong { color: #70e0ff; font-size: 15px; }
+.repricing-audit article.negative strong { color: #58e0b7; }
+.repricing-audit details { grid-column: 1/-1; padding: 9px 14px; color: #ffc169; background: #092348; font-size: 10px; }
+.repricing-audit summary { cursor: pointer; }
+.repricing-audit ul { display: grid; gap: 6px; max-height: 160px; margin: 10px 0 0; padding: 0; overflow: auto; list-style: none; }
+.repricing-audit li { display: flex; gap: 12px; padding: 6px 8px; color: #aac8df; background: rgb(255 178 70 / 7%); }
+.repricing-audit li b { min-width: 160px; color: #d9efff; }
 .consumption-import { margin-top: 20px; padding-top: 18px; border-top: 1px solid rgb(55 132 187 / 38%); }
 .consumption-import > p { margin: -3px 0 12px; color: #789bb7; font-size: 10px; }
 .status-pill.offline {
