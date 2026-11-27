@@ -853,6 +853,11 @@ async function handleApi(request, urlPath, response) {
         .slice(0, 500);
       const payload = {
         projectName: String(body.projectName).trim(),
+        province: String(body.province || '').trim(),
+        city: String(body.city || '').trim(),
+        profession: String(body.profession || '').trim(),
+        projectType: String(body.projectType || '').trim(),
+        projectGrade: String(body.projectGrade || 'C').trim(),
         controlPrice: Number(body.controlPrice) || 0,
         openingDate: String(body.openingDate || ''),
         scope: {
@@ -1233,14 +1238,32 @@ async function handleApi(request, urlPath, response) {
         const unit = String(item.unit || '').trim();
         const consumption = Number(item.consumption);
         const key = `${quotaCode}\u0000${resourceCode}`;
-        if (!quotaCode || !resourceCode || !resourceName || !allowedTypes.has(resourceType) ||
-          !unit || !Number.isFinite(consumption) || consumption <= 0 || keys.has(key)) {
-          sendJson(response, 400, { message: `定额消耗量无效或重复：${quotaCode || '未知定额'} / ${resourceCode || resourceName || '未知资源'}` });
+        if (
+          !quotaCode ||
+          !resourceCode ||
+          !resourceName ||
+          !allowedTypes.has(resourceType) ||
+          !unit ||
+          !Number.isFinite(consumption) ||
+          consumption <= 0 ||
+          keys.has(key)
+        ) {
+          sendJson(response, 400, {
+            message: `定额消耗量无效或重复：${quotaCode || '未知定额'} / ${resourceCode || resourceName || '未知资源'}`,
+          });
           return true;
         }
         keys.add(key);
-        normalized.push({ quotaCode, resourceCode, resourceName, resourceType, unit, consumption,
-          sourceReference: String(item.sourceReference || sourceReference).trim() || sourceReference });
+        normalized.push({
+          quotaCode,
+          resourceCode,
+          resourceName,
+          resourceType,
+          unit,
+          consumption,
+          sourceReference:
+            String(item.sourceReference || sourceReference).trim() || sourceReference,
+        });
       }
       const connection = await dbPool.getConnection();
       try {
@@ -1253,8 +1276,18 @@ async function handleApi(request, urlPath, response) {
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE resource_name = VALUES(resource_name), resource_type = VALUES(resource_type),
                unit = VALUES(unit), consumption = VALUES(consumption), source_reference = VALUES(source_reference)`,
-            [province, profession, quotaVersion, item.quotaCode, item.resourceCode, item.resourceName,
-              item.resourceType, item.unit, item.consumption, item.sourceReference],
+            [
+              province,
+              profession,
+              quotaVersion,
+              item.quotaCode,
+              item.resourceCode,
+              item.resourceName,
+              item.resourceType,
+              item.unit,
+              item.consumption,
+              item.sourceReference,
+            ],
           );
         }
         await connection.commit();
@@ -1264,8 +1297,11 @@ async function handleApi(request, urlPath, response) {
       } finally {
         connection.release();
       }
-      sendJson(response, 200, { success: true, count: normalized.length,
-        message: `已导入 ${normalized.length} 条定额人材机消耗量` });
+      sendJson(response, 200, {
+        success: true,
+        count: normalized.length,
+        message: `已导入 ${normalized.length} 条定额人材机消耗量`,
+      });
       return true;
     }
     if (urlPath === '/api/cost/reprice' && request.method === 'POST') {
@@ -1276,7 +1312,13 @@ async function handleApi(request, urlPath, response) {
       const quotaVersion = String(body.quotaVersion || '').trim();
       const taxBasis = String(body.taxBasis || '').trim();
       const items = Array.isArray(body.items) ? body.items : [];
-      if (!Number.isInteger(priceVersionId) || priceVersionId <= 0 || !province || !profession || !items.length) {
+      if (
+        !Number.isInteger(priceVersionId) ||
+        priceVersionId <= 0 ||
+        !province ||
+        !profession ||
+        !items.length
+      ) {
         sendJson(response, 400, { message: '请选择审核通过的价格版本并提供有效测算项目' });
         return true;
       }
@@ -1290,18 +1332,30 @@ async function handleApi(request, urlPath, response) {
       }
       const version = versionRows[0];
       if (version.province !== province || (taxBasis && version.tax_basis !== taxBasis)) {
-        sendJson(response, 409, { message: '价格版本与当前地区或计税口径不一致，不能用于正式重计价' });
+        sendJson(response, 409, {
+          message: '价格版本与当前地区或计税口径不一致，不能用于正式重计价',
+        });
         return true;
       }
       const [priceRows] = await dbPool.query(
         `SELECT resource_code, resource_name, resource_type, unit, unit_price, tax_included, tax_rate
-         FROM cost_resource_prices WHERE price_version_id = ?`, [priceVersionId],
+         FROM cost_resource_prices WHERE price_version_id = ?`,
+        [priceVersionId],
       );
-      const quotaCodes = [...new Set(items.flatMap((item) => {
-        const selections = Array.isArray(item.quotaSelections) ? item.quotaSelections : [];
-        if (selections.length) return selections.map((entry) => String(entry.code || '').trim());
-        return String(item.quotaCode || '').split(/[；;]/).map((code) => code.trim());
-      }).filter(Boolean))];
+      const quotaCodes = [
+        ...new Set(
+          items
+            .flatMap((item) => {
+              const selections = Array.isArray(item.quotaSelections) ? item.quotaSelections : [];
+              if (selections.length)
+                return selections.map((entry) => String(entry.code || '').trim());
+              return String(item.quotaCode || '')
+                .split(/[；;]/)
+                .map((code) => code.trim());
+            })
+            .filter(Boolean),
+        ),
+      ];
       let consumptionRows = [];
       if (quotaCodes.length) {
         const placeholders = quotaCodes.map(() => '?').join(',');
@@ -1314,7 +1368,11 @@ async function handleApi(request, urlPath, response) {
           params,
         );
       }
-      const normalizeUnit = (value) => String(value || '').trim().toLowerCase().replace(/\s+/g, '');
+      const normalizeUnit = (value) =>
+        String(value || '')
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, '');
       const priceMap = new Map(priceRows.map((row) => [String(row.resource_code), row]));
       const consumptionsByQuota = new Map();
       for (const row of consumptionRows) {
@@ -1325,67 +1383,150 @@ async function handleApi(request, urlPath, response) {
       const issues = [];
       let repricedCount = 0;
       const repricedItems = items.map((item, itemIndex) => {
-        const selections = Array.isArray(item.quotaSelections) && item.quotaSelections.length
-          ? item.quotaSelections
-          : String(item.quotaCode || '').split(/[；;]/).filter(Boolean).map((code) => ({ code, coefficient: 1 }));
+        const selections =
+          Array.isArray(item.quotaSelections) && item.quotaSelections.length
+            ? item.quotaSelections
+            : String(item.quotaCode || '')
+                .split(/[；;]/)
+                .filter(Boolean)
+                .map((code) => ({ code, coefficient: 1 }));
         const detail = [];
-        let labour = 0, material = 0, machine = 0, complete = selections.length > 0;
+        let labour = 0,
+          material = 0,
+          machine = 0,
+          complete = selections.length > 0;
         for (const selection of selections) {
           const code = String(selection.code || '').trim();
           const coefficient = Math.max(0, Number(selection.coefficient) || 1);
           const rows = consumptionsByQuota.get(code) || [];
           if (!rows.length) {
             complete = false;
-            issues.push({ itemIndex, itemName: item.name, quotaCode: code, type: 'missing_consumption',
-              message: `定额 ${code} 缺少人材机消耗量` });
+            issues.push({
+              itemIndex,
+              itemName: item.name,
+              quotaCode: code,
+              type: 'missing_consumption',
+              message: `定额 ${code} 缺少人材机消耗量`,
+            });
             continue;
           }
           for (const consumption of rows) {
             const price = priceMap.get(String(consumption.resource_code));
             if (!price) {
               complete = false;
-              issues.push({ itemIndex, itemName: item.name, quotaCode: code,
-                resourceCode: consumption.resource_code, resourceName: consumption.resource_name,
-                type: 'missing_price', message: `资源 ${consumption.resource_code} 缺少价格` });
+              issues.push({
+                itemIndex,
+                itemName: item.name,
+                quotaCode: code,
+                resourceCode: consumption.resource_code,
+                resourceName: consumption.resource_name,
+                type: 'missing_price',
+                message: `资源 ${consumption.resource_code} 缺少价格`,
+              });
               continue;
             }
             if (normalizeUnit(price.unit) !== normalizeUnit(consumption.unit)) {
               complete = false;
-              issues.push({ itemIndex, itemName: item.name, quotaCode: code,
-                resourceCode: consumption.resource_code, resourceName: consumption.resource_name,
-                type: 'unit_mismatch', message: `资源 ${consumption.resource_code} 单位不一致：${consumption.unit} / ${price.unit}` });
+              issues.push({
+                itemIndex,
+                itemName: item.name,
+                quotaCode: code,
+                resourceCode: consumption.resource_code,
+                resourceName: consumption.resource_name,
+                type: 'unit_mismatch',
+                message: `资源 ${consumption.resource_code} 单位不一致：${consumption.unit} / ${price.unit}`,
+              });
               continue;
             }
             const amount = Number(consumption.consumption) * coefficient * Number(price.unit_price);
             if (consumption.resource_type === 'labour') labour += amount;
             if (consumption.resource_type === 'material') material += amount;
             if (consumption.resource_type === 'machine') machine += amount;
-            detail.push({ quotaCode: code, resourceCode: consumption.resource_code,
-              resourceName: consumption.resource_name, resourceType: consumption.resource_type,
-              unit: consumption.unit, consumption: Number(consumption.consumption) * coefficient,
-              unitPrice: Number(price.unit_price), amount });
+            detail.push({
+              quotaCode: code,
+              resourceCode: consumption.resource_code,
+              resourceName: consumption.resource_name,
+              resourceType: consumption.resource_type,
+              unit: consumption.unit,
+              consumption: Number(consumption.consumption) * coefficient,
+              unitPrice: Number(price.unit_price),
+              amount,
+            });
           }
         }
         if (!complete) return { ...item, repricing: { applied: false, detail } };
         repricedCount += 1;
         const quantity = Number(item.quantity) || 0;
-        return { ...item, unitLabour: labour, unitMaterial: material, unitMachine: machine,
+        return {
+          ...item,
+          unitLabour: labour,
+          unitMaterial: material,
+          unitMachine: machine,
           subtotal: (labour + material + machine) * quantity,
-          repricing: { applied: true, originalUnitCost: Number(item.unitLabour || 0) + Number(item.unitMaterial || 0) + Number(item.unitMachine || 0), detail } };
+          repricing: {
+            applied: true,
+            originalUnitCost:
+              Number(item.unitLabour || 0) +
+              Number(item.unitMaterial || 0) +
+              Number(item.unitMachine || 0),
+            detail,
+          },
+        };
       });
       const rates = body.rates || {};
       const summary = {
-        labour: repricedItems.reduce((sum, item) => sum + Number(item.unitLabour || 0) * Number(item.quantity || 0), 0),
-        material: repricedItems.reduce((sum, item) => sum + Number(item.unitMaterial || 0) * Number(item.quantity || 0), 0),
-        machine: repricedItems.reduce((sum, item) => sum + Number(item.unitMachine || 0) * Number(item.quantity || 0), 0),
+        labour: repricedItems.reduce(
+          (sum, item) => sum + Number(item.unitLabour || 0) * Number(item.quantity || 0),
+          0,
+        ),
+        material: repricedItems.reduce(
+          (sum, item) => sum + Number(item.unitMaterial || 0) * Number(item.quantity || 0),
+          0,
+        ),
+        machine: repricedItems.reduce(
+          (sum, item) => sum + Number(item.unitMachine || 0) * Number(item.quantity || 0),
+          0,
+        ),
       };
-      summary.management = (summary.labour + summary.material + summary.machine) * (Number(rates.manageRate) || 0) / 100;
-      summary.profit = (summary.labour + summary.material + summary.machine + summary.management) * (Number(rates.profitRate) || 0) / 100;
-      summary.tax = (summary.labour + summary.material + summary.machine + summary.management + summary.profit) * (Number(rates.taxRate) || 0) / 100;
-      summary.total = summary.labour + summary.material + summary.machine + summary.management + summary.profit + summary.tax;
-      sendJson(response, 200, { success: true, data: { items: repricedItems, summary, issues,
-        repricedCount, totalCount: items.length, priceVersion: { id: Number(version.id), version: Number(version.version_no),
-          pricePeriod: version.price_period, sourceReference: version.source_reference, taxBasis: version.tax_basis } } });
+      summary.management =
+        ((summary.labour + summary.material + summary.machine) * (Number(rates.manageRate) || 0)) /
+        100;
+      summary.profit =
+        ((summary.labour + summary.material + summary.machine + summary.management) *
+          (Number(rates.profitRate) || 0)) /
+        100;
+      summary.tax =
+        ((summary.labour +
+          summary.material +
+          summary.machine +
+          summary.management +
+          summary.profit) *
+          (Number(rates.taxRate) || 0)) /
+        100;
+      summary.total =
+        summary.labour +
+        summary.material +
+        summary.machine +
+        summary.management +
+        summary.profit +
+        summary.tax;
+      sendJson(response, 200, {
+        success: true,
+        data: {
+          items: repricedItems,
+          summary,
+          issues,
+          repricedCount,
+          totalCount: items.length,
+          priceVersion: {
+            id: Number(version.id),
+            version: Number(version.version_no),
+            pricePeriod: version.price_period,
+            sourceReference: version.source_reference,
+            taxBasis: version.tax_basis,
+          },
+        },
+      });
       return true;
     }
     if (urlPath === '/api/cost/resource-price-versions' && request.method === 'POST') {
